@@ -8,13 +8,73 @@ import { useState, useRef, useEffect } from 'react';
    All standard chat widgets rendered with demo data
    ═══════════════════════════════════════════════════════════ */
 
-type LobTab = 'base' | 'health' | 'motor' | 'life';
+type LobTab = 'foundations' | 'assets' | 'atoms' | 'base' | 'health' | 'motor' | 'life';
 
 const LOB_TABS: { id: LobTab; label: string; color: string }[] = [
+  { id: 'foundations', label: 'Foundations', color: 'violet' },
+  { id: 'assets', label: 'Asset Library', color: 'cyan' },
+  { id: 'atoms', label: 'Atoms', color: 'pink' },
   { id: 'base', label: 'Base Components', color: 'purple' },
   { id: 'health', label: 'Health', color: 'emerald' },
   { id: 'motor', label: 'Motor', color: 'blue' },
   { id: 'life', label: 'Life', color: 'amber' },
+];
+
+type AssetCategory = 'all' | 'generic' | 'car-bike' | 'health-life';
+
+const ICON_REGISTRY: { name: string; category: AssetCategory; path: string }[] = [
+  ...[
+    'Add user','Alarm','Alert','App','Aspect ratio','Balance','Battery low','Bill','Bookmark',
+    'Broken Phone','CCTV','Calender','Camera','Cart','Chat history 3','Chat history 4',
+    'Circle arrow up','Claim','Claim_Document-1','Claim_Document','Close-1','Close',
+    'Commission','Compare','Consumables_cover','Covered','Customer service','Customise',
+    'Delete','Delivery','Details','Discount','Document received','Download','Edit document',
+    'Edit','Exclamation','Extra coverage','Fastag','File','Flash','Flip card','GPS','Gift',
+    'Headphone','Home','Identity','Increase policy','Info-1','Info','Inprogress','Integration',
+    'Invoice','Key','Location','Mail','Menu -03','Menu-02','Menu_01','Menu_02','Messages',
+    'Money bag','Money','Multiple policies','Not covered','Notification',
+    'Onboarding and offboarding','PDF file','Payment','Phone-1','Phone','Plus','Police',
+    'Policy document','Policy','Print','Products','Profile','Recommendation V2',
+    'Recommendation','Refresh','Refund','Renew coverage','Renew','Resources_Book','Room rent',
+    'Rotation-360','Save money','Savings','Share','Slider','Snap hand','Suggest plan','Tax',
+    'Tech','Tick','Time','Tools','Tracking','Transfer policy','Translate','UPI payment',
+    'Verify-1','Verify','Video Camera','Zero GST','Zip file','add-on','alarm-clock',
+    'arrow data transfer 3','arrow data transfer','arrow down left','arrow down right',
+    'arrow down','arrow left','arrow right','arrow up left','arrow up right','arrow up',
+    'arrow-left-01-stroke-standard','award','bank','battery','bolt','book-open','bookmarks',
+    'calendar-days','chevron down','chevron right','chevron up','circle arrow down',
+    'circle arrow left','circle arrow right','clipboard-check','clipboard-slash','clipboard',
+    'cloud','credit-card','double arrow down','double arrow left','double arrow right',
+    'double arrow up','facial-recognition','fingerprint','folder-open','folder','house-5',
+    'image-depth','image-mountain','image-sparkle','image','images-2','industry','lightbulb-3',
+    'lock-open-2','lock','magnifier','map','microphone-slash','microphone','minus','msg-writing',
+    'paper-plane-2','paperclip','pin-tack','pointer','price tag','refresh-2','settings',
+    'sitemap-4','square-minus','square-plus','star','stopwatch','tags','target','tasks-2',
+    'thumb 01','thumb 02','triangle-warning','unavailable','wallet',
+  ].map(n => ({ name: n, category: 'generic' as AssetCategory, path: `/icons/generic/${n}.svg` })),
+  ...[
+    'Add Car','Bike','Broken Car Glass','CNG','Car Accident Cover','Car Wishlist','Car and bike',
+    'Car coverage','Car','Car_Issues','Car_Service-1','Car_Service','Car_accident','Car_front',
+    'Compare cars','Diesel','Driver_Cover_Paid','Fire Accident Cover','Fuel','Garage -2','Garage',
+    'New Bike','New car','Non-accidental_damage','Petrol','Pollution centre','Pre existing cover',
+    'RTO documentation','Road lines','Scooter','Speedometer','Taxi_Car','Technician','Third Party',
+    'Towing','Traffic','Zero Dep Car','Bike_Accident','Commercial Use_Taxi_bike',
+    'Commercial Use_Taxi_car','Engine_protect','Extra_car_protect-1','Extra_car_protect','HSRP',
+    'Is_this_your_bike','Is_this_your_car','New_bike_cover','New_car_cover-1','New_car_cover',
+    'Passenger_Protection','Passenger_cover','Pre-existing_damage_Bike','Sold_car','Theft_cover-1',
+    'Theft_cover','Used_car','Vehicle_car_value_price','bike_zero_dep_policy_cover_two_wheeler',
+    'calamities_cover','discount_offer_save','illegal_driving_rash_drink_Car',
+    'illegal_driving_rash_drink_bike','pillon_bike_cover','popular_Car','sell_car_bike_1',
+    'special_car_star','war_terrorism_cover','wear and tear',
+  ].map(n => ({ name: n, category: 'car-bike' as AssetCategory, path: `/icons/car-bike/${n}.svg` })),
+  ...[
+    'Ambulance','Blood test','Calculator','Child','Copay','Disease exclusion','Doctor note -Rx',
+    'Doctor on call','Doctor','Family','Health checkup','Health evaluation','Life','Medicine',
+    'No metal items or implants','No_alcohol','Room rent limit','Special conditions','Spouse',
+    'Sum insured Exosted','Sum insured Restored','Test cancel','Test done','Test pending',
+    'child 3','claim deduction','health evalution','hospital','lab test 3','medical consumables',
+    'organic food','personal cover-1','personal cover','vegetarian-food',
+  ].map(n => ({ name: n, category: 'health-life' as AssetCategory, path: `/icons/health-life/${n}.svg` })),
 ];
 
 function SectionHeader({ title, description }: { title: string; description: string }) {
@@ -44,16 +104,8 @@ function WidgetCard({ title, widgetType, children }: { title: string; widgetType
 }
 
 /* ═══════════════════════════════════════════════
-   Standalone Widget Implementations (no store deps)
+   Molecule Implementations — Built from Atoms + Foundations
    ═══════════════════════════════════════════════ */
-
-/* ── Unified SelectionCards Component ──
-   One component, multiple layouts driven by data shape:
-   - Grid (≤4 options with icons)
-   - List (5+ options or no icons)
-   - Compact grid (label-only, e.g. NCB %, year)
-   - Radio style (yes/no binary)
-*/
 
 const ICON_MAP: Record<string, string> = {
   user: '/icons/generic/Profile.svg',
@@ -135,7 +187,7 @@ interface SelectionOption {
 
 type SelectionLayout = 'auto' | 'grid' | 'list' | 'compact-grid' | 'radio';
 
-function UnifiedSelectionCards({
+function SelectionCard({
   options,
   layout = 'auto',
   columns = 2,
@@ -170,17 +222,24 @@ function UnifiedSelectionCards({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
             onClick={() => handleSelect(opt.id)}
-            className={`relative flex flex-col items-center text-center p-5 rounded-2xl border transition-all duration-200 active:scale-[0.96] min-h-[120px] justify-center
-              ${selected === opt.id ? 'border-purple-400 bg-white/15 shadow-lg shadow-purple-900/20' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'}`}
+            className="relative flex flex-col items-center text-center p-5 rounded-2xl border transition-all duration-200 active:scale-[0.97] min-h-[120px] justify-center"
+            style={{
+              background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+            }}
           >
-            {opt.badge && <span className="absolute -top-2 -right-2 text-[11px] bg-pink-500 text-white px-2.5 py-0.5 rounded-full font-semibold shadow-sm">{opt.badge}</span>}
+            {opt.badge && (
+              <span className="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>
+                {opt.badge}
+              </span>
+            )}
             {opt.icon && ICON_MAP[opt.icon] && (
-              <div className="mb-2 w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <img src={ICON_MAP[opt.icon]} alt={opt.label} className="w-6 h-6 opacity-80" style={{ filter: 'var(--ds-icon-filter)' }} />
+              <div className="mb-2 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--ds-overlay-bg)' }}>
+                <img src={ICON_MAP[opt.icon]} alt={opt.label} className="w-6 h-6" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
               </div>
             )}
-            <span className="text-[15px] font-medium text-white/90">{opt.label}</span>
-            {opt.description && <span className="text-[13px] text-white/50 mt-1">{opt.description}</span>}
+            <span className="text-[15px] font-medium" style={{ color: 'var(--ds-text)' }}>{opt.label}</span>
+            {opt.description && <span className="text-[13px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</span>}
           </motion.button>
         ))}
       </div>
@@ -194,12 +253,16 @@ function UnifiedSelectionCards({
           <button
             key={opt.id}
             onClick={() => handleSelect(opt.id)}
-            className={`relative flex flex-col items-center py-4 px-3 rounded-xl border text-center transition-all duration-200 active:scale-[0.95]
-              ${selected === opt.id ? 'border-purple-400 bg-white/15 shadow-lg shadow-purple-900/20 text-white' : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:border-white/20'}`}
+            className="relative flex flex-col items-center py-4 px-3 rounded-xl border text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              color: selected === opt.id ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+            }}
           >
-            {opt.badge && <span className="absolute -top-2 text-[10px] bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">{opt.badge}</span>}
+            {opt.badge && <span className="absolute -top-2 right-3 text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>{opt.badge}</span>}
             <span className="text-[15px] font-semibold">{opt.label}</span>
-            {opt.description && <span className="text-[13px] text-white/50 mt-1">{opt.description}</span>}
+            {opt.description && <span className="text-[13px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</span>}
           </button>
         ))}
       </div>
@@ -216,35 +279,20 @@ function UnifiedSelectionCards({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.id)}
-            className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl border text-left transition-all duration-200 active:scale-[0.97]
-              ${selected === opt.id
-                ? opt.id === 'yes' ? 'border-purple-400 bg-purple-500/15 shadow-lg shadow-purple-900/20' : 'border-white/25 bg-white/10'
-                : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'}`}
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+            }}
           >
-            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors
-              ${selected === opt.id
-                ? opt.id === 'yes' ? 'border-purple-400 bg-purple-500' : 'border-white/40 bg-white/20'
-                : 'border-white/30 bg-transparent'}`}
-            >
-              {selected === opt.id && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                  <img
-                    src={opt.id === 'yes' ? ICON_MAP.tick : '/icons/generic/Close.svg'}
-                    alt={opt.id === 'yes' ? 'yes' : 'no'}
-                    className={`w-3.5 h-3.5 ${opt.id !== 'yes' ? 'opacity-70' : ''}`}
-                    style={{ filter: 'var(--ds-icon-filter)' }}
-                  />
-                </motion.div>
-              )}
-            </div>
-            <span className={`text-[15px] font-medium ${selected === opt.id ? 'text-white' : 'text-white/80'}`}>{opt.label}</span>
+            <DsRadio selected={selected === opt.id} />
+            <span className="text-[15px] font-medium" style={{ color: selected === opt.id ? 'var(--ds-text)' : 'var(--ds-text-secondary)' }}>{opt.label}</span>
           </motion.button>
         ))}
       </div>
     );
   }
 
-  // List layout (default)
   return (
     <div className="grid grid-cols-1 gap-2.5 max-w-md">
       {options.map((opt, i) => (
@@ -254,20 +302,23 @@ function UnifiedSelectionCards({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.04 }}
           onClick={() => handleSelect(opt.id)}
-          className={`text-left px-4 py-3.5 rounded-xl border transition-all duration-200 active:scale-[0.97]
-            ${selected === opt.id ? 'border-purple-400 bg-white/15 shadow-md shadow-purple-900/20' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'}`}
+          className="text-left px-4 py-3.5 rounded-xl transition-all duration-200 active:scale-[0.97]"
+          style={{
+            background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+            border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+          }}
         >
           <div className="flex items-center gap-3">
             {opt.icon && ICON_MAP[opt.icon] && (
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <img src={ICON_MAP[opt.icon]} alt={opt.label} className="w-5 h-5 opacity-70" style={{ filter: 'var(--ds-icon-filter)' }} />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--ds-overlay-bg)' }}>
+                <img src={ICON_MAP[opt.icon]} alt={opt.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
               </div>
             )}
             <div className="flex-1">
-              <span className="text-[15px] font-medium text-white/90">{opt.label}</span>
-              {opt.description && <p className="text-[12px] text-white/40 mt-0.5">{opt.description}</p>}
+              <span className="text-[15px] font-medium" style={{ color: 'var(--ds-text)' }}>{opt.label}</span>
+              {opt.description && <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</p>}
             </div>
-            {opt.badge && <span className="text-[11px] bg-purple-500/50 text-white px-2 py-0.5 rounded-full border border-purple-400/30">{opt.badge}</span>}
+            {opt.badge && <DsBadge>{opt.badge}</DsBadge>}
           </div>
         </motion.button>
       ))}
@@ -275,19 +326,13 @@ function UnifiedSelectionCards({
   );
 }
 
-/* ── Unified GridSelector Component ──
-   Handles both single-select and multi-select grid patterns.
-   Supports: icons (from ICON_MAP), initials (auto from label), searchable lists.
-   Merges: MultiSelect, BrandSelector into one configurable component.
-*/
-
 interface GridOption {
   id: string;
   label: string;
   icon?: string;
 }
 
-function UnifiedGridSelector({
+function GridSelector({
   options: initialOptions,
   columns = 2,
   multiSelect = false,
@@ -319,11 +364,13 @@ function UnifiedGridSelector({
   return (
     <div className="max-w-md">
       {searchable && (
-        <div className="relative mb-3">
-          <img src="/icons/generic/magnifier.svg" alt="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" style={{ filter: 'var(--ds-icon-filter)' }} />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..."
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/15 text-white placeholder-white/30 text-[14px] focus:outline-none focus:border-purple-400 transition-colors"
-            style={{ backgroundColor: 'var(--ds-input-bg)' }} />
+        <div className="mb-3">
+          <DsInput
+            placeholder="Search..."
+            icon={<img src="/icons/generic/magnifier.svg" alt="search" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)', opacity: '0.4' }} />}
+            value={search}
+            onChange={setSearch}
+          />
         </div>
       )}
       <div className={`grid gap-2.5 ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'} ${searchable ? 'max-h-[240px] overflow-y-auto' : ''}`}>
@@ -337,20 +384,23 @@ function UnifiedGridSelector({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
               onClick={() => toggle(opt.id)}
-              className={`flex flex-col items-center text-center p-4 rounded-xl border transition-all duration-150 active:scale-[0.97]
-                ${isSelected ? 'border-purple-400 bg-white/15' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+              className="flex flex-col items-center text-center p-4 rounded-xl transition-all duration-150 active:scale-[0.97]"
+              style={{
+                background: isSelected ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+                border: `1.5px solid ${isSelected ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              }}
             >
-              <div className={`mb-1.5 w-9 h-9 rounded-lg flex items-center justify-center ${isSelected ? 'bg-purple-500/30' : 'bg-white/10'}`}>
+              <div className="mb-1.5 w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: isSelected ? 'var(--ds-accent-bg)' : 'var(--ds-overlay-bg)' }}>
                 {hasIcon ? (
-                  <img src={ICON_MAP[opt.icon!]} alt={opt.label} className="w-5 h-5 opacity-80" style={{ filter: 'var(--ds-icon-filter)' }} />
+                  <img src={ICON_MAP[opt.icon!]} alt={opt.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
                 ) : (
-                  <span className="text-[11px] font-bold text-white/60">{opt.label.charAt(0)}</span>
+                  <span className="text-[11px] font-bold" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.label.charAt(0)}</span>
                 )}
               </div>
-              <span className="text-[12px] text-white/90 font-medium leading-tight">{opt.label}</span>
+              <span className="text-[12px] font-medium leading-tight" style={{ color: 'var(--ds-text)' }}>{opt.label}</span>
               {multiSelect && isSelected && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 mt-1">
-                  <img src={ICON_MAP.tick} alt="selected" className="w-3 h-3" style={{ filter: 'var(--ds-icon-filter)' }} />
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'var(--ds-accent)' }}>
+                  <img src={ICON_MAP.tick} alt="selected" className="w-3 h-3" style={{ filter: 'brightness(0) invert(1)' }} />
                 </motion.div>
               )}
             </motion.button>
@@ -358,157 +408,41 @@ function UnifiedGridSelector({
         })}
       </div>
       {multiSelect && (
-        <button
-          onClick={() => selected.length > 0 && onSelect(selected)}
-          disabled={selected.length === 0}
-          className="mt-4 w-full py-3 bg-purple-700 text-white hover:bg-purple-600 rounded-xl text-[15px] font-semibold disabled:opacity-40 transition-all active:scale-[0.97]"
-        >
-          Continue ({selected.length} selected)
-        </button>
+        <div className="mt-4">
+          <DsButton fullWidth disabled={selected.length === 0} onClick={() => selected.length > 0 && onSelect(selected)}>
+            Continue ({selected.length} selected)
+          </DsButton>
+        </div>
       )}
     </div>
   );
 }
 
-function DemoNumberInput() {
+type InputVariant = 'text' | 'number' | 'pincode' | 'currency';
+
+interface InputFieldProps {
+  variant?: InputVariant;
+  placeholder?: string;
+  helperText?: string;
+  buttonLabel?: string;
+  icon?: string;
+  validate?: (v: string) => string | null;
+}
+
+function InputField({
+  variant = 'text',
+  placeholder = 'Enter value',
+  helperText,
+  buttonLabel = 'Continue',
+  icon,
+  validate,
+}: InputFieldProps) {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = () => {
-    const num = parseInt(value);
-    if (isNaN(num)) { setError('Please enter a valid number'); return; }
-    if (num < 18) { setError('Minimum age is 18'); return; }
-    if (num > 65) { setError('Maximum age is 65'); return; }
-    setError('');
-  };
+  const isNumeric = variant === 'number' || variant === 'pincode' || variant === 'currency';
 
-  return (
-    <div className="max-w-sm">
-      <input
-        type="tel"
-        inputMode="numeric"
-        value={value}
-        onChange={(e) => { setValue(e.target.value); setError(''); }}
-        onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-        placeholder="Enter your age"
-        className="w-full px-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-[15px] text-white placeholder:text-white/30 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-colors backdrop-blur-sm"
-      />
-      <p className="text-[12px] text-white/40 mt-1.5">Between 18 and 65 years</p>
-      {error && <p className="text-[12px] text-red-400 mt-1">{error}</p>}
-      <button onClick={handleSubmit} className="mt-3 w-full py-3 bg-purple-700 text-white hover:bg-purple-600 rounded-xl text-[15px] font-semibold transition-colors active:scale-[0.97]">
-        Continue
-      </button>
-    </div>
-  );
-}
-
-function DemoTextInput() {
-  const [value, setValue] = useState('');
-
-  return (
-    <div className="max-w-sm">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Enter your full name"
-        className="w-full px-4 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30 text-[15px] font-medium transition-colors"
-      />
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="w-full mt-3 py-3 rounded-xl bg-purple-700 text-white hover:bg-purple-600 text-[15px] font-semibold active:scale-[0.97] transition-transform"
-      >
-        Continue
-      </motion.button>
-    </div>
-  );
-}
-
-function DemoPincodeInput() {
-  const [value, setValue] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = () => {
-    if (!/^\d{6}$/.test(value)) { setError('Please enter a valid 6-digit pincode'); return; }
-    setError('');
-  };
-
-  return (
-    <div className="max-w-sm">
-      <div className="relative">
-        <img src="/icons/generic/Location.svg" alt="location" className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60" style={{ filter: 'var(--ds-icon-filter)' }} />
-        <input
-          type="tel" inputMode="numeric" maxLength={6} value={value}
-          onChange={(e) => { setValue(e.target.value.replace(/\D/g, '').slice(0, 6)); setError(''); }}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="Enter your pincode"
-          className="w-full pl-11 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-[15px] text-white placeholder:text-white/30 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-colors backdrop-blur-sm"
-        />
-      </div>
-      {error && <p className="text-[12px] text-red-400 mt-1.5">{error}</p>}
-      <button onClick={handleSubmit} disabled={value.length !== 6}
-        className="mt-3 w-full py-3 bg-purple-700 text-white hover:bg-purple-600 rounded-xl text-[15px] font-semibold disabled:opacity-40 transition-all active:scale-[0.97]">
-        Find Hospitals
-      </button>
-    </div>
-  );
-}
-
-function DemoDatePicker() {
-  const [day, setDay] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-  const [error, setError] = useState('');
-  const monthRef = useRef<HTMLInputElement>(null);
-  const yearRef = useRef<HTMLInputElement>(null);
-
-  return (
-    <div className="w-full max-w-sm">
-      <p className="text-[13px] text-white/60 mb-3">Select date of birth</p>
-      <div className="flex gap-3">
-        <input
-          type="number" inputMode="numeric" placeholder="DD" value={day}
-          onChange={(e) => { setDay(e.target.value); if (e.target.value.length >= 2) monthRef.current?.focus(); }}
-          maxLength={2}
-          className="flex-1 min-w-0 px-2 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 text-center text-sm font-medium transition-colors"
-        />
-        <input
-          ref={monthRef}
-          type="number" inputMode="numeric" placeholder="MM" value={month}
-          onChange={(e) => { setMonth(e.target.value); if (e.target.value.length >= 2) yearRef.current?.focus(); }}
-          maxLength={2}
-          className="flex-1 min-w-0 px-2 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 text-center text-sm font-medium transition-colors"
-        />
-        <input
-          ref={yearRef}
-          type="number" inputMode="numeric" placeholder="YYYY" value={year}
-          onChange={(e) => setYear(e.target.value)}
-          maxLength={4}
-          className="flex-[1.3] min-w-0 px-2 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 text-center text-sm font-medium transition-colors"
-        />
-      </div>
-      {day && month && year && (
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-purple-300/60 text-[12px] mt-1.5">
-          {parseInt(day)}/{parseInt(month)}/{parseInt(year)}
-        </motion.p>
-      )}
-      {error && <p className="text-red-400 text-[12px] mt-1.5">{error}</p>}
-      <motion.button
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-        className="w-full mt-3 py-2.5 rounded-xl bg-purple-700 text-white hover:bg-purple-600 text-sm font-semibold active:scale-[0.97] transition-transform"
-      >
-        Continue
-      </motion.button>
-    </div>
-  );
-}
-
-function DemoNumberInputWithCurrency() {
-  const [value, setValue] = useState('');
-
-  const formatDisplay = (v: string) => {
+  const formatCurrency = (v: string) => {
     const num = parseInt(v);
     if (isNaN(num)) return '';
     if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)} Cr`;
@@ -517,62 +451,112 @@ function DemoNumberInputWithCurrency() {
     return `₹${num.toLocaleString('en-IN')}`;
   };
 
+  const handleChange = (v: string) => {
+    if (variant === 'pincode') v = v.replace(/\D/g, '').slice(0, 6);
+    setValue(v);
+    setError('');
+  };
+
+  const handleSubmit = () => {
+    if (validate) {
+      const msg = validate(value);
+      if (msg) { setError(msg); return; }
+    }
+    setError('');
+  };
+
   return (
     <div className="max-w-sm">
-      <div className="relative">
-        <input
-          type="number" inputMode="numeric" value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Enter annual income"
-          className="w-full px-4 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/30 text-[15px] font-medium transition-colors"
-        />
-        {value && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] text-purple-300/70">
-            {formatDisplay(value)}
-          </div>
-        )}
+      <DsInput
+        type={isNumeric ? 'tel' : 'text'}
+        placeholder={placeholder}
+        icon={icon ? <img src={icon} alt="" className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: '0.6' }} /> : undefined}
+        suffix={variant === 'currency' && value ? formatCurrency(value) : undefined}
+        helperText={helperText}
+        error={error || undefined}
+        value={value}
+        onChange={handleChange}
+      />
+      <div className="mt-3">
+        <DsButton
+          fullWidth
+          disabled={variant === 'pincode' && value.length !== 6}
+          onClick={handleSubmit}
+        >
+          {buttonLabel}
+        </DsButton>
       </div>
-      <p className="text-white/40 text-[12px] mt-1.5">Minimum ₹3,00,000 per year</p>
-      <motion.button
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-        className="w-full mt-3 py-3 rounded-xl bg-purple-700 text-white hover:bg-purple-600 text-[15px] font-semibold active:scale-[0.97] transition-transform"
-      >
-        Continue
-      </motion.button>
     </div>
   );
 }
 
-function DemoVehicleRegInput() {
+function DatePicker() {
+  const [day, setDay] = useState('');
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
+  const [error, setError] = useState('');
+  const monthRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+
+  const inputStyle: React.CSSProperties = {
+    background: 'var(--ds-input-bg)',
+    border: '1px solid var(--ds-input-border)',
+    color: 'var(--ds-input-text)',
+  };
+
+  return (
+    <div className="w-full max-w-sm">
+      <p className="text-[13px] mb-3" style={{ color: 'var(--ds-text-secondary)' }}>Select date of birth</p>
+      <div className="flex gap-3">
+        <input type="number" inputMode="numeric" placeholder="DD" value={day}
+          onChange={(e) => { setDay(e.target.value); if (e.target.value.length >= 2) monthRef.current?.focus(); }}
+          maxLength={2} style={inputStyle}
+          className="flex-1 min-w-0 px-2 py-2.5 rounded text-center text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/30" />
+        <input ref={monthRef} type="number" inputMode="numeric" placeholder="MM" value={month}
+          onChange={(e) => { setMonth(e.target.value); if (e.target.value.length >= 2) yearRef.current?.focus(); }}
+          maxLength={2} style={inputStyle}
+          className="flex-1 min-w-0 px-2 py-2.5 rounded text-center text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/30" />
+        <input ref={yearRef} type="number" inputMode="numeric" placeholder="YYYY" value={year}
+          onChange={(e) => setYear(e.target.value)} maxLength={4} style={inputStyle}
+          className="flex-[1.3] min-w-0 px-2 py-2.5 rounded text-center text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/30" />
+      </div>
+      {day && month && year && (
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[12px] mt-1.5" style={{ color: 'var(--ds-accent)' }}>
+          {parseInt(day)}/{parseInt(month)}/{parseInt(year)}
+        </motion.p>
+      )}
+      {error && <p className="text-[12px] mt-1.5" style={{ color: 'var(--ds-error-text)' }}>{error}</p>}
+      <div className="mt-3">
+        <DsButton fullWidth>Continue</DsButton>
+      </div>
+    </div>
+  );
+}
+
+function VehicleRegInput() {
   const [value, setValue] = useState('');
 
   return (
     <div className="max-w-sm">
       <div className="relative">
         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2 z-10">
-          <div className="w-7 h-5 bg-blue-600 rounded flex items-center justify-center">
-            <span className="text-[8px] text-white font-bold">IND</span>
-          </div>
+          <DsBadge variant="info">IND</DsBadge>
         </div>
-        <input
-          type="text"
-          value={value}
+        <input type="text" value={value}
           onChange={(e) => setValue(e.target.value.toUpperCase())}
-          placeholder="KA 01 AB 1234"
-          maxLength={13}
-          style={{ backgroundColor: 'var(--ds-input-bg)' }}
-          className="w-full pl-14 pr-4 py-4 rounded-xl border text-[16px] tracking-widest font-bold uppercase transition-colors border-white/15 text-white placeholder-white/30 focus:outline-none focus:border-purple-400"
-        />
+          placeholder="KA 01 AB 1234" maxLength={13}
+          className="w-full pl-14 pr-4 py-4 rounded text-[16px] tracking-widest font-bold uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+          style={{ background: 'var(--ds-input-bg)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-input-text)' }} />
       </div>
-      <p className="text-[11px] text-white/40 mt-2 text-center">Enter your vehicle registration number</p>
-      <button className="mt-3 w-full py-3.5 rounded-xl text-[15px] font-semibold transition-colors active:scale-[0.97] bg-purple-600 text-white hover:bg-purple-500">
-        Find My Vehicle
-      </button>
+      <p className="text-[11px] mt-2 text-center" style={{ color: 'var(--ds-text-tertiary)' }}>Enter your vehicle registration number</p>
+      <div className="mt-3">
+        <DsButton fullWidth>Find My Vehicle</DsButton>
+      </div>
     </div>
   );
 }
 
-function DemoProgressiveLoader() {
+function ProgressLoader() {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const steps = ['Checking registration...', 'Fetching vehicle details...', 'Loading insurance history...'];
@@ -592,83 +576,60 @@ function DemoProgressiveLoader() {
 
   return (
     <div className="max-w-sm mx-auto">
-      <div className="bg-white/10 border border-white/15 rounded-2xl p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-purple-500/20 rounded-full flex items-center justify-center">
-          <div className="w-8 h-8 border-[3px] border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
+      <div className="rounded-2xl p-6 text-center" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: 'var(--ds-accent-bg)' }}>
+          <div className="w-8 h-8 rounded-full animate-spin" style={{ border: '3px solid var(--ds-border-strong)', borderTopColor: 'var(--ds-accent)' }} />
         </div>
-        <p className="text-[15px] font-semibold text-white mb-2">Finding your vehicle</p>
-        <p className="text-[13px] text-white/50 mb-4">{steps[currentStep]}</p>
-        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-purple-500 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3 }}
-          />
+        <p className="text-[15px] font-semibold mb-2" style={{ color: 'var(--ds-text)' }}>Finding your vehicle</p>
+        <p className="text-[13px] mb-4" style={{ color: 'var(--ds-text-secondary)' }}>{steps[currentStep]}</p>
+        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--ds-progress-bg)' }}>
+          <motion.div className="h-full rounded-full" style={{ background: 'var(--ds-cta-bg)' }} initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
         </div>
-        <p className="text-[11px] text-white/30 mt-2">{progress}%</p>
+        <p className="text-[11px] mt-2" style={{ color: 'var(--ds-text-tertiary)' }}>{progress}%</p>
       </div>
     </div>
   );
 }
 
-function DemoCalculationTheater() {
+function CalculationLoader() {
   const [step, setStep] = useState(0);
-  const steps = [
-    'Analyzing your profile...',
-    'Comparing 15+ plans...',
-    'Calculating best premium...',
-    'Applying discounts...',
-  ];
+  const steps = ['Analyzing your profile...', 'Comparing 15+ plans...', 'Calculating best premium...', 'Applying discounts...'];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
-    }, 1200);
+    const interval = setInterval(() => { setStep(prev => (prev < steps.length - 1 ? prev + 1 : prev)); }, 1200);
     return () => clearInterval(interval);
   }, [steps.length]);
 
   return (
     <div className="max-w-sm mx-auto">
-      <div className="bg-gradient-to-br from-purple-600/30 to-indigo-700/30 border border-purple-400/20 rounded-2xl p-6">
+      <div className="rounded-2xl p-6" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
         <div className="flex items-center justify-center mb-6">
           <div className="relative w-20 h-20">
             <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
-              <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(139,92,246,0.2)" strokeWidth="2.5" />
-              <motion.path
-                d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none" stroke="#a78bfa" strokeWidth="2.5"
-                initial={{ strokeDasharray: '0, 100' }}
-                animate={{ strokeDasharray: `${((step + 1) / steps.length) * 100}, 100` }}
-                transition={{ duration: 0.8 }}
-              />
+              <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--ds-border-strong)" strokeWidth="2.5" />
+              <motion.path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--ds-accent)" strokeWidth="2.5"
+                initial={{ strokeDasharray: '0, 100' }} animate={{ strokeDasharray: `${((step + 1) / steps.length) * 100}, 100` }} transition={{ duration: 0.8 }} />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-6 h-6 border-2 border-purple-300/30 border-t-purple-300 rounded-full animate-spin" />
+              <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid var(--ds-border-strong)', borderTopColor: 'var(--ds-accent)' }} />
             </div>
           </div>
         </div>
         <div className="space-y-2.5">
           {steps.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: i <= step ? 1 : 0.3, x: 0 }}
-              transition={{ delay: i * 0.3, duration: 0.4 }}
-              className="flex items-center gap-2.5"
-            >
+            <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: i <= step ? 1 : 0.3, x: 0 }} transition={{ delay: i * 0.3, duration: 0.4 }} className="flex items-center gap-2.5">
               {i < step ? (
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                  <img src="/icons/generic/Tick.svg" alt="done" className="w-3 h-3" style={{ filter: 'var(--ds-icon-filter)' }} />
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--ds-success)' }}>
+                  <img src="/icons/generic/Tick.svg" alt="done" className="w-3 h-3" style={{ filter: 'brightness(0) invert(1)' }} />
                 </div>
               ) : i === step ? (
-                <div className="w-5 h-5 rounded-full border-2 border-purple-400 flex items-center justify-center flex-shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: '2px solid var(--ds-accent)' }}>
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--ds-accent)' }} />
                 </div>
               ) : (
-                <div className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0" />
+                <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ border: '1px solid var(--ds-border-strong)' }} />
               )}
-              <span className={`text-[13px] ${i <= step ? 'text-white/80' : 'text-white/30'}`}>{s}</span>
+              <span className="text-[13px]" style={{ color: i <= step ? 'var(--ds-text)' : 'var(--ds-text-tertiary)' }}>{s}</span>
             </motion.div>
           ))}
         </div>
@@ -677,41 +638,72 @@ function DemoCalculationTheater() {
   );
 }
 
-function DemoConsentWidget() {
-  const [checked, setChecked] = useState(false);
+function StepTracker() {
+  const steps = [
+    { label: 'Payment received', status: 'done' as const, detail: 'Just now', icon: '/icons/generic/Payment.svg' },
+    { label: 'Vehicle inspection', status: 'done' as const, detail: 'Not required for new policy', icon: '/icons/generic/Verify.svg' },
+    { label: 'KYC verification', status: 'pending' as const, detail: 'Complete within 4 days', icon: '/icons/generic/Identity.svg' },
+    { label: 'Policy issued', status: 'pending' as const, detail: 'After KYC verification', icon: '/icons/generic/Policy.svg' },
+  ];
 
   return (
     <div className="max-w-md">
-      <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <button onClick={() => setChecked(!checked)} className="mt-0.5 flex-shrink-0">
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${checked ? 'bg-purple-500 border-purple-400' : 'border-white/30 bg-transparent'}`}>
-              {checked && (
-                <img src="/icons/generic/Tick.svg" alt="checked" className="w-3 h-3" style={{ filter: 'var(--ds-icon-filter)' }} />
-              )}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="flex items-center gap-3 p-4" style={{ borderBottom: '1px solid var(--ds-divider)' }}>
+          <DsAvatar size="md" icon={<img src="/icons/car-bike/Car.svg" alt="car" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+          <div className="flex-1">
+            <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>Maruti Suzuki Swift</p>
+            <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>ACKO-MOT-2026-001</p>
+          </div>
+          <DsBadge variant="success">Active</DsBadge>
+        </div>
+        <div className="p-4 space-y-0">
+          {steps.map((s, i) => (
+            <div key={i} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: s.status === 'done' ? 'var(--ds-success)' : 'var(--ds-overlay-bg)', border: s.status === 'done' ? 'none' : '1px solid var(--ds-border-strong)' }}>
+                  {s.status === 'done' ? (
+                    <img src="/icons/generic/Tick.svg" alt="done" className="w-3 h-3" style={{ filter: 'brightness(0) invert(1)' }} />
+                  ) : (<span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--ds-text-tertiary)' }} />)}
+                </div>
+                {i < steps.length - 1 && <div className="w-0.5 h-8" style={{ background: s.status === 'done' ? 'var(--ds-success)' : 'var(--ds-border-strong)', opacity: s.status === 'done' ? 0.5 : 1 }} />}
+              </div>
+              <div className="pb-4">
+                <p className="text-[13px] font-medium" style={{ color: s.status === 'done' ? 'var(--ds-text)' : 'var(--ds-text-tertiary)' }}>{s.label}</p>
+                <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{s.detail}</p>
+              </div>
             </div>
-          </button>
-          <span className="text-[13px] text-white/60 leading-relaxed">
-            I confirm the details provided are accurate. I agree to ACKO&apos;s{' '}
-            <span className="text-purple-400 underline">Terms &amp; Conditions</span> and{' '}
-            <span className="text-purple-400 underline">Privacy Policy</span>.
-          </span>
-        </label>
+          ))}
+        </div>
       </div>
-      <button
-        disabled={!checked}
-        className="mt-3 w-full py-3 bg-purple-700 text-white hover:bg-purple-600 rounded-xl text-[15px] font-semibold disabled:opacity-40 transition-all active:scale-[0.97]"
-      >
-        Confirm &amp; Proceed
-      </button>
     </div>
   );
 }
 
-/* ── Unified SummaryCard Component ──
-   Renders label-value rows in a card. Editable prop adds pencil icons per row.
-   Merges: ReviewSummary, EditableSummary into one component.
-*/
+function ConsentWidget() {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <div className="max-w-md">
+      <div className="rounded-xl p-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5">
+            <DsCheckbox checked={checked} onChange={setChecked} />
+          </div>
+          <span className="text-[13px] leading-relaxed" style={{ color: 'var(--ds-text-secondary)' }}>
+            I confirm the details provided are accurate. I agree to ACKO&apos;s{' '}
+            <DsLink>Terms &amp; Conditions</DsLink> and{' '}
+            <DsLink>Privacy Policy</DsLink>.
+          </span>
+        </div>
+      </div>
+      <div className="mt-3">
+        <DsButton fullWidth disabled={!checked}>Confirm &amp; Proceed</DsButton>
+      </div>
+    </div>
+  );
+}
 
 interface SummaryRow {
   label: string;
@@ -719,7 +711,7 @@ interface SummaryRow {
   editable?: boolean;
 }
 
-function UnifiedSummaryCard({
+function SummaryCard({
   title,
   subtitle,
   rows,
@@ -734,120 +726,38 @@ function UnifiedSummaryCard({
 }) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-md">
-      <div className="rounded-2xl overflow-hidden p-5 space-y-1"
-        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="pb-3 border-b border-white/10">
-          <h3 className="text-[17px] font-bold text-white">{title}</h3>
-          {subtitle && <p className="text-[12px] text-white/40 mt-0.5">{subtitle}</p>}
+      <div className="rounded-2xl overflow-hidden p-5 space-y-1" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="pb-3" style={{ borderBottom: '1px solid var(--ds-border-strong)' }}>
+          <h3 className="text-[17px] font-bold" style={{ color: 'var(--ds-text)' }}>{title}</h3>
+          {subtitle && <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{subtitle}</p>}
         </div>
         <div className="py-1">
           {rows.map((row) => {
             const showEdit = editable && row.editable !== false;
             return (
-              <div key={row.label} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
+              <div key={row.label} className="flex items-center justify-between py-2.5" style={{ borderBottom: '1px solid var(--ds-divider)' }}>
                 <div>
-                  <p className="text-[11px] text-white/40">{row.label}</p>
-                  <p className="text-[14px] text-white font-medium mt-0.5">{row.value}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{row.label}</p>
+                  <p className="text-[14px] font-medium mt-0.5" style={{ color: 'var(--ds-text)' }}>{row.value}</p>
                 </div>
                 {showEdit && (
-                  <button className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                    <img src="/icons/generic/Edit.svg" alt="edit" className="w-4 h-4 opacity-50" style={{ filter: 'var(--ds-icon-filter)' }} />
-                  </button>
+                  <DsIconButton variant="ghost" size="sm">
+                    <img src="/icons/generic/Edit.svg" alt="edit" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
+                  </DsIconButton>
                 )}
               </div>
             );
           })}
         </div>
-        <button className="w-full py-3.5 rounded-xl bg-purple-600 text-white text-[15px] font-semibold active:scale-[0.97] transition-transform shadow-lg shadow-purple-600/30 mt-2">
-          {ctaLabel}
-        </button>
+        <div className="mt-2">
+          <DsButton fullWidth>{ctaLabel}</DsButton>
+        </div>
       </div>
     </motion.div>
   );
 }
 
-function DemoPremiumBreakdown() {
-  const Divider = () => <div className="my-4" style={{ height: '1px', background: 'rgba(255,255,255,0.1)' }} />;
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-md">
-      <div className="relative rounded-t-2xl px-4 pt-4 pb-5 overflow-hidden" style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none' }}>
-        <div className="pr-24">
-          <p className="text-[16px] font-semibold text-white">Maruti Suzuki Swift</p>
-          <p className="text-[12px] mt-1 leading-snug text-white/50">Comprehensive Plan &middot; VXi Petrol</p>
-          <p className="text-[12px] mt-1.5 text-white/50">
-            IDV : <span className="text-[14px] font-semibold text-white">4.8 Lakh</span>
-          </p>
-        </div>
-        <div className="absolute right-3 top-3 w-[80px] h-[60px] bg-white/10 rounded-lg flex items-center justify-center">
-          <img src="/icons/car-bike/Car.svg" alt="car" className="w-10 h-10 opacity-40" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-      </div>
-
-      <div className="rounded-b-2xl px-4 pt-4 pb-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none', boxShadow: '0px 4px 10px -2px rgba(54,53,76,0.08)' }}>
-        <p className="text-[14px] font-semibold text-white mb-3">Base policy premium</p>
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">Third-party (TP) premium</span>
-            <span className="text-white/50">₹2,094</span>
-          </div>
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">Own Damage (OD) premium</span>
-            <span className="text-white/50">₹4,405</span>
-          </div>
-        </div>
-
-        <Divider />
-        <p className="text-[14px] font-semibold text-white mb-3">Add-on premium</p>
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">Engine Protection</span>
-            <span className="text-white/50">₹999</span>
-          </div>
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">Zero Depreciation</span>
-            <span className="text-white/50">₹1,499</span>
-          </div>
-        </div>
-
-        <Divider />
-        <p className="text-[14px] font-semibold text-white mb-3">Discounts</p>
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">NCB discount (50% of OD)</span>
-            <span className="font-medium" style={{ color: '#0FA457' }}>-₹2,203</span>
-          </div>
-        </div>
-
-        <Divider />
-        <div className="space-y-2.5 mb-4">
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">Net Premium</span>
-            <span className="text-white/50">₹6,794</span>
-          </div>
-          <div className="flex items-center justify-between text-[14px]">
-            <span className="text-white/50">18% GST</span>
-            <span className="text-white/50">₹1,223</span>
-          </div>
-        </div>
-
-        <Divider />
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-[14px] font-semibold text-white">
-            Total <span className="text-[12px] font-normal text-white/50">(Including GST)</span>
-          </p>
-          <p className="text-[14px] font-semibold text-white">₹8,017</p>
-        </div>
-
-        <button className="w-full py-3 rounded-xl text-[15px] font-semibold transition-all active:scale-[0.97] bg-purple-600 text-white hover:bg-purple-500">
-          Proceed to Payment
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
-function DemoPaymentGateway() {
+function PaymentGateway() {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const methods = [
     { id: 'upi', label: 'UPI', desc: 'Google Pay, PhonePe, Paytm', icon: '/icons/generic/UPI payment.svg' },
@@ -857,60 +767,48 @@ function DemoPaymentGateway() {
   ];
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-white/10 max-w-md" style={{ background: '#1a1f36' }}>
-      <div className="px-5 py-4 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, #2b3a67 0%, #1a1f36 100%)' }}>
+    <div className="rounded-2xl overflow-hidden max-w-md" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+      <div className="px-5 py-4 flex items-center justify-between" style={{ background: 'var(--ds-surface-2)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-            <svg className="w-5 h-5 text-[#528FF0]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" />
-            </svg>
-          </div>
+          <DsAvatar size="md" icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="var(--ds-accent)"><path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" /></svg>} />
           <div>
-            <p className="text-[13px] font-semibold text-white">ACKO Insurance</p>
-            <p className="text-[11px] text-white/40">Maruti Swift — Motor Insurance</p>
+            <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO Insurance</p>
+            <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Maruti Swift — Motor Insurance</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-[11px] text-white/40">Amount</p>
-          <p className="text-[18px] font-bold text-white">₹10,617</p>
+          <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Amount</p>
+          <p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹10,617</p>
         </div>
       </div>
       <div className="p-5">
-        <p className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-3">Payment Method</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>Payment Method</p>
         <div className="space-y-2.5">
           {methods.map(m => (
             <button key={m.id} onClick={() => setSelectedMethod(m.id)}
               className="w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-all text-left"
               style={{
-                background: selectedMethod === m.id ? 'rgba(82, 143, 240, 0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1.5px solid ${selectedMethod === m.id ? 'rgba(82, 143, 240, 0.5)' : 'rgba(255,255,255,0.08)'}`,
-              }}
-            >
-              <img src={m.icon} alt={m.label} className="w-5 h-5 opacity-70" style={{ filter: 'var(--ds-icon-filter)' }} />
+                background: selectedMethod === m.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+                border: `1.5px solid ${selectedMethod === m.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              }}>
+              <img src={m.icon} alt={m.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
               <div className="flex-1">
-                <p className="text-[14px] font-semibold text-white">{m.label}</p>
-                <p className="text-[11px] text-white/40">{m.desc}</p>
+                <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>{m.label}</p>
+                <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{m.desc}</p>
               </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedMethod === m.id ? 'border-[#528FF0] bg-[#528FF0]' : 'border-white/20'}`}>
-                {selectedMethod === m.id && (
-                  <img src="/icons/generic/Tick.svg" alt="selected" className="w-3 h-3" style={{ filter: 'var(--ds-icon-filter)' }} />
-                )}
-              </div>
+              <DsRadio selected={selectedMethod === m.id} onChange={() => setSelectedMethod(m.id)} />
             </button>
           ))}
         </div>
-        <button disabled={!selectedMethod}
-          className="w-full mt-5 py-3.5 rounded-xl text-[15px] font-semibold text-white transition-all disabled:opacity-30"
-          style={{ background: selectedMethod ? 'linear-gradient(135deg, #528FF0 0%, #3b6fd4 100%)' : '#528FF0' }}
-        >
-          Pay ₹10,617
-        </button>
+        <div className="mt-5">
+          <DsButton fullWidth disabled={!selectedMethod}>Pay ₹10,617</DsButton>
+        </div>
       </div>
     </div>
   );
 }
 
-function DemoCelebration() {
+function CelebrationScreen() {
   const CONFETTI_COLORS = ['#FFD700', '#FF6B6B', '#4ECDC4', '#A78BFA', '#F472B6'];
   const confetti = Array.from({ length: 20 }).map(() => ({
     xPct: Math.random() * 100, rotation: Math.random() * 720,
@@ -920,37 +818,36 @@ function DemoCelebration() {
 
   return (
     <div className="max-w-sm mx-auto">
-      <div className="bg-white/10 border border-white/15 rounded-2xl overflow-hidden relative">
+      <div className="rounded-2xl overflow-hidden relative" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
           {confetti.map((p, i) => (
             <motion.div key={i} initial={{ y: -10, opacity: 1 }} animate={{ y: 300, opacity: 0, rotate: p.rotation }}
               transition={{ duration: p.duration, delay: p.delay, ease: 'linear', repeat: Infinity, repeatDelay: 1 }}
-              className="absolute w-2 h-2 rounded-full" style={{ left: `${p.xPct}%`, backgroundColor: p.color }}
-            />
+              className="absolute w-2 h-2 rounded-full" style={{ left: `${p.xPct}%`, backgroundColor: p.color }} />
           ))}
         </div>
-        <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/10 p-6 text-center relative z-20">
+        <div className="p-6 text-center relative z-20" style={{ background: 'var(--ds-success-bg)' }}>
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 10, stiffness: 200 }}
-            className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-xl shadow-green-500/30">
-            <img src="/icons/generic/Tick.svg" alt="success" className="w-10 h-10" style={{ filter: 'var(--ds-icon-filter)' }} />
+            className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center shadow-xl" style={{ background: 'var(--ds-success)' }}>
+            <img src="/icons/generic/Tick.svg" alt="success" className="w-10 h-10" style={{ filter: 'brightness(0) invert(1)' }} />
           </motion.div>
-          <h2 className="text-[20px] font-bold text-white">Payment Successful!</h2>
-          <p className="text-[13px] text-white/60 mt-2">Your policy is now active</p>
+          <h2 className="text-[20px] font-bold" style={{ color: 'var(--ds-text)' }}>Payment Successful!</h2>
+          <p className="text-[13px] mt-2" style={{ color: 'var(--ds-text-secondary)' }}>Your policy is now active</p>
         </div>
         <div className="p-5 space-y-3 relative z-20">
           <div className="flex justify-between items-center">
-            <span className="text-[12px] text-white/50">Policy Number</span>
-            <span className="text-[13px] font-semibold text-white">ACKO-2026-7839201</span>
+            <span className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Policy Number</span>
+            <span className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO-2026-7839201</span>
           </div>
+          <DsDivider />
           <div className="flex justify-between items-center">
-            <span className="text-[12px] text-white/50">Status</span>
-            <span className="text-[12px] font-semibold text-green-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Active
-            </span>
+            <span className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Status</span>
+            <DsBadge variant="success">Active</DsBadge>
           </div>
+          <DsDivider />
           <div className="flex justify-between items-center">
-            <span className="text-[12px] text-white/50">Valid Until</span>
-            <span className="text-[13px] font-semibold text-white">2 Mar 2027</span>
+            <span className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Valid Until</span>
+            <span className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>2 Mar 2027</span>
           </div>
         </div>
       </div>
@@ -958,7 +855,7 @@ function DemoCelebration() {
   );
 }
 
-function DemoNpsFeedback() {
+function FeedbackForm() {
   const [score, setScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState('');
   const emojis = [
@@ -974,9 +871,14 @@ function DemoNpsFeedback() {
       <div className="flex justify-center gap-3">
         {emojis.map((e) => (
           <button key={e.value} onClick={() => setScore(e.value)}
-            className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${score === e.value ? 'bg-white/15 scale-110 border border-purple-400/40' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}>
+            className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all"
+            style={{
+              background: score === e.value ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${score === e.value ? 'var(--ds-selected-border)' : 'transparent'}`,
+              transform: score === e.value ? 'scale(1.1)' : 'scale(1)',
+            }}>
             <span className="text-[28px]">{e.emoji}</span>
-            <span className={`text-[10px] font-medium ${score === e.value ? 'text-white' : 'text-white/40'}`}>{e.label}</span>
+            <span className="text-[10px] font-medium" style={{ color: score === e.value ? 'var(--ds-text)' : 'var(--ds-text-tertiary)' }}>{e.label}</span>
           </button>
         ))}
       </div>
@@ -984,190 +886,16 @@ function DemoNpsFeedback() {
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3">
           <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)}
             placeholder="Any suggestions? (optional)"
-            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-[13px] text-white placeholder:text-white/30 resize-none h-20 focus:outline-none focus:border-purple-400/40" />
-          <button className="w-full py-3 rounded-xl text-[14px] font-semibold transition-colors active:scale-[0.97] bg-purple-600 text-white hover:bg-purple-500">
-            Submit Feedback
-          </button>
+            className="w-full rounded p-3 text-[13px] resize-none h-20 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+            style={{ background: 'var(--ds-input-bg)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-input-text)' }} />
+          <DsButton fullWidth>Submit Feedback</DsButton>
         </motion.div>
       )}
     </div>
   );
 }
 
-function DemoPolicyTracker() {
-  const steps = [
-    { label: 'Payment received', status: 'done' as const, detail: 'Just now' },
-    { label: 'Vehicle inspection', status: 'done' as const, detail: 'Not required for new policy' },
-    { label: 'KYC verification', status: 'pending' as const, detail: 'Complete within 4 days' },
-    { label: 'Policy issued', status: 'pending' as const, detail: 'After KYC verification' },
-  ];
-
-  return (
-    <div className="max-w-md">
-      <div className="bg-white/10 border border-white/15 rounded-2xl overflow-hidden">
-        <div className="flex items-center gap-3 p-4 border-b border-white/10">
-          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
-            <img src="/icons/car-bike/Car.svg" alt="car" className="w-5 h-5 opacity-70" style={{ filter: 'var(--ds-icon-filter)' }} />
-          </div>
-          <div className="flex-1">
-            <p className="text-[13px] font-semibold text-white">Maruti Suzuki Swift</p>
-            <p className="text-[11px] text-white/50">ACKO-MOT-2026-001</p>
-          </div>
-          <span className="text-[10px] font-semibold text-green-400 bg-green-400/15 px-2 py-0.5 rounded-full">Active</span>
-        </div>
-        <div className="p-4 space-y-0">
-          {steps.map((s, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${s.status === 'done' ? 'bg-green-500' : 'bg-white/15 border border-white/30'}`}>
-                  {s.status === 'done' ? (
-                    <img src="/icons/generic/Tick.svg" alt="done" className="w-3 h-3" style={{ filter: 'var(--ds-icon-filter)' }} />
-                  ) : (<span className="w-1.5 h-1.5 rounded-full bg-white/40" />)}
-                </div>
-                {i < steps.length - 1 && <div className={`w-0.5 h-8 ${s.status === 'done' ? 'bg-green-500/50' : 'bg-white/10'}`} />}
-              </div>
-              <div className="pb-4">
-                <p className={`text-[13px] font-medium ${s.status === 'done' ? 'text-white' : 'text-white/50'}`}>{s.label}</p>
-                <p className="text-[11px] text-white/40">{s.detail}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DemoCoverageCard() {
-  const [showBreakdown, setShowBreakdown] = useState(false);
-  const breakdownItems = [
-    { label: 'Current debts / loans', value: '₹40L' },
-    { label: 'Future education costs', value: '₹30L' },
-    { label: 'Family expenses (10 yrs)', value: '₹60L' },
-    { label: 'Emergency buffer', value: '₹20L' },
-  ];
-
-  return (
-    <div className="max-w-sm mx-auto">
-      <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-purple-600/40 to-indigo-700/40 border border-white/10 backdrop-blur-sm">
-        <div className="px-5 pt-5 pb-4">
-          <p className="text-white/50 text-[11px] uppercase tracking-wider mb-1">Recommended Cover</p>
-          <p className="text-3xl font-bold text-white">₹1.5 Cr</p>
-        </div>
-        <div className="h-px bg-white/10" />
-        <div className="px-5 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-white/50 text-[11px] uppercase tracking-wider mb-0.5">Policy Term</p>
-            <p className="text-lg font-semibold text-white">30 years</p>
-          </div>
-          <div className="text-right">
-            <p className="text-white/50 text-[11px] uppercase tracking-wider mb-0.5">Covers till age</p>
-            <p className="text-lg font-semibold text-white">62</p>
-          </div>
-        </div>
-        <div className="h-px bg-white/10" />
-        <button onClick={() => setShowBreakdown(!showBreakdown)}
-          className="w-full px-5 py-3 flex items-center justify-between text-white/60 hover:text-white/80 transition-colors">
-          <span className="text-[12px] font-medium">Why this is recommended</span>
-          <motion.svg animate={{ rotate: showBreakdown ? 180 : 0 }} transition={{ duration: 0.2 }} className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </motion.svg>
-        </button>
-        <AnimatePresence>
-          {showBreakdown && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-              <div className="px-5 pb-4 space-y-2">
-                {breakdownItems.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <span className="text-[12px] text-white/50">{item.label}</span>
-                    <span className="text-[12px] text-white/80 font-medium">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="px-5 pb-5 pt-2">
-          <button className="w-full py-3.5 rounded-xl bg-purple-600 text-white text-[15px] font-semibold active:scale-[0.97] transition-transform shadow-lg shadow-purple-600/30">
-            Continue with this plan
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DemoPremiumSliders() {
-  const [coverage, setCoverage] = useState(10000000);
-  const [term, setTerm] = useState(30);
-  const minCoverage = 2500000;
-  const maxCoverage = 100000000;
-  const minTerm = 10;
-  const maxTerm = 40;
-
-  const formatCoverage = (n: number) => {
-    if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)} Cr`;
-    if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
-    return `₹${n.toLocaleString('en-IN')}`;
-  };
-
-  const getProgress = (value: number, min: number, max: number) => ((value - min) / (max - min)) * 100;
-  const premium = Math.round((coverage / 100000) * 8 * (1 + (term - 10) * 0.02));
-  const monthly = Math.round(premium / 12);
-
-  return (
-    <div className="max-w-md">
-      <div className="rounded-2xl overflow-hidden border border-white/10 backdrop-blur-sm bg-gradient-to-br from-white/10 to-white/5">
-        <div className="bg-gradient-to-r from-purple-600/80 to-indigo-700/80 px-5 py-5">
-          <p className="text-white/60 text-[11px] uppercase tracking-wider">Annual Premium</p>
-          <p className="text-white text-3xl font-bold mt-1">₹{premium.toLocaleString('en-IN')}<span className="text-lg font-normal text-white/60">/yr</span></p>
-          <p className="text-white/50 text-[12px] mt-1">₹{monthly.toLocaleString('en-IN')}/mo</p>
-        </div>
-        <div className="px-5 py-5 space-y-6">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[13px] text-white/60">Coverage</span>
-              <span className="text-[15px] font-bold text-white">{formatCoverage(coverage)}</span>
-            </div>
-            <input type="range" min={minCoverage} max={maxCoverage} step={2500000} value={coverage}
-              onChange={(e) => setCoverage(Number(e.target.value))}
-              style={{ background: `linear-gradient(to right, #a78bfa ${getProgress(coverage, minCoverage, maxCoverage)}%, rgba(255,255,255,0.15) ${getProgress(coverage, minCoverage, maxCoverage)}%)` }}
-              className="w-full h-1.5 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-400 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white/30" />
-            <div className="flex justify-between mt-1">
-              <span className="text-[10px] text-white/40">{formatCoverage(minCoverage)}</span>
-              <span className="text-[10px] text-white/40">{formatCoverage(maxCoverage)}</span>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[13px] text-white/60">Policy Term</span>
-              <span className="text-[15px] font-bold text-white">{term} years</span>
-            </div>
-            <input type="range" min={minTerm} max={maxTerm} step={1} value={term}
-              onChange={(e) => setTerm(Number(e.target.value))}
-              style={{ background: `linear-gradient(to right, #a78bfa ${getProgress(term, minTerm, maxTerm)}%, rgba(255,255,255,0.15) ${getProgress(term, minTerm, maxTerm)}%)` }}
-              className="w-full h-1.5 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-400 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white/30" />
-            <div className="flex justify-between mt-1">
-              <span className="text-[10px] text-white/40">{minTerm} yrs</span>
-              <span className="text-[10px] text-white/40">{maxTerm} yrs</span>
-            </div>
-          </div>
-        </div>
-        <div className="px-5 pb-5">
-          <button className="w-full py-3.5 rounded-xl bg-purple-600 text-white text-[15px] font-semibold active:scale-[0.97] transition-transform shadow-lg shadow-purple-600/30 hover:bg-purple-500">
-            Continue with this plan
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   Health-Specific Widget Demos
-   ═══════════════════════════════════════════════ */
-
-function DemoHospitalList() {
+function SearchableList() {
   const [showAll, setShowAll] = useState(false);
   const hospitals = [
     { name: 'Apollo Hospital', type: 'Multi-specialty', distance: '1.2 km' },
@@ -1180,35 +908,32 @@ function DemoHospitalList() {
 
   return (
     <div className="max-w-md">
-      <div className="relative rounded-2xl overflow-hidden mb-3 h-24" style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)' }}>
+      <div className="relative rounded-2xl overflow-hidden mb-3 h-24" style={{ background: 'var(--ds-accent)' }}>
         <div className="absolute inset-0 flex items-center px-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <img src="/icons/health-life/hospital.svg" alt="hospital" className="w-5 h-5 opacity-80" style={{ filter: 'var(--ds-icon-filter)' }} />
-              <p className="text-white font-semibold text-[14px]">42 cashless hospitals nearby</p>
+              <img src="/icons/health-life/hospital.svg" alt="hospital" className="w-5 h-5" style={{ filter: 'brightness(0) invert(1)' }} />
+              <p className="font-semibold text-[14px]" style={{ color: '#FFFFFF' }}>42 cashless hospitals nearby</p>
             </div>
-            <p className="text-white/60 text-[12px]">Walk in, get treated — no paperwork</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>Walk in, get treated — no paperwork</p>
           </div>
         </div>
       </div>
-      <div className="rounded-2xl border border-white/10 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
-        <div className="divide-y divide-white/5">
-          {visible.map((h, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                <img src="/icons/health-life/hospital.svg" alt="hospital" className="w-5 h-5 opacity-60" style={{ filter: 'var(--ds-icon-filter)' }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-white/90">{h.name}</p>
-                <p className="text-[11px] text-white/40">{h.type}</p>
-              </div>
-              <span className="text-[11px] text-purple-300 flex-shrink-0">{h.distance}</span>
-            </motion.div>
-          ))}
-        </div>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        {visible.map((h, i) => (
+          <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
+            className="flex items-center gap-3 px-4 py-3 transition-colors"
+            style={{ borderBottom: i < visible.length - 1 ? '1px solid var(--ds-divider)' : 'none' }}>
+            <DsAvatar size="md" icon={<img src="/icons/health-life/hospital.svg" alt="" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>{h.name}</p>
+              <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{h.type}</p>
+            </div>
+            <DsLink arrow>{h.distance}</DsLink>
+          </motion.div>
+        ))}
         {!showAll && (
-          <button onClick={() => setShowAll(true)} className="w-full py-2.5 text-[13px] text-purple-300 font-medium hover:bg-white/5 transition-colors border-t border-white/5">
+          <button onClick={() => setShowAll(true)} className="w-full py-2.5 text-[13px] font-medium transition-colors" style={{ color: 'var(--ds-link)', borderTop: '1px solid var(--ds-divider)' }}>
             View all 42 hospitals
           </button>
         )}
@@ -1217,7 +942,7 @@ function DemoHospitalList() {
   );
 }
 
-function DemoGapAnalysis() {
+function ComparisonCard() {
   const [expanded, setExpanded] = useState<number | null>(null);
   const gaps = [
     { feature: 'Room Rent', current: '₹5,000/day limit', acko: 'No limit', status: 'gap' as const },
@@ -1232,30 +957,31 @@ function DemoGapAnalysis() {
 
   return (
     <div className="max-w-md space-y-3">
-      <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+      <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: 'var(--ds-error-bg)', border: '1px solid rgba(239,68,68,0.2)' }}>
         <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(239,68,68,0.2)' }}>
-          <span className="text-[18px] font-bold text-red-400">{gapCount}</span>
+          <span className="text-[18px] font-bold" style={{ color: 'var(--ds-error-text)' }}>{gapCount}</span>
         </div>
         <div>
-          <p className="text-[14px] font-semibold text-white">Coverage gaps found</p>
-          <p className="text-[12px] text-white/50">Your current plan has {gapCount} areas with limited coverage</p>
+          <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>Coverage gaps found</p>
+          <p className="text-[12px]" style={{ color: 'var(--ds-text-secondary)' }}>Your current plan has {gapCount} areas with limited coverage</p>
         </div>
       </div>
-      <div className="rounded-2xl border border-white/10 overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
-        <div className="grid grid-cols-3 px-4 py-2.5 border-b border-white/10">
-          <span className="text-[10px] text-white/40 uppercase font-semibold">Feature</span>
-          <span className="text-[10px] text-white/40 uppercase font-semibold text-center">Current</span>
-          <span className="text-[10px] text-purple-300 uppercase font-semibold text-right">ACKO</span>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="grid grid-cols-3 px-4 py-2.5" style={{ borderBottom: '1px solid var(--ds-border-strong)' }}>
+          <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--ds-text-tertiary)' }}>Feature</span>
+          <span className="text-[10px] uppercase font-semibold text-center" style={{ color: 'var(--ds-text-tertiary)' }}>Current</span>
+          <span className="text-[10px] uppercase font-semibold text-right" style={{ color: 'var(--ds-link)' }}>ACKO</span>
         </div>
         {gaps.map((g, i) => (
           <button key={i} onClick={() => setExpanded(expanded === i ? null : i)}
-            className={`w-full grid grid-cols-3 items-center px-4 py-3 text-left border-b border-white/5 last:border-0 transition-colors ${expanded === i ? 'bg-white/5' : 'hover:bg-white/5'}`}>
+            className="w-full grid grid-cols-3 items-center px-4 py-3 text-left transition-colors"
+            style={{ borderBottom: i < gaps.length - 1 ? '1px solid var(--ds-divider)' : 'none', background: expanded === i ? 'var(--ds-overlay-bg)' : 'transparent' }}>
             <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${g.status === 'gap' ? 'bg-red-400' : 'bg-green-400'}`} />
-              <span className="text-[12px] text-white/80">{g.feature}</span>
+              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: g.status === 'gap' ? 'var(--ds-error-text)' : 'var(--ds-success)' }} />
+              <span className="text-[12px]" style={{ color: 'var(--ds-text)' }}>{g.feature}</span>
             </div>
-            <span className="text-[11px] text-white/40 text-center">{g.current}</span>
-            <span className="text-[11px] text-purple-300 font-medium text-right">{g.acko}</span>
+            <span className="text-[11px] text-center" style={{ color: 'var(--ds-text-tertiary)' }}>{g.current}</span>
+            <span className="text-[11px] font-medium text-right" style={{ color: 'var(--ds-link)' }}>{g.acko}</span>
           </button>
         ))}
       </div>
@@ -1263,90 +989,40 @@ function DemoGapAnalysis() {
   );
 }
 
-function DemoPlanSwitcher() {
-  const [activeTier, setActiveTier] = useState('platinum');
-  const tiers = [
-    { id: 'platinum', label: 'Platinum', premium: '₹12,999/yr', cover: '₹25 Lakh', features: ['Zero co-pay', 'No room rent limit', 'Full consumables', '100% restore'] },
-    { id: 'lite', label: 'Lite', premium: '₹8,499/yr', cover: '₹10 Lakh', features: ['10% co-pay 50+', '₹8,000/day room', 'Basic consumables', '50% restore'] },
-    { id: 'topup', label: 'Top-up', premium: '₹3,999/yr', cover: '₹15 Lakh', features: ['₹5L deductible', 'No room limit', 'Full consumables', 'Over existing cover'] },
-  ];
-  const active = tiers.find(t => t.id === activeTier)!;
-
-  return (
-    <div className="max-w-md">
-      <div className="flex gap-1 p-1 rounded-xl mb-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        {tiers.map(tier => (
-          <button key={tier.id} onClick={() => setActiveTier(tier.id)}
-            className={`flex-1 py-2.5 px-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${
-              activeTier === tier.id ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-white/45'}`}>
-            {tier.label}
-          </button>
-        ))}
-      </div>
-      <motion.div key={activeTier} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(168,85,247,0.3)' }}>
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-[16px] font-bold text-white">ACKO {active.label}</p>
-              <p className="text-[12px] text-white/50">Cover: {active.cover}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[18px] font-bold text-white">{active.premium}</p>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {active.features.map((f, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <img src="/icons/generic/Tick.svg" alt="check" className="w-3.5 h-3.5" style={{ filter: 'brightness(0) saturate(100%) invert(65%) sepia(52%) saturate(600%) hue-rotate(90deg)' }} />
-                <span className="text-[13px] text-white/70">{f}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="px-4 pb-4">
-          <button className="w-full py-3 bg-purple-600 text-white rounded-xl text-[15px] font-semibold active:scale-[0.97] transition-transform">
-            Select {active.label}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function DemoPdfUpload() {
+function FileUpload() {
   const [phase, setPhase] = useState<'idle' | 'extracting' | 'done'>('idle');
 
   return (
     <div className="max-w-md">
       {phase === 'idle' && (
         <div onClick={() => setPhase('extracting')}
-          className="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center cursor-pointer hover:border-purple-400/50 hover:bg-white/5 transition-all">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-purple-500/15 flex items-center justify-center">
-            <img src="/icons/generic/PDF file.svg" alt="pdf" className="w-7 h-7 opacity-70" style={{ filter: 'var(--ds-icon-filter)' }} />
+          className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all"
+          style={{ borderColor: 'var(--ds-border-strong)', background: 'var(--ds-overlay-bg)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--ds-accent)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--ds-border-strong)'; }}>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center" style={{ background: 'var(--ds-accent-bg)' }}>
+            <img src="/icons/generic/PDF file.svg" alt="pdf" className="w-7 h-7" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
           </div>
-          <p className="text-[14px] font-semibold text-white mb-1">Upload existing policy</p>
-          <p className="text-[12px] text-white/40">Drop your policy PDF here or tap to browse</p>
-          <p className="text-[11px] text-white/30 mt-2">PDF, up to 10MB</p>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: 'var(--ds-text)' }}>Upload existing policy</p>
+          <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Drop your policy PDF here or tap to browse</p>
+          <p className="text-[11px] mt-2" style={{ color: 'var(--ds-text-tertiary)', opacity: 0.6 }}>PDF, up to 10MB</p>
         </div>
       )}
       {phase === 'extracting' && (
-        <div className="border border-purple-400/30 rounded-2xl p-6 text-center" style={{ background: 'rgba(139,92,246,0.08)' }}>
-          <div className="w-10 h-10 mx-auto mb-3 rounded-full border-2 border-purple-400 border-t-transparent animate-spin" />
-          <p className="text-[14px] font-semibold text-white">Extracting policy details...</p>
-          <p className="text-[12px] text-white/40 mt-1">Reading Care Health Insurance — care_advantage.pdf</p>
+        <div className="rounded-2xl p-6 text-center" style={{ background: 'var(--ds-accent-bg)', border: '1px solid var(--ds-accent)' }}>
+          <div className="w-10 h-10 mx-auto mb-3 rounded-full animate-spin" style={{ border: '2px solid var(--ds-accent)', borderTopColor: 'transparent' }} />
+          <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>Extracting policy details...</p>
+          <p className="text-[12px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>Reading Care Health Insurance — care_advantage.pdf</p>
           {setTimeout(() => setPhase('done'), 2500) && null}
         </div>
       )}
       {phase === 'done' && (
-        <div className="border border-green-500/30 rounded-2xl p-5" style={{ background: 'rgba(34,197,94,0.08)' }}>
+        <div className="rounded-2xl p-5" style={{ background: 'var(--ds-success-bg)', border: '1px solid var(--ds-success)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
-              <img src="/icons/generic/Verify.svg" alt="done" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(65%) sepia(52%) saturate(600%) hue-rotate(90deg)' }} />
-            </div>
+            <DsAvatar size="md" icon={<img src="/icons/generic/Verify.svg" alt="" className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
             <div>
-              <p className="text-[14px] font-semibold text-white">Policy extracted</p>
-              <p className="text-[12px] text-white/50">Care Health Insurance — Care Advantage</p>
+              <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>Policy extracted</p>
+              <p className="text-[12px]" style={{ color: 'var(--ds-text-secondary)' }}>Care Health Insurance — Care Advantage</p>
             </div>
           </div>
         </div>
@@ -1355,7 +1031,7 @@ function DemoPdfUpload() {
   );
 }
 
-function DemoLabSchedule() {
+function SchedulePicker() {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedLab, setSelectedLab] = useState('');
@@ -1380,194 +1056,105 @@ function DemoLabSchedule() {
 
   return (
     <div className="max-w-md space-y-4">
-      <div className="relative rounded-2xl overflow-hidden h-20" style={{ background: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)' }}>
+      <div className="relative rounded-2xl overflow-hidden h-20" style={{ background: 'var(--ds-accent)' }}>
         <div className="absolute inset-0 flex items-center px-4">
           <div className="flex items-center gap-3">
-            <img src="/icons/health-life/Blood test.svg" alt="lab" className="w-6 h-6 opacity-80" style={{ filter: 'var(--ds-icon-filter)' }} />
+            <img src="/icons/health-life/Blood test.svg" alt="lab" className="w-6 h-6" style={{ filter: 'brightness(0) invert(1)' }} />
             <div>
-              <p className="text-white font-semibold text-[14px]">Schedule Lab Test</p>
-              <p className="text-white/60 text-[11px]">All costs covered by ACKO</p>
+              <p className="font-semibold text-[14px]" style={{ color: '#FFFFFF' }}>Schedule Lab Test</p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.6)' }}>All costs covered by ACKO</p>
             </div>
           </div>
         </div>
       </div>
 
       <div>
-        <h4 className="text-[13px] text-white/60 font-semibold mb-2">Pick a date</h4>
+        <h4 className="text-[13px] font-semibold mb-2" style={{ color: 'var(--ds-text-secondary)' }}>Pick a date</h4>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {dates.map(d => (
             <button key={d.value} onClick={() => setSelectedDate(d.value)}
-              className={`flex-shrink-0 px-3 py-2.5 rounded-xl border text-[12px] transition-all ${
-                selectedDate === d.value ? 'border-purple-400 bg-white/15 text-white' : 'border-white/10 bg-white/5 text-white/60'}`}>
+              className="flex-shrink-0 px-3 py-2.5 rounded text-[12px] transition-all"
+              style={{
+                background: selectedDate === d.value ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
+                border: `1px solid ${selectedDate === d.value ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                color: selectedDate === d.value ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+              }}>
               {d.label}
             </button>
           ))}
         </div>
       </div>
 
+      <DsDivider />
+
       <div>
-        <h4 className="text-[13px] text-white/60 font-semibold mb-2">Time slot</h4>
+        <h4 className="text-[13px] font-semibold mb-2" style={{ color: 'var(--ds-text-secondary)' }}>Time slot</h4>
         <div className="grid grid-cols-3 gap-2">
           {timeSlots.map(s => (
             <button key={s.id} onClick={() => setSelectedTime(s.id)}
-              className={`p-3 rounded-xl border text-center transition-all ${
-                selectedTime === s.id ? 'border-purple-400 bg-white/15' : 'border-white/10 bg-white/5'}`}>
-              <p className="text-[12px] font-medium text-white/90">{s.label}</p>
-              <p className="text-[10px] text-white/40">{s.time}</p>
-              {s.note && <p className="text-[9px] text-green-400 mt-0.5">{s.note}</p>}
+              className="p-3 rounded text-center transition-all"
+              style={{
+                background: selectedTime === s.id ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
+                border: `1px solid ${selectedTime === s.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              }}>
+              <p className="text-[12px] font-medium" style={{ color: 'var(--ds-text)' }}>{s.label}</p>
+              <p className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{s.time}</p>
+              {s.note && <p className="text-[9px] mt-0.5" style={{ color: 'var(--ds-success)' }}>{s.note}</p>}
             </button>
           ))}
         </div>
       </div>
 
+      <DsDivider />
+
       <div>
-        <h4 className="text-[13px] text-white/60 font-semibold mb-2">Choose lab</h4>
+        <h4 className="text-[13px] font-semibold mb-2" style={{ color: 'var(--ds-text-secondary)' }}>Choose lab</h4>
         <div className="space-y-2">
           {labs.map(lab => (
             <button key={lab.id} onClick={() => setSelectedLab(lab.id)}
-              className={`w-full text-left p-3 rounded-xl border transition-all flex items-center gap-3 ${
-                selectedLab === lab.id ? 'border-purple-400 bg-white/15' : 'border-white/10 bg-white/5'}`}>
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                <img src="/icons/health-life/lab test 3.svg" alt="lab" className="w-5 h-5 opacity-60" style={{ filter: 'var(--ds-icon-filter)' }} />
-              </div>
+              className="w-full text-left p-3 rounded transition-all flex items-center gap-3"
+              style={{
+                background: selectedLab === lab.id ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
+                border: `1px solid ${selectedLab === lab.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              }}>
+              <DsAvatar size="md" icon={<img src="/icons/health-life/lab test 3.svg" alt="" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />} />
               <div className="flex-1">
-                <p className="text-[13px] font-medium text-white/90">{lab.name}</p>
-                <p className="text-[11px] text-white/40">{lab.distance}</p>
+                <p className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>{lab.name}</p>
+                <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{lab.distance}</p>
               </div>
               <div className="flex items-center gap-1">
-                <img src="/icons/generic/star.svg" alt="rating" className="w-3 h-3 opacity-60" style={{ filter: 'var(--ds-icon-filter)' }} />
-                <span className="text-[11px] text-white/50">{lab.rating}</span>
+                <img src="/icons/generic/star.svg" alt="rating" className="w-3 h-3" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
+                <span className="text-[11px]" style={{ color: 'var(--ds-text-secondary)' }}>{lab.rating}</span>
               </div>
             </button>
           ))}
         </div>
       </div>
 
-      <button disabled={!selectedDate || !selectedTime || !selectedLab}
-        className="w-full py-3 bg-purple-600 text-white rounded-xl text-[15px] font-semibold disabled:opacity-40 active:scale-[0.97] transition-all">
-        Confirm Booking
-      </button>
+      <DsButton fullWidth disabled={!selectedDate || !selectedTime || !selectedLab}>Confirm Booking</DsButton>
     </div>
   );
 }
 
-function DemoConfirmDetails() {
-  const details = [
-    { label: 'Policy Holder', value: 'Rahul Sharma' },
-    { label: 'Sum Insured', value: '₹5,00,000' },
-    { label: 'Members', value: 'Self (32 yrs), Spouse (30 yrs)' },
-    { label: 'Renewal Date', value: '15 Aug 2026' },
-    { label: 'Policy No', value: 'CH-2024-7839201' },
-    { label: 'NCB', value: '10% per year' },
-  ];
-
-  return (
-    <div className="max-w-md">
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="px-4 py-3 border-b border-white/10 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-            <img src="/icons/generic/Policy document.svg" alt="doc" className="w-4 h-4 opacity-70" style={{ filter: 'var(--ds-icon-filter)' }} />
-          </div>
-          <div>
-            <p className="text-[11px] text-white/40">Extracted from policy</p>
-            <p className="text-[13px] text-white font-semibold">Care Health Insurance — Care Advantage</p>
-          </div>
-        </div>
-        <div className="p-4 grid grid-cols-2 gap-3">
-          {details.map(d => (
-            <div key={d.label}>
-              <p className="text-[10px] text-white/40 uppercase">{d.label}</p>
-              <p className="text-[13px] text-white font-medium mt-0.5">{d.value}</p>
-            </div>
-          ))}
-        </div>
-        <div className="px-4 pb-4 flex gap-2">
-          <button className="flex-1 py-2.5 rounded-xl border border-white/15 text-[13px] text-white/70 font-medium hover:bg-white/5 transition-colors">
-            Edit Details
-          </button>
-          <button className="flex-1 py-2.5 rounded-xl bg-purple-600 text-white text-[13px] font-semibold active:scale-[0.97] transition-transform">
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DemoVehicleDetailsCard() {
-  const [confirmed, setConfirmed] = useState(false);
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm">
-      <div className="rounded-xl overflow-hidden shadow-[0_4px_10px_-2px_rgba(54,53,76,0.08)]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="px-4 py-4" style={{ background: 'rgba(168,85,247,0.16)' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-[72px] h-[72px] rounded-xl flex items-center justify-center overflow-hidden p-1 bg-white/10">
-              <img src="/icons/car-bike/Car.svg" alt="car" className="w-10 h-10 opacity-50" style={{ filter: 'var(--ds-icon-filter)' }} />
-            </div>
-            <div>
-              <h3 className="text-[18px] font-semibold text-white">Maruti Suzuki Swift</h3>
-              <p className="text-[12px] mt-1 text-white/50">VXi &bull; PETROL &bull; 2022</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 py-4 space-y-4">
-          <div>
-            <p className="text-[14px] text-white/50">Registration</p>
-            <p className="text-[14px] font-semibold mt-1 tracking-[0.01em] text-white">KA 01 AB 1234</p>
-          </div>
-          <div>
-            <p className="text-[14px] text-white/50">Current Insurance</p>
-            <p className="text-[14px] font-semibold mt-1 text-white">ICICI Lombard</p>
-          </div>
-          <div>
-            <p className="text-[14px] text-white/50">Policy expiry</p>
-            <p className="text-[14px] font-semibold mt-1 text-white">15 Apr 2026</p>
-          </div>
-          <div>
-            <p className="text-[14px] text-white/50">NCB (No Claim Bonus)</p>
-            <p className="text-[14px] font-semibold mt-1 text-white">50%</p>
-          </div>
-
-          <div className="pt-1">
-            <button
-              onClick={() => setConfirmed(true)}
-              disabled={confirmed}
-              className="w-full h-12 rounded-lg text-[14px] font-semibold transition-colors active:scale-[0.97] disabled:opacity-60 bg-purple-600 text-white"
-            >
-              {confirmed ? 'Confirmed' : 'This is correct'}
-            </button>
-            <button className="mt-2 w-full h-10 text-[14px] font-medium transition-colors text-white/50">
-              This is not my vehicle
-            </button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-
-function DemoKycBottomSheet() {
+function VerificationFlow() {
   const [stage, setStage] = useState<'info' | 'verify'>('info');
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <p className="text-[22px] font-bold leading-tight text-white">Complete KYC</p>
-              <p className="text-[13px] mt-1.5 leading-snug text-white/50">
+              <p className="text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>Complete KYC</p>
+              <p className="text-[13px] mt-1.5 leading-snug" style={{ color: 'var(--ds-text-secondary)' }}>
                 {stage === 'info'
                   ? 'HyperVerge, our reliable partner, will handle the KYC process for you with 100% security'
                   : 'Complete the steps below to verify your identity and activate your policy'}
               </p>
             </div>
-            <button onClick={() => setStage('info')} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-white/10">
-              <img src="/icons/generic/Close.svg" alt="close" className="w-4 h-4 opacity-50" style={{ filter: 'var(--ds-icon-filter)' }} />
-            </button>
+            <DsIconButton variant="filled" size="sm" onClick={() => setStage('info')}>
+              <img src="/icons/generic/Close.svg" alt="close" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)', opacity: '0.5' }} />
+            </DsIconButton>
           </div>
         </div>
 
@@ -1579,33 +1166,27 @@ function DemoKycBottomSheet() {
                 { step: '2', title: 'Take a quick selfie', desc: 'Face match for security' },
                 { step: '3', title: 'Instant confirmation', desc: 'Approved in most cases' },
               ].map((item) => (
-                <div key={item.step} className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-purple-500/20 border border-purple-400/30">
-                    <span className="text-[12px] font-bold text-purple-300">{item.step}</span>
-                  </div>
+                <div key={item.step} className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+                  <DsAvatar size="sm" initials={item.step} />
                   <div>
-                    <p className="text-[14px] font-medium text-white">{item.title}</p>
-                    <p className="text-[12px] mt-0.5 text-white/50">{item.desc}</p>
+                    <p className="text-[14px] font-medium" style={{ color: 'var(--ds-text)' }}>{item.title}</p>
+                    <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{item.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <button onClick={() => setStage('verify')} className="w-full py-3.5 rounded-xl text-[15px] font-semibold transition-all active:scale-[0.97] bg-purple-600 text-white">
-              Start KYC Verification
-            </button>
-            <button className="mt-2 w-full py-2.5 text-[13px] font-medium text-white/50 hover:text-white/70 transition-colors">
-              I&apos;ll do this later
-            </button>
+            <DsButton fullWidth onClick={() => setStage('verify')}>Start KYC Verification</DsButton>
+            <div className="mt-2 text-center">
+              <DsButton variant="ghost" onClick={() => setStage('info')}>I&apos;ll do this later</DsButton>
+            </div>
           </div>
         ) : (
           <div className="px-5 pb-5">
-            <div className="h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 mb-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="w-7 h-7 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
-              <p className="text-[12px] text-white/50">Loading KYC verification...</p>
+            <div className="h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 mb-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+              <div className="w-7 h-7 rounded-full animate-spin" style={{ border: '2px solid var(--ds-accent)', borderTopColor: 'transparent' }} />
+              <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Loading KYC verification...</p>
             </div>
-            <button onClick={() => setStage('info')} className="w-full py-3.5 rounded-xl text-[15px] font-semibold transition-all active:scale-[0.97] bg-purple-600 text-white">
-              I&apos;ve Completed Verification
-            </button>
+            <DsButton fullWidth onClick={() => setStage('info')}>I&apos;ve Completed Verification</DsButton>
           </div>
         )}
       </div>
@@ -1613,98 +1194,89 @@ function DemoKycBottomSheet() {
   );
 }
 
-
-function DemoChatMessage() {
+function ChatBubble() {
   return (
     <div className="space-y-3 max-w-md">
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Hi there! I&apos;m your ACKO assistant. Let&apos;s find the perfect insurance plan for you.</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Hi there! I&apos;m your ACKO assistant. Let&apos;s find the perfect insurance plan for you.</p>
         </div>
       </div>
       <div className="flex justify-end">
-        <div className="bg-purple-600/30 border border-purple-400/30 rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90">I want health insurance for my family</p>
+        <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
+          <p className="text-[14px]">I want health insurance for my family</p>
         </div>
       </div>
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Great choice! Who all do you want to cover?</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Great choice! Who all do you want to cover?</p>
         </div>
       </div>
     </div>
   );
 }
 
-function DemoPostPaymentTimeline() {
-  const steps = [
-    { icon: '/icons/generic/Phone.svg', title: 'Tele-Medical Call', desc: 'Quick health assessment call', time: 'Within 24 hrs' },
-    { icon: '/icons/health-life/hospital.svg', title: 'Medical Tests', desc: 'Basic health tests if needed', time: '2-3 days' },
-    { icon: '/icons/generic/Policy document.svg', title: 'Income Verification', desc: 'Submit income proof', time: 'Upload anytime' },
-    { icon: '/icons/generic/magnifier.svg', title: 'Underwriting Review', desc: 'Team reviews everything', time: '2-3 business days' },
-    { icon: '/icons/generic/Verify.svg', title: 'Final Approval', desc: 'Policy becomes active!', time: 'Same day' },
-  ];
+function RangeSlider() {
+  const [coverage, setCoverage] = useState(10000000);
+  const [term, setTerm] = useState(30);
+  const minCoverage = 2500000;
+  const maxCoverage = 100000000;
+  const minTerm = 10;
+  const maxTerm = 40;
+
+  const formatCoverage = (n: number) => {
+    if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)} Cr`;
+    if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
+    return `₹${n.toLocaleString('en-IN')}`;
+  };
+
+  const getProgress = (value: number, min: number, max: number) => ((value - min) / (max - min)) * 100;
+  const premium = Math.round((coverage / 100000) * 8 * (1 + (term - 10) * 0.02));
+  const monthly = Math.round(premium / 12);
 
   return (
     <div className="max-w-md">
-      <div className="bg-white/10 border border-white/15 rounded-2xl p-5">
-        <h3 className="text-[16px] font-bold text-white mb-4">What happens next</h3>
-        <div className="space-y-0">
-          {steps.map((s, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                  <img src={s.icon} alt={s.title} className="w-5 h-5 opacity-80" style={{ filter: 'var(--ds-icon-filter)' }} />
-                </div>
-                {i < steps.length - 1 && <div className="w-0.5 h-6 bg-white/10" />}
-              </div>
-              <div className="pb-4">
-                <p className="text-[14px] font-medium text-white">{s.title}</p>
-                <p className="text-[12px] text-white/50">{s.desc}</p>
-                <p className="text-[11px] text-purple-300 mt-0.5">{s.time}</p>
-              </div>
-            </div>
-          ))}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="px-5 py-5" style={{ background: 'var(--ds-accent)' }}>
+          <p className="text-[11px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.6)' }}>Annual Premium</p>
+          <p className="text-3xl font-bold mt-1" style={{ color: '#FFFFFF' }}>₹{premium.toLocaleString('en-IN')}<span className="text-lg font-normal" style={{ color: 'rgba(255,255,255,0.6)' }}>/yr</span></p>
+          <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>₹{monthly.toLocaleString('en-IN')}/mo</p>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function DemoAppDownloadCta() {
-  return (
-    <div className="max-w-md space-y-3">
-      <div className="bg-white/10 border border-white/15 rounded-2xl p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <img src="/icons/generic/App.svg" alt="app" className="w-6 h-6" style={{ filter: 'var(--ds-icon-filter)' }} />
-          </div>
+        <div className="px-5 py-5 space-y-6">
           <div>
-            <p className="text-[14px] font-semibold text-white">ACKO App</p>
-            <p className="text-[11px] text-white/50">Manage everything on the go</p>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>Coverage</span>
+              <span className="text-[15px] font-bold" style={{ color: 'var(--ds-text)' }}>{formatCoverage(coverage)}</span>
+            </div>
+            <input type="range" min={minCoverage} max={maxCoverage} step={2500000} value={coverage}
+              onChange={(e) => setCoverage(Number(e.target.value))}
+              style={{ background: `linear-gradient(to right, var(--ds-accent) ${getProgress(coverage, minCoverage, maxCoverage)}%, var(--ds-progress-bg) ${getProgress(coverage, minCoverage, maxCoverage)}%)` }}
+              className="ds-range w-full h-1.5 rounded-full appearance-none cursor-pointer" />
+            <div className="flex justify-between mt-1">
+              <span className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{formatCoverage(minCoverage)}</span>
+              <span className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{formatCoverage(maxCoverage)}</span>
+            </div>
+          </div>
+          <DsDivider />
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>Policy Term</span>
+              <span className="text-[15px] font-bold" style={{ color: 'var(--ds-text)' }}>{term} years</span>
+            </div>
+            <input type="range" min={minTerm} max={maxTerm} step={1} value={term}
+              onChange={(e) => setTerm(Number(e.target.value))}
+              style={{ background: `linear-gradient(to right, var(--ds-accent) ${getProgress(term, minTerm, maxTerm)}%, var(--ds-progress-bg) ${getProgress(term, minTerm, maxTerm)}%)` }}
+              className="ds-range w-full h-1.5 rounded-full appearance-none cursor-pointer" />
+            <div className="flex justify-between mt-1">
+              <span className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{minTerm} yrs</span>
+              <span className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{maxTerm} yrs</span>
+            </div>
           </div>
         </div>
-        <div className="space-y-2.5 mb-5">
-          {['Instant claim filing with photos', 'Roadside assistance in 30 min', '24/7 policy management'].map((feat, i) => (
-            <div key={i} className="flex items-center gap-2.5">
-              <img src="/icons/generic/Tick.svg" alt="check" className="w-4 h-4 flex-shrink-0" style={{ filter: 'brightness(0) saturate(100%) invert(65%) sepia(52%) saturate(600%) hue-rotate(90deg)' }} />
-              <span className="text-[12px] text-white/70">{feat}</span>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <button className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white bg-white/10 border border-white/15 hover:bg-white/15 transition-colors">
-            App Store
-          </button>
-          <button className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white bg-white/10 border border-white/15 hover:bg-white/15 transition-colors">
-            Play Store
-          </button>
+        <div className="px-5 pb-5">
+          <DsButton fullWidth>Continue with this plan</DsButton>
         </div>
       </div>
     </div>
@@ -1712,31 +1284,27 @@ function DemoAppDownloadCta() {
 }
 
 /* ═══════════════════════════════════════════════
-   LOB-specific Chat Message variants
+   LOB-specific Chat Bubble variants
    ═══════════════════════════════════════════════ */
 
 function DemoChatMessageHealth() {
   return (
     <div className="space-y-3 max-w-md">
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Hi! Let&apos;s find the best health plan for your family. How many members do you want to cover?</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Hi! Let&apos;s find the best health plan for your family. How many members do you want to cover?</p>
         </div>
       </div>
       <div className="flex justify-end">
-        <div className="bg-emerald-600/30 border border-emerald-400/30 rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90">Me, my wife, and 2 kids</p>
+        <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
+          <p className="text-[14px]">Me, my wife, and 2 kids</p>
         </div>
       </div>
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Great! A family floater plan will give you the best value. What&apos;s your pincode?</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Great! A family floater plan will give you the best value. What&apos;s your pincode?</p>
         </div>
       </div>
     </div>
@@ -1747,24 +1315,20 @@ function DemoChatMessageMotor() {
   return (
     <div className="space-y-3 max-w-md">
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Welcome! Let&apos;s get your vehicle insured. Please enter your registration number.</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Welcome! Let&apos;s get your vehicle insured. Please enter your registration number.</p>
         </div>
       </div>
       <div className="flex justify-end">
-        <div className="bg-blue-600/30 border border-blue-400/30 rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90">KA 01 AB 1234</p>
+        <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
+          <p className="text-[14px]">KA 01 AB 1234</p>
         </div>
       </div>
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Found it! Maruti Suzuki Swift VXi Petrol 2022. Is this correct?</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Found it! Maruti Suzuki Swift VXi Petrol 2022. Is this correct?</p>
         </div>
       </div>
     </div>
@@ -1775,24 +1339,20 @@ function DemoChatMessageLife() {
   return (
     <div className="space-y-3 max-w-md">
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Let&apos;s find the right life insurance cover for you. What&apos;s your annual income?</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Let&apos;s find the right life insurance cover for you. What&apos;s your annual income?</p>
         </div>
       </div>
       <div className="flex justify-end">
-        <div className="bg-amber-600/30 border border-amber-400/30 rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90">Around 18 lakhs per year</p>
+        <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)' }}>
+          <p className="text-[14px]" style={{ color: 'var(--ds-user-bubble-text)' }}>Around 18 lakhs per year</p>
         </div>
       </div>
       <div className="flex items-start gap-2.5">
-        <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <img src="/icons/generic/Customer service.svg" alt="bot" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />
-        </div>
-        <div className="bg-white/10 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-          <p className="text-[14px] text-white/90 leading-relaxed">Based on your income, I&apos;d recommend a ₹1.5 Cr cover. Do you smoke?</p>
+        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="bot" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+        <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Based on your income, I&apos;d recommend a ₹1.5 Cr cover. Do you smoke?</p>
         </div>
       </div>
     </div>
@@ -1802,6 +1362,597 @@ function DemoChatMessageLife() {
 /* ═══════════════════════════════════════════════
    Main Design System Page
    ═══════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════
+   Atom Components — Single Source of Truth
+   ═══════════════════════════════════════════════ */
+
+type DsButtonVariant = 'primary' | 'secondary' | 'ghost' | 'link' | 'danger';
+type DsSize = 'sm' | 'md' | 'lg';
+
+function DsButton({
+  variant = 'primary', size = 'md', disabled = false, loading = false,
+  fullWidth = false, icon, children, onClick,
+}: {
+  variant?: DsButtonVariant; size?: DsSize; disabled?: boolean; loading?: boolean;
+  fullWidth?: boolean; icon?: React.ReactNode; children: React.ReactNode; onClick?: () => void;
+}) {
+  const sizeMap = { sm: 'py-1.5 px-3 text-[12px] rounded gap-1.5', md: 'py-2.5 px-4 text-[13px] rounded gap-2', lg: 'py-3.5 px-5 text-[15px] rounded gap-2' };
+
+  const variantStyles: Record<DsButtonVariant, React.CSSProperties> = {
+    primary: { background: 'var(--ds-cta-bg)', color: 'var(--ds-cta-text)', boxShadow: 'inset 0px 2px 2px rgba(255,255,255,0.12)' },
+    secondary: { background: 'var(--ds-surface)', color: 'var(--ds-text)', border: '1px solid var(--ds-accent)', boxShadow: 'inset 0px 2px 4px rgba(255,255,255,0.08)' },
+    ghost: { background: 'transparent', color: 'var(--ds-accent)' },
+    link: { background: 'transparent', color: 'var(--ds-link)', padding: '0' },
+    danger: { background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: '1px solid transparent' },
+  };
+
+  return (
+    <button
+      onClick={onClick} disabled={disabled || loading}
+      className={`inline-flex items-center justify-center font-medium transition-all active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 ${sizeMap[size]} ${fullWidth ? 'w-full' : ''}`}
+      style={variantStyles[variant]}
+    >
+      {loading ? (
+        <div className="w-4 h-4 rounded-full animate-spin" style={{ border: '2px solid currentColor', borderTopColor: 'transparent' }} />
+      ) : icon ? (
+        <span className="flex-shrink-0">{icon}</span>
+      ) : null}
+      {variant !== 'link' ? <span>{children}</span> : <span className="underline underline-offset-2">{children}</span>}
+    </button>
+  );
+}
+
+function DsInput({
+  type = 'text', placeholder, helperText, error, disabled = false,
+  icon, suffix, value, onChange,
+}: {
+  type?: 'text' | 'number' | 'tel' | 'email'; placeholder?: string;
+  helperText?: string; error?: string; disabled?: boolean;
+  icon?: React.ReactNode; suffix?: React.ReactNode;
+  value?: string; onChange?: (v: string) => void;
+}) {
+  return (
+    <div>
+      <div className="relative">
+        {icon && <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center">{icon}</span>}
+        <input
+          type={type} placeholder={placeholder} disabled={disabled}
+          value={value} onChange={(e) => onChange?.(e.target.value)}
+          className={`w-full py-3 rounded text-[14px] font-medium transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed ${icon ? 'pl-10 pr-4' : 'px-4'} ${suffix ? 'pr-16' : ''}`}
+          style={{
+            background: 'var(--ds-input-bg)',
+            border: `1px solid ${error ? 'var(--ds-error-text)' : 'var(--ds-input-border)'}`,
+            color: 'var(--ds-input-text)',
+          }}
+        />
+        {suffix && <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>{suffix}</span>}
+      </div>
+      {(helperText || error) && (
+        <p className="text-[11px] mt-1.5" style={{ color: error ? 'var(--ds-error-text)' : 'var(--ds-text-tertiary)' }}>
+          {error || helperText}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function DsCheckbox({
+  checked = false, disabled = false, label, onChange,
+}: {
+  checked?: boolean; disabled?: boolean; label?: string; onChange?: (v: boolean) => void;
+}) {
+  return (
+    <button
+      onClick={() => !disabled && onChange?.(!checked)} disabled={disabled}
+      className="flex items-center gap-2.5 group disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
+        style={{
+          background: checked ? 'var(--ds-accent)' : 'transparent',
+          border: `2px solid ${checked ? 'var(--ds-accent)' : 'var(--ds-border-strong)'}`,
+        }}>
+        {checked && (
+          <svg className="w-3 h-3" fill="none" stroke="#FFFFFF" viewBox="0 0 24 24" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        )}
+      </div>
+      {label && <span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{label}</span>}
+    </button>
+  );
+}
+
+function DsRadio({
+  selected = false, disabled = false, label, onChange,
+}: {
+  selected?: boolean; disabled?: boolean; label?: string; onChange?: () => void;
+}) {
+  return (
+    <button
+      onClick={() => !disabled && onChange?.()} disabled={disabled}
+      className="flex items-center gap-2.5 group disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+        style={{
+          border: `2px solid ${selected ? 'var(--ds-accent)' : 'var(--ds-border-strong)'}`,
+        }}>
+        {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--ds-accent)' }} />}
+      </div>
+      {label && <span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{label}</span>}
+    </button>
+  );
+}
+
+function DsToggle({
+  on = false, disabled = false, label, onChange,
+}: {
+  on?: boolean; disabled?: boolean; label?: string; onChange?: (v: boolean) => void;
+}) {
+  return (
+    <button
+      onClick={() => !disabled && onChange?.(!on)} disabled={disabled}
+      className="flex items-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      <div className="relative w-10 h-[22px] rounded-full transition-colors" style={{ background: on ? 'var(--ds-accent)' : 'var(--ds-border-strong)' }}>
+        <div className="absolute top-[3px] w-4 h-4 rounded-full shadow-sm transition-all" style={{ left: on ? '21px' : '3px', background: on ? 'var(--ds-cta-text)' : 'var(--ds-text)' }} />
+      </div>
+      {label && <span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{label}</span>}
+    </button>
+  );
+}
+
+type DsBadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info';
+
+function DsBadge({ variant = 'default', children }: { variant?: DsBadgeVariant; children: React.ReactNode }) {
+  const styles: Record<DsBadgeVariant, React.CSSProperties> = {
+    default: { background: 'var(--ds-badge-bg)', color: 'var(--ds-badge-text)', border: '1px solid var(--ds-badge-border)' },
+    success: { background: 'var(--ds-success-bg)', color: 'var(--ds-success)' },
+    warning: { background: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)' },
+    error: { background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)' },
+    info: { background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' },
+  };
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={styles[variant]}>
+      {children}
+    </span>
+  );
+}
+
+function DsLink({ href, children, arrow = false }: { href?: string; children: React.ReactNode; arrow?: boolean }) {
+  return (
+    <a href={href || '#'} className="inline-flex items-center gap-1 text-[13px] font-medium transition-opacity hover:opacity-80" style={{ color: 'var(--ds-link)' }}>
+      <span className="underline underline-offset-2">{children}</span>
+      {arrow && (
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      )}
+    </a>
+  );
+}
+
+function DsDivider({ label }: { label?: string }) {
+  if (label) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px" style={{ background: 'var(--ds-divider)' }} />
+        <span className="text-[11px] font-medium" style={{ color: 'var(--ds-text-tertiary)' }}>{label}</span>
+        <div className="flex-1 h-px" style={{ background: 'var(--ds-divider)' }} />
+      </div>
+    );
+  }
+  return <div className="h-px" style={{ background: 'var(--ds-divider)' }} />;
+}
+
+function DsAvatar({
+  size = 'md', initials, icon, src,
+}: {
+  size?: DsSize; initials?: string; icon?: React.ReactNode; src?: string;
+}) {
+  const sizeMap = { sm: 'w-6 h-6 text-[10px]', md: 'w-8 h-8 text-[12px]', lg: 'w-10 h-10 text-[14px]' };
+  return (
+    <div className={`${sizeMap[size]} rounded-full flex items-center justify-center flex-shrink-0 font-semibold overflow-hidden`}
+      style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>
+      {src ? <img src={src} alt="" className="w-full h-full object-cover" /> : icon ? icon : initials || '?'}
+    </div>
+  );
+}
+
+function DsIconButton({
+  variant = 'ghost', size = 'md', disabled = false, children, onClick,
+}: {
+  variant?: 'ghost' | 'filled'; size?: 'sm' | 'md'; disabled?: boolean;
+  children: React.ReactNode; onClick?: () => void;
+}) {
+  const sizeMap = { sm: 'w-7 h-7 rounded-lg', md: 'w-9 h-9 rounded-xl' };
+  return (
+    <button onClick={onClick} disabled={disabled}
+      className={`${sizeMap[size]} flex items-center justify-center transition-all active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed`}
+      style={{
+        background: variant === 'filled' ? 'var(--ds-overlay-bg)' : 'transparent',
+        color: 'var(--ds-text-secondary)',
+        border: variant === 'filled' ? '1px solid var(--ds-border-strong)' : 'none',
+      }}>
+      {children}
+    </button>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   Atoms Showcase — Interactive Demos
+   ═══════════════════════════════════════════════ */
+
+function AtomsShowcase() {
+  const [checkStates, setCheckStates] = useState([true, false, false]);
+  const [radioVal, setRadioVal] = useState(0);
+  const [toggleStates, setToggleStates] = useState([true, false]);
+  const [inputVal, setInputVal] = useState('');
+  const [inputErr, setInputErr] = useState('');
+
+  return (
+    <div className="space-y-12">
+      {/* ── Buttons ── */}
+      <section>
+        <SectionHeader title="Button" description="DsButton — primary, secondary, ghost, link, danger variants · sm/md/lg sizes · loading & disabled states" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Button Variants" widgetType="DsButton — variant · size · disabled · loading · fullWidth · icon">
+            <div className="space-y-6">
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>variants (md)</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <DsButton variant="primary">Primary</DsButton>
+                  <DsButton variant="secondary">Secondary</DsButton>
+                  <DsButton variant="ghost">Ghost</DsButton>
+                  <DsButton variant="link">Link Action</DsButton>
+                  <DsButton variant="danger">Danger</DsButton>
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>sizes</p>
+                <div className="flex flex-wrap items-end gap-3">
+                  <DsButton variant="primary" size="sm">Small</DsButton>
+                  <DsButton variant="primary" size="md">Medium</DsButton>
+                  <DsButton variant="primary" size="lg">Large</DsButton>
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>states</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <DsButton variant="primary">Default</DsButton>
+                  <DsButton variant="primary" disabled>Disabled</DsButton>
+                  <DsButton variant="primary" loading>Loading</DsButton>
+                  <DsButton variant="secondary" disabled>Disabled</DsButton>
+                  <DsButton variant="secondary" loading>Loading</DsButton>
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>full width</p>
+                <div className="space-y-2">
+                  <DsButton variant="primary" fullWidth>Full Width Primary</DsButton>
+                  <DsButton variant="secondary" fullWidth>Full Width Secondary</DsButton>
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>with icon</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <DsButton variant="primary" icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>}>Add Item</DsButton>
+                  <DsButton variant="secondary" icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>}>Upload</DsButton>
+                  <DsButton variant="danger" size="sm" icon={<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>}>Delete</DsButton>
+                </div>
+              </div>
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Input ── */}
+      <section>
+        <SectionHeader title="Input" description="DsInput — text/number/tel/email types · icon prefix · suffix · helper text · error state" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <WidgetCard title="Input States" widgetType="DsInput — type · placeholder · icon · suffix · helperText · error">
+            <div className="space-y-4">
+              <DsInput placeholder="Default input" helperText="Helper text goes here" />
+              <DsInput placeholder="With prefix icon" icon={<svg className="w-4 h-4" style={{ color: 'var(--ds-text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>} />
+              <DsInput type="number" placeholder="Amount" suffix="INR" />
+              <DsInput placeholder="Error state" error="This field is required" value={inputVal} onChange={setInputVal} />
+              <DsInput placeholder="Disabled input" disabled />
+            </div>
+          </WidgetCard>
+          <WidgetCard title="Interactive Input" widgetType="DsInput — live validation demo">
+            <div className="space-y-4">
+              <DsInput
+                type="email" placeholder="Enter email address"
+                icon={<svg className="w-4 h-4" style={{ color: 'var(--ds-text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>}
+                value={inputVal} onChange={(v) => { setInputVal(v); setInputErr(v && !v.includes('@') ? 'Enter a valid email' : ''); }}
+                error={inputErr}
+                helperText={!inputErr && inputVal ? 'Looks good!' : ''}
+              />
+              <DsInput type="tel" placeholder="Mobile number" helperText="10-digit Indian mobile number" />
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Checkbox ── */}
+      <section>
+        <SectionHeader title="Checkbox" description="DsCheckbox — custom styled checkbox with label · checked / unchecked / disabled states" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Checkbox States" widgetType="DsCheckbox — checked · disabled · label · onChange">
+            <div className="space-y-4">
+              <DsCheckbox checked={checkStates[0]} onChange={(v) => { const c = [...checkStates]; c[0] = v; setCheckStates(c); }} label="Checked — I agree to the terms & conditions" />
+              <DsCheckbox checked={checkStates[1]} onChange={(v) => { const c = [...checkStates]; c[1] = v; setCheckStates(c); }} label="Unchecked — Send me updates via SMS" />
+              <DsCheckbox checked={checkStates[2]} onChange={(v) => { const c = [...checkStates]; c[2] = v; setCheckStates(c); }} label="Unchecked — Add-on cyber protection" />
+              <DsDivider />
+              <DsCheckbox checked disabled label="Disabled checked" />
+              <DsCheckbox disabled label="Disabled unchecked" />
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Radio ── */}
+      <section>
+        <SectionHeader title="Radio" description="DsRadio — custom styled radio with label · selected / unselected / disabled states" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Radio Group" widgetType="DsRadio — selected · disabled · label · onChange">
+            <div className="space-y-4">
+              <p className="text-[11px] font-mono" style={{ color: 'var(--ds-text-tertiary)' }}>Select your plan</p>
+              {['Comprehensive Cover', 'Third Party Only', 'Own Damage Only'].map((opt, i) => (
+                <DsRadio key={i} selected={radioVal === i} onChange={() => setRadioVal(i)} label={opt} />
+              ))}
+              <DsDivider />
+              <DsRadio selected disabled label="Disabled selected" />
+              <DsRadio disabled label="Disabled unselected" />
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Toggle ── */}
+      <section>
+        <SectionHeader title="Toggle" description="DsToggle — pill-shaped switch · on / off / disabled states" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Toggle States" widgetType="DsToggle — on · disabled · label · onChange">
+            <div className="space-y-4">
+              <DsToggle on={toggleStates[0]} onChange={(v) => { const t = [...toggleStates]; t[0] = v; setToggleStates(t); }} label="Dark mode" />
+              <DsToggle on={toggleStates[1]} onChange={(v) => { const t = [...toggleStates]; t[1] = v; setToggleStates(t); }} label="Email notifications" />
+              <DsDivider />
+              <DsToggle on disabled label="Disabled on" />
+              <DsToggle disabled label="Disabled off" />
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Badge ── */}
+      <section>
+        <SectionHeader title="Badge" description="DsBadge — default, success, warning, error, info variants for status indicators" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Badge Variants" widgetType="DsBadge — variant · children">
+            <div className="flex flex-wrap items-center gap-3">
+              <DsBadge>Default</DsBadge>
+              <DsBadge variant="success">Active</DsBadge>
+              <DsBadge variant="warning">Pending</DsBadge>
+              <DsBadge variant="error">Expired</DsBadge>
+              <DsBadge variant="info">New</DsBadge>
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Link ── */}
+      <section>
+        <SectionHeader title="Link" description="DsLink — inline text link with accent color · optional trailing arrow" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Link Variants" widgetType="DsLink — href · arrow · children">
+            <div className="space-y-3">
+              <div><DsLink>Simple link</DsLink></div>
+              <div><DsLink arrow>Link with arrow</DsLink></div>
+              <div><span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>Read our <DsLink>terms & conditions</DsLink> before proceeding</span></div>
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Divider ── */}
+      <section>
+        <SectionHeader title="Divider" description="DsDivider — horizontal rule · optional centered label" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Divider Variants" widgetType="DsDivider — label">
+            <div className="space-y-6">
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>plain</p>
+                <DsDivider />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>with label</p>
+                <DsDivider label="OR" />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>with label (contextual)</p>
+                <DsDivider label="Payment Methods" />
+              </div>
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Avatar ── */}
+      <section>
+        <SectionHeader title="Avatar" description="DsAvatar — initials or icon based · sm / md / lg sizes" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Avatar Variants" widgetType="DsAvatar — size · initials · icon · src">
+            <div className="space-y-6">
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>sizes (initials)</p>
+                <div className="flex items-end gap-3">
+                  <DsAvatar size="sm" initials="A" />
+                  <DsAvatar size="md" initials="CB" />
+                  <DsAvatar size="lg" initials="DS" />
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>with icon</p>
+                <div className="flex items-end gap-3">
+                  <DsAvatar size="sm" icon={<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>} />
+                  <DsAvatar size="md" icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>} />
+                  <DsAvatar size="lg" icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>} />
+                </div>
+              </div>
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+
+      {/* ── Icon Button ── */}
+      <section>
+        <SectionHeader title="Icon Button" description="DsIconButton — square icon-only button · ghost & filled variants · sm / md sizes" />
+        <div className="grid grid-cols-1 gap-6">
+          <WidgetCard title="Icon Button Variants" widgetType="DsIconButton — variant · size · disabled">
+            <div className="space-y-6">
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>ghost</p>
+                <div className="flex items-center gap-3">
+                  <DsIconButton size="sm"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></DsIconButton>
+                  <DsIconButton size="md"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg></DsIconButton>
+                  <DsIconButton size="md" disabled><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></DsIconButton>
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>filled</p>
+                <div className="flex items-center gap-3">
+                  <DsIconButton variant="filled" size="sm"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg></DsIconButton>
+                  <DsIconButton variant="filled" size="md"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg></DsIconButton>
+                  <DsIconButton variant="filled" size="md" disabled><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></DsIconButton>
+                </div>
+              </div>
+            </div>
+          </WidgetCard>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   Asset Library Component
+   ═══════════════════════════════════════════════ */
+
+const ASSET_CATEGORIES: { id: AssetCategory; label: string; count: number }[] = [
+  { id: 'all', label: 'All Icons', count: ICON_REGISTRY.length },
+  { id: 'generic', label: 'Generic', count: ICON_REGISTRY.filter(i => i.category === 'generic').length },
+  { id: 'car-bike', label: 'Car & Bike', count: ICON_REGISTRY.filter(i => i.category === 'car-bike').length },
+  { id: 'health-life', label: 'Health & Life', count: ICON_REGISTRY.filter(i => i.category === 'health-life').length },
+];
+
+function AssetLibrary() {
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<AssetCategory>('all');
+  const [copiedPath, setCopiedPath] = useState<string | null>(null);
+
+  const filtered = ICON_REGISTRY.filter(icon => {
+    const matchesCategory = activeCategory === 'all' || icon.category === activeCategory;
+    const matchesSearch = search === '' || icon.name.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const handleCopy = (path: string) => {
+    navigator.clipboard.writeText(path);
+    setCopiedPath(path);
+    setTimeout(() => setCopiedPath(null), 1500);
+  };
+
+  return (
+    <>
+      <section>
+        <SectionHeader title="Asset Library" description={`${ICON_REGISTRY.length} icons across 3 categories — click any icon to copy its path`} />
+
+        {/* Search + Category Filter */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search icons..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+              style={{ background: 'var(--ds-input-bg)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-input-text)' }}
+            />
+          </div>
+          <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: 'var(--ds-surface-2)' }}>
+            {ASSET_CATEGORIES.map(cat => (
+              <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
+                className="px-3 py-2 rounded-lg text-[12px] font-semibold transition-all whitespace-nowrap"
+                style={{
+                  background: activeCategory === cat.id ? 'var(--ds-cta-bg)' : 'transparent',
+                  color: activeCategory === cat.id ? 'var(--ds-cta-text)' : 'var(--ds-text-secondary)',
+                }}>
+                {cat.label} <span className="opacity-60">({cat.count})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results count */}
+        <p className="text-[12px] mb-4" style={{ color: 'var(--ds-text-tertiary)' }}>
+          {filtered.length} icon{filtered.length !== 1 ? 's' : ''}{search && ` matching "${search}"`}
+        </p>
+
+        {/* Icon Grid */}
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+            {filtered.map(icon => (
+              <button key={icon.path} onClick={() => handleCopy(icon.path)} title={`${icon.name}\n${icon.path}`}
+                className="group flex flex-col items-center gap-2 p-3 rounded-xl transition-all active:scale-95"
+                style={{
+                  background: copiedPath === icon.path ? 'var(--ds-success-bg)' : 'var(--ds-surface)',
+                  border: `1px solid ${copiedPath === icon.path ? 'var(--ds-success)' : 'var(--ds-border-strong)'}`,
+                }}>
+                <div className="w-7 h-7 flex items-center justify-center">
+                  <img src={icon.path} alt={icon.name} className="w-6 h-6"
+                    style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
+                </div>
+                <p className="text-[9px] leading-tight text-center truncate w-full" style={{ color: copiedPath === icon.path ? 'var(--ds-success)' : 'var(--ds-text-tertiary)' }}>
+                  {copiedPath === icon.path ? 'Copied!' : icon.name}
+                </p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="py-16 text-center rounded-2xl" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+            <svg className="w-10 h-10 mx-auto mb-3" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>No icons found</p>
+            <p className="text-[12px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>Try a different search term or category</p>
+          </div>
+        )}
+      </section>
+
+      {/* Illustrations placeholder */}
+      <section>
+        <SectionHeader title="Illustrations" description="Coming soon — brand illustrations for onboarding, empty states, and success moments" />
+        <div className="py-12 text-center rounded-2xl" style={{ background: 'var(--ds-surface)', border: '1px dashed var(--ds-border-strong)' }}>
+          <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={1}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V4.5a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v15a1.5 1.5 0 001.5 1.5z" />
+          </svg>
+          <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text-secondary)' }}>Illustrations coming soon</p>
+          <p className="text-[12px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>Drop illustration SVGs into <code className="text-[11px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-overlay-bg)', color: 'var(--ds-accent)' }}>public/illustrations/</code></p>
+        </div>
+      </section>
+    </>
+  );
+}
 
 type ThemeMode = 'dark' | 'light';
 
@@ -1941,7 +2092,7 @@ const DS_THEME_STYLES = `
   --ds-text-secondary: #6B7280;
   --ds-text-tertiary: #9CA3AF;
   --ds-border: rgba(0,0,0,0.06);
-  --ds-border-strong: rgba(0,0,0,0.1);
+  --ds-border-strong: rgba(0,0,0,0.12);
   --ds-border-subtle: rgba(0,0,0,0.06);
   --ds-icon-filter: brightness(0);
   --ds-icon-opacity: 0.7;
@@ -1963,7 +2114,7 @@ const DS_THEME_STYLES = `
   --ds-version-text: rgba(0,0,0,0.40);
   --ds-version-border: rgba(0,0,0,0.10);
   --ds-accent: #6D28D9;
-  --ds-accent-bg: rgba(109,40,217,0.08);
+  --ds-accent-bg: #EDE9FE;
   --ds-link: #6D28D9;
   --ds-success: #059669;
   --ds-success-bg: rgba(5,150,105,0.10);
@@ -1978,10 +2129,10 @@ const DS_THEME_STYLES = `
   --ds-cta-text: #FFFFFF;
   --ds-progress-bg: rgba(0,0,0,0.08);
   --ds-progress-fill: linear-gradient(90deg,#6D28D9,#7C3AED);
-  --ds-overlay-bg: rgba(0,0,0,0.04);
+  --ds-overlay-bg: rgba(0,0,0,0.05);
   --ds-glass-bg: rgba(255,255,255,0.95);
   --ds-header-bg: #EDE9FA;
-  --ds-divider: rgba(0,0,0,0.06);
+  --ds-divider: rgba(0,0,0,0.12);
   --ds-tab-bg: rgba(0,0,0,0.04);
   --ds-tab-inactive: rgba(0,0,0,0.4);
   --ds-bot-text: #1C0B47;
@@ -2117,7 +2268,7 @@ const DS_THEME_STYLES = `
 `;
 
 export default function DesignSystemPage() {
-  const [activeLob, setActiveLob] = useState<LobTab>('base');
+  const [activeLob, setActiveLob] = useState<LobTab>('foundations');
   const [themeMode, setThemeMode] = useState<ThemeMode>('dark');
 
   return (
@@ -2168,47 +2319,530 @@ export default function DesignSystemPage() {
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
 
         {/* ════════════════════════════════════════
+           FOUNDATIONS TAB
+           ════════════════════════════════════════ */}
+        {activeLob === 'foundations' && (
+          <>
+            {/* ── 1. Color Tokens ── */}
+            <section>
+              <SectionHeader title="Color Tokens" description="ACKO palette system — 6 scales, 8 steps each. Use semantic CSS variables in components, never raw hex." />
+
+              {/* Palette swatches */}
+              <div className="space-y-6">
+                {[
+                  { name: 'Purple', desc: 'Brand primary', colors: { 100: '#F8F7FD', 200: '#ECEBFF', 300: '#D1C5FA', 400: '#B59CF5', 500: '#926FF3', 600: '#4E29BB', 700: '#2E1773', 800: '#18084A' } },
+                  { name: 'Onyx', desc: 'Neutrals', colors: { 100: '#FFFFFF', 200: '#F6F6F6', 300: '#E7E7E7', 400: '#B0B0B0', 500: '#5D5D5D', 600: '#2F2F2F', 700: '#121212', 800: '#0A0A0A' } },
+                  { name: 'Cerise', desc: 'Error / destructive', colors: { 100: '#FDF2F8', 200: '#FCE7F4', 300: '#FAD0E9', 400: '#F8A9D6', 500: '#EC5FAB', 600: '#D82A7B', 700: '#981950', 800: '#4F0826' } },
+                  { name: 'Picton', desc: 'Info / links', colors: { 100: '#EEFAFF', 200: '#DEF7FF', 300: '#A1E7FD', 400: '#59D8FF', 500: '#1EB7E7', 600: '#009DE0', 700: '#006A97', 800: '#004768' } },
+                  { name: 'Leafy', desc: 'Success / positive', colors: { 100: '#F3FFF2', 200: '#DAFAD7', 300: '#B2F2AD', 400: '#85E37D', 500: '#55B94D', 600: '#149A40', 700: '#1C772C', 800: '#004A19' } },
+                  { name: 'Sunshade', desc: 'Warning / attention', colors: { 100: '#FFF8E7', 200: '#FFEDC5', 300: '#FFD79B', 400: '#FFC368', 500: '#F4A024', 600: '#D97700', 700: '#B15A08', 800: '#5B2C00' } },
+                ].map(palette => (
+                  <div key={palette.name} className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <h3 className="text-[15px] font-semibold" style={{ color: 'var(--ds-text)' }}>{palette.name}</h3>
+                      <span className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>{palette.desc}</span>
+                    </div>
+                    <div className="grid grid-cols-8 gap-2">
+                      {Object.entries(palette.colors).map(([step, hex]) => (
+                        <div key={step}>
+                          <div className="h-12 rounded-lg mb-1.5" style={{ background: hex, border: '1px solid var(--ds-border)' }} />
+                          <p className="text-[10px] font-semibold" style={{ color: 'var(--ds-text-secondary)' }}>{step}</p>
+                          <p className="text-[9px] font-mono" style={{ color: 'var(--ds-text-tertiary)' }}>{hex}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Semantic tokens */}
+              <div className="mt-8">
+                <h3 className="text-[17px] font-semibold mb-4" style={{ color: 'var(--ds-text)' }}>Semantic Tokens</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {[
+                    { group: 'Backgrounds', tokens: [
+                      { name: '--ds-bg', desc: 'Page background' },
+                      { name: '--ds-surface', desc: 'Card / panel' },
+                      { name: '--ds-surface-2', desc: 'Elevated card / inner section' },
+                      { name: '--ds-overlay-bg', desc: 'Subtle tint overlay' },
+                      { name: '--ds-glass-bg', desc: 'Frosted glass panels' },
+                    ]},
+                    { group: 'Text', tokens: [
+                      { name: '--ds-text', desc: 'Primary text' },
+                      { name: '--ds-text-secondary', desc: 'Muted / supporting' },
+                      { name: '--ds-text-tertiary', desc: 'Hints / subtle' },
+                      { name: '--ds-link', desc: 'Links / accent text' },
+                    ]},
+                    { group: 'Borders', tokens: [
+                      { name: '--ds-border', desc: 'Default — very subtle' },
+                      { name: '--ds-border-strong', desc: 'Visible — cards, inputs' },
+                      { name: '--ds-divider', desc: 'Section dividers' },
+                    ]},
+                    { group: 'Interactive', tokens: [
+                      { name: '--ds-accent', desc: 'Brand accent' },
+                      { name: '--ds-cta-bg', desc: 'Primary CTA background' },
+                      { name: '--ds-cta-text', desc: 'Primary CTA text' },
+                      { name: '--ds-selected-bg', desc: 'Selected state fill' },
+                      { name: '--ds-selected-border', desc: 'Selected state ring' },
+                    ]},
+                    { group: 'Feedback', tokens: [
+                      { name: '--ds-success', desc: 'Success / check' },
+                      { name: '--ds-warning-text', desc: 'Warning text' },
+                      { name: '--ds-error-text', desc: 'Error text' },
+                    ]},
+                    { group: 'Inputs', tokens: [
+                      { name: '--ds-input-bg', desc: 'Input fill' },
+                      { name: '--ds-input-border', desc: 'Input border' },
+                      { name: '--ds-input-text', desc: 'Input value text' },
+                      { name: '--ds-input-placeholder', desc: 'Placeholder text' },
+                    ]},
+                  ].map(g => (
+                    <div key={g.group} className="rounded-2xl p-4" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                      <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>{g.group}</h4>
+                      <div className="space-y-2">
+                        {g.tokens.map(t => (
+                          <div key={t.name} className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex-shrink-0" style={{ background: `var(${t.name})`, border: '1px solid var(--ds-border)' }} />
+                            <div className="min-w-0">
+                              <p className="text-[12px] font-mono font-medium truncate" style={{ color: 'var(--ds-text)' }}>{t.name}</p>
+                              <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{t.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ── 2. Typography ── */}
+            <section>
+              <SectionHeader title="Typography" description="Euclid Circular B — all type scales with size, line-height, weight, and letter-spacing" />
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                {[
+                  { name: 'display-xl', size: '72px', lh: '80px', weight: '700', ls: '-2px', sample: 'Aa' },
+                  { name: 'display-lg', size: '56px', lh: '64px', weight: '700', ls: '-1.5px', sample: 'Display Large' },
+                  { name: 'display-md', size: '48px', lh: '56px', weight: '700', ls: '-1px', sample: 'Display Medium' },
+                  { name: 'display-sm', size: '40px', lh: '48px', weight: '600', ls: '-0.5px', sample: 'Display Small' },
+                  { name: 'heading-xl', size: '32px', lh: '40px', weight: '600', ls: '-0.5px', sample: 'Heading XL' },
+                  { name: 'heading-lg', size: '24px', lh: '32px', weight: '600', ls: '-0.3px', sample: 'Heading Large' },
+                  { name: 'heading-md', size: '20px', lh: '28px', weight: '600', ls: '-0.2px', sample: 'Heading Medium' },
+                  { name: 'heading-sm', size: '18px', lh: '24px', weight: '600', ls: '0', sample: 'Heading Small' },
+                  { name: 'body-lg', size: '18px', lh: '28px', weight: '400', ls: '0', sample: 'Body large — used for hero descriptions and key paragraphs' },
+                  { name: 'body-md', size: '16px', lh: '24px', weight: '400', ls: '0', sample: 'Body medium — default reading text across the app' },
+                  { name: 'body-sm', size: '14px', lh: '20px', weight: '400', ls: '0', sample: 'Body small — card descriptions, form labels, secondary info' },
+                  { name: 'label-lg', size: '14px', lh: '20px', weight: '500', ls: '0.1px', sample: 'Label Large' },
+                  { name: 'label-md', size: '12px', lh: '16px', weight: '500', ls: '0.2px', sample: 'Label Medium' },
+                  { name: 'label-sm', size: '11px', lh: '14px', weight: '500', ls: '0.3px', sample: 'Label Small' },
+                  { name: 'caption', size: '12px', lh: '16px', weight: '400', ls: '0', sample: 'Caption — helper text, timestamps' },
+                  { name: 'overline', size: '11px', lh: '16px', weight: '600', ls: '0.5px', sample: 'OVERLINE — SECTION LABELS' },
+                ].map((t, i) => (
+                  <div key={t.name} className="flex items-baseline gap-6 px-5 py-4" style={{ borderBottom: i < 15 ? '1px solid var(--ds-divider)' : 'none' }}>
+                    <div className="w-32 flex-shrink-0">
+                      <p className="text-[12px] font-mono font-medium" style={{ color: 'var(--ds-accent)' }}>{t.name}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{t.size} / {t.lh} / {t.weight}{t.ls !== '0' ? ` / ${t.ls}` : ''}</p>
+                    </div>
+                    <p className="flex-1 min-w-0 truncate" style={{
+                      color: 'var(--ds-text)',
+                      fontSize: t.name.startsWith('display') ? `min(${t.size}, 5vw)` : t.size,
+                      lineHeight: t.lh,
+                      fontWeight: t.weight,
+                      letterSpacing: t.ls,
+                    }}>{t.sample}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ── 3. Spacing ── */}
+            <section>
+              <SectionHeader title="Spacing" description="4px base unit — consistent spacing scale used across all components" />
+              <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                <div className="space-y-3">
+                  {[
+                    { token: '1', px: '4px' }, { token: '2', px: '8px' }, { token: '3', px: '12px' },
+                    { token: '4', px: '16px' }, { token: '5', px: '20px' }, { token: '6', px: '24px' },
+                    { token: '8', px: '32px' }, { token: '10', px: '40px' }, { token: '12', px: '48px' },
+                    { token: '16', px: '64px' }, { token: '20', px: '80px' }, { token: '24', px: '96px' },
+                  ].map(s => (
+                    <div key={s.token} className="flex items-center gap-4">
+                      <div className="w-16 flex-shrink-0 text-right">
+                        <span className="text-[12px] font-mono font-medium" style={{ color: 'var(--ds-accent)' }}>{s.token}</span>
+                        <span className="text-[10px] ml-1" style={{ color: 'var(--ds-text-tertiary)' }}>{s.px}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-3 rounded-sm" style={{ width: s.px, background: 'var(--ds-accent)', opacity: 0.7 }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ── 4. Radius & Stroke ── */}
+            <section>
+              <SectionHeader title="Radius & Stroke" description="Border radius tokens and border weight conventions" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Border Radius</h4>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { name: 'sm', value: '6px' }, { name: 'DEFAULT', value: '8px' }, { name: 'md', value: '10px' },
+                      { name: 'lg', value: '12px' }, { name: 'xl', value: '14px' }, { name: '2xl', value: '16px' },
+                      { name: '3xl', value: '20px' }, { name: '4xl', value: '24px' },
+                    ].map(r => (
+                      <div key={r.name} className="text-center">
+                        <div className="w-full aspect-square flex items-center justify-center" style={{ background: 'var(--ds-accent-bg)', border: '2px solid var(--ds-accent)', borderRadius: r.value }}>
+                          <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--ds-accent)' }}>{r.value}</span>
+                        </div>
+                        <p className="text-[11px] font-mono mt-1.5" style={{ color: 'var(--ds-text)' }}>{r.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Stroke Weight</h4>
+                  <div className="space-y-4">
+                    {[
+                      { name: 'Hairline', value: '0.5px', desc: 'Retina-only dividers' },
+                      { name: 'Default', value: '1px', desc: 'Cards, dividers, inputs' },
+                      { name: 'Medium', value: '1.5px', desc: 'Selected states, focused inputs' },
+                      { name: 'Thick', value: '2px', desc: 'Active tabs, emphasis borders' },
+                    ].map(s => (
+                      <div key={s.name} className="flex items-center gap-4">
+                        <div className="w-24 flex-shrink-0">
+                          <p className="text-[12px] font-medium" style={{ color: 'var(--ds-text)' }}>{s.name}</p>
+                          <p className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{s.desc}</p>
+                        </div>
+                        <div className="flex-1 flex items-center">
+                          <div className="w-full" style={{ height: s.value, background: 'var(--ds-accent)' }} />
+                        </div>
+                        <span className="text-[11px] font-mono flex-shrink-0" style={{ color: 'var(--ds-text-secondary)' }}>{s.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ── 5. Elevation ── */}
+            <section>
+              <SectionHeader title="Elevation" description="Box shadow hierarchy — from subtle cards to prominent modals" />
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { name: 'card', value: '0 2px 12px rgba(0,0,0,0.08)', desc: 'Default card resting state' },
+                  { name: 'card-hover', value: '0 4px 20px rgba(0,0,0,0.12)', desc: 'Card on hover / focus' },
+                  { name: 'dropdown', value: '0 4px 24px rgba(0,0,0,0.12)', desc: 'Menus, popover panels' },
+                  { name: 'modal', value: '0 8px 40px rgba(0,0,0,0.16)', desc: 'Modals, bottom sheets' },
+                  { name: 'focus', value: '0 0 0 3px #ECEBFF', desc: 'Default focus ring' },
+                  { name: 'focus-purple', value: '0 0 0 3px #D1C5FA', desc: 'Brand accent focus ring' },
+                ].map(s => (
+                  <div key={s.name} className="text-center">
+                    <div className="h-24 rounded-2xl flex items-center justify-center transition-shadow"
+                      style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border)', boxShadow: s.value }}>
+                      <span className="text-[12px] font-mono font-medium" style={{ color: 'var(--ds-text-secondary)' }}>{s.name}</span>
+                    </div>
+                    <p className="text-[11px] mt-2" style={{ color: 'var(--ds-text-tertiary)' }}>{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ── 6. Effects ── */}
+            <section>
+              <SectionHeader title="Effects" description="Glass, gradients, and overlay treatments" />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="h-32 rounded-2xl flex items-center justify-center"
+                  style={{ background: 'var(--ds-glass-bg)', backdropFilter: 'blur(16px)', border: '1px solid var(--ds-border-strong)' }}>
+                  <div className="text-center">
+                    <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>Glass</p>
+                    <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>backdrop-filter: blur(16px)</p>
+                  </div>
+                </div>
+                <div className="h-32 rounded-2xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #4E29BB 0%, #7C3AED 100%)' }}>
+                  <div className="text-center">
+                    <p className="text-[13px] font-semibold" style={{ color: '#FFFFFF' }}>Brand Gradient</p>
+                    <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.6)' }}>Purple 600 → Purple 500</p>
+                  </div>
+                </div>
+                <div className="h-32 rounded-2xl flex items-center justify-center"
+                  style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border)' }}>
+                  <div className="text-center">
+                    <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>Overlay</p>
+                    <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Subtle tint layer</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ── 7. Motion Primitives ── */}
+            <section>
+              <SectionHeader title="Motion Primitives" description="Predefined animation tokens — use sparingly for meaningful transitions" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {[
+                  { name: 'fade-in', duration: '300ms', easing: 'ease-out', desc: 'Opacity 0 → 1. Default entrance.' },
+                  { name: 'slide-up', duration: '300ms', easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)', desc: 'Translate Y 16px → 0 with fade. Cards, modals.' },
+                  { name: 'slide-down', duration: '300ms', easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)', desc: 'Translate Y -16px → 0 with fade. Dropdown menus.' },
+                  { name: 'scale-in', duration: '200ms', easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)', desc: 'Scale 0.95 → 1 with fade. Toasts, alerts.' },
+                  { name: 'pulse-soft', duration: '2s', easing: 'ease-in-out infinite', desc: 'Opacity pulse. Loading indicators.' },
+                  { name: 'price-update', duration: '400ms', easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)', desc: 'Scale bounce 1 → 1.05 → 1. Price changes.' },
+                ].map(m => (
+                  <div key={m.name} className="flex items-start gap-4 p-4 rounded-xl" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--ds-accent-bg)' }}>
+                      <svg className="w-4 h-4" fill="none" stroke="var(--ds-accent)" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-mono font-semibold" style={{ color: 'var(--ds-text)' }}>{m.name}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{m.duration} · {m.easing}</p>
+                      <p className="text-[12px] mt-1" style={{ color: 'var(--ds-text-secondary)' }}>{m.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-4 rounded-xl" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                <h4 className="text-[13px] font-semibold mb-2" style={{ color: 'var(--ds-text)' }}>Interaction Feedback</h4>
+                <p className="text-[12px] mb-3" style={{ color: 'var(--ds-text-secondary)' }}>All interactive elements must include <code className="text-[11px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-overlay-bg)', color: 'var(--ds-accent)' }}>active:scale-95</code> or <code className="text-[11px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-overlay-bg)', color: 'var(--ds-accent)' }}>active:scale-[0.97]</code> for tactile press feedback.</p>
+                <div className="flex gap-3">
+                  <button className="px-5 py-2.5 rounded-xl text-[13px] font-semibold active:scale-95 transition-transform"
+                    style={{ background: 'var(--ds-cta-bg)', color: 'var(--ds-cta-text)' }}>Press me</button>
+                  <button className="px-5 py-2.5 rounded-xl text-[13px] font-semibold active:scale-[0.97] transition-transform"
+                    style={{ background: 'var(--ds-surface-2)', color: 'var(--ds-text)', border: '1px solid var(--ds-border-strong)' }}>Press me too</button>
+                </div>
+              </div>
+            </section>
+
+            {/* ── 8. Copy Principles ── */}
+            <section>
+              <SectionHeader title="Copy Principles" description="ACKO content writing guidelines — voice, tone, vocabulary, and formatting rules" />
+              <div className="space-y-6">
+                {/* Voice & Personality */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Core Voice</h4>
+                    <div className="space-y-3">
+                      {[
+                        { trait: 'Clear and direct', desc: 'Professional, simple, easy to understand. Say what matters, fast.' },
+                        { trait: 'Helpful and empowering', desc: 'Every line should reduce doubt, effort, or confusion.' },
+                        { trait: 'User-first, not brand-first', desc: 'The user is the hero. ACKO is the enabler.' },
+                        { trait: 'Localization-friendly', desc: 'Plain, neutral English that works across Indian contexts.' },
+                      ].map(v => (
+                        <div key={v.trait} className="flex gap-3">
+                          <div className="w-1.5 rounded-full flex-shrink-0 mt-1" style={{ background: 'var(--ds-accent)', height: '16px' }} />
+                          <div>
+                            <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>{v.trait}</p>
+                            <p className="text-[12px]" style={{ color: 'var(--ds-text-secondary)' }}>{v.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Brand Personality</h4>
+                    <div className="space-y-3">
+                      {[
+                        { trait: 'Bold', desc: 'Take a clear stand. Avoid vague claims or soft language.' },
+                        { trait: 'Optimistic', desc: 'Focus on outcomes, reassurance, and confidence.' },
+                        { trait: 'Practical, with a wink', desc: 'Be concise and human. Light warmth is welcome.' },
+                        { trait: 'Empathetic by default', desc: 'Especially in claims, payments, errors, and delays.' },
+                      ].map(v => (
+                        <div key={v.trait} className="flex gap-3">
+                          <div className="w-1.5 rounded-full flex-shrink-0 mt-1" style={{ background: 'var(--ds-accent)', height: '16px' }} />
+                          <div>
+                            <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>{v.trait}</p>
+                            <p className="text-[12px]" style={{ color: 'var(--ds-text-secondary)' }}>{v.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* The ACKO Principle */}
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-accent-bg)', border: '1px solid var(--ds-selected-border)' }}>
+                  <h4 className="text-[15px] font-semibold mb-3" style={{ color: 'var(--ds-text)' }}>The ACKO Copy Principle</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      'You are not selling insurance. You are helping someone feel secure.',
+                      'Make users feel smarter, calmer, and more in control.',
+                      'Highlight the problem clearly, then show ACKO as the simplest way out.',
+                      'Aim to be clear, not clever. Clever slows users down.',
+                    ].map((p, i) => (
+                      <div key={i} className="flex gap-2 items-start">
+                        <span className="text-[11px] font-bold flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--ds-accent)', color: '#FFFFFF' }}>{i + 1}</span>
+                        <p className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{p}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Adaptive Tone */}
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Adaptive Tone by Context</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {[
+                      { ctx: 'New users', tone: 'Prescriptive, supportive, step-by-step' },
+                      { ctx: 'Returning users', tone: 'Direct, efficient, no extra explanation' },
+                      { ctx: 'Problem resolution', tone: 'Calm, empathetic, solution-led' },
+                      { ctx: 'Success moments', tone: 'Positive and celebratory, never over-the-top' },
+                      { ctx: 'Educational content', tone: 'Thorough but scannable. Use bullets and short sections' },
+                    ].map(t => (
+                      <div key={t.ctx} className="p-3 rounded-xl" style={{ background: 'var(--ds-overlay-bg)' }}>
+                        <p className="text-[12px] font-semibold" style={{ color: 'var(--ds-text)' }}>{t.ctx}</p>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--ds-text-secondary)' }}>{t.tone}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* UI Copy Standards & Language Rules */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>UI Copy Standards</h4>
+                    <div className="space-y-2.5">
+                      {[
+                        { rule: 'Tone', detail: 'Direct and concise. No filler words.' },
+                        { rule: 'Voice', detail: 'Always active. Avoid passive constructions.' },
+                        { rule: 'Person', detail: 'Use "you" and "your" consistently.' },
+                        { rule: 'Action', detail: 'Every message should guide the next step.' },
+                      ].map(r => (
+                        <div key={r.rule} className="flex gap-3">
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: 'var(--ds-badge-bg)', color: 'var(--ds-badge-text)', border: '1px solid var(--ds-badge-border)' }}>{r.rule}</span>
+                          <p className="text-[12px]" style={{ color: 'var(--ds-text)' }}>{r.detail}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Language Rules</h4>
+                    <div className="space-y-2.5">
+                      {[
+                        { do: 'color, organize, canceled', dont: 'colour, organise, cancelled' },
+                        { do: "you'll, can't, don't, won't", dont: 'you will, cannot, do not' },
+                        { do: 'sign in, menu, checkbox', dont: 'log in, dropdown, check box' },
+                        { do: 'allowlist, blocklist', dont: 'whitelist, blacklist' },
+                      ].map((r, i) => (
+                        <div key={i} className="flex gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              <span className="text-[10px] font-semibold" style={{ color: 'var(--ds-success)' }}>DO</span>
+                            </div>
+                            <p className="text-[12px]" style={{ color: 'var(--ds-text)' }}>{r.do}</p>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--ds-error-text)' }} />
+                              <span className="text-[10px] font-semibold" style={{ color: 'var(--ds-error-text)' }}>DON&apos;T</span>
+                            </div>
+                            <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>{r.dont}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message Types */}
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Message Types</h4>
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                    {[
+                      { type: 'Success', desc: 'Brief, reassuring, celebratory', color: 'var(--ds-success)', bg: 'var(--ds-success-bg)' },
+                      { type: 'Error', desc: 'Explain what happened, state next step', color: 'var(--ds-error-text)', bg: 'var(--ds-error-bg)' },
+                      { type: 'Warning', desc: 'State consequences clearly', color: 'var(--ds-warning-text)', bg: 'var(--ds-warning-bg)' },
+                      { type: 'Info', desc: 'Add context only if it helps action', color: 'var(--ds-accent)', bg: 'var(--ds-accent-bg)' },
+                      { type: 'Empty State', desc: 'Motivate action, never blame the user', color: 'var(--ds-text-secondary)', bg: 'var(--ds-overlay-bg)' },
+                    ].map(m => (
+                      <div key={m.type} className="p-3 rounded-xl text-center" style={{ background: m.bg }}>
+                        <p className="text-[12px] font-semibold" style={{ color: m.color }}>{m.type}</p>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--ds-text-secondary)' }}>{m.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Checklist */}
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>Pre-Ship Copy Checklist</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      'Is this helping the user right now?',
+                      'Can this be shorter?',
+                      'Is the next action obvious?',
+                      'Does this sound calm, confident, and human?',
+                    ].map((q, i) => (
+                      <div key={i} className="flex items-center gap-2.5 p-2.5 rounded-lg" style={{ background: 'var(--ds-overlay-bg)' }}>
+                        <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'var(--ds-success)', opacity: 0.8 }}>
+                          <svg className="w-3 h-3" fill="none" stroke="#FFFFFF" viewBox="0 0 24 24" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                        </div>
+                        <p className="text-[12px]" style={{ color: 'var(--ds-text)' }}>{q}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* ════════════════════════════════════════
+           ASSETS TAB — Icon & Illustration Library
+           ════════════════════════════════════════ */}
+        {activeLob === 'assets' && <AssetLibrary />}
+
+        {/* ════════════════════════════════════════
+           ATOMS TAB — Single source of truth for atomic UI elements
+           ════════════════════════════════════════ */}
+        {activeLob === 'atoms' && <AtomsShowcase />}
+
+        {/* ════════════════════════════════════════
            BASE TAB — All 17 unique component patterns
            ════════════════════════════════════════ */}
         {activeLob === 'base' && (
           <>
-            {/* Chat Fundamentals */}
+            {/* Communication */}
             <section>
-              <SectionHeader title="ChatMessage" description="Bot and user message bubbles — the foundation of conversational UI" />
+              <SectionHeader title="ChatBubble" description="Bot and user message bubbles — the foundation of conversational UI" />
               <div className="grid grid-cols-1 gap-6">
-                <WidgetCard title="Chat Bubbles" widgetType="ChatMessage — bot/user alternating">
-                  <DemoChatMessage />
+                <WidgetCard title="Chat Bubbles" widgetType="ChatBubble — DsAvatar + var(--ds-bubble-*) tokens">
+                  <ChatBubble />
                 </WidgetCard>
               </div>
             </section>
 
-            {/* Selection & Input */}
+            {/* Selection */}
             <section>
-              <SectionHeader title="SelectionCards" description="Unified single-select component — layout adapts via props: grid, list, compact-grid, radio, plan" />
+              <SectionHeader title="SelectionCard" description="Unified single-select component — layout adapts via props: grid, list, compact-grid, radio" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title='layout="grid"' widgetType="≤4 options with icons → 2-col icon grid">
-                  <UnifiedSelectionCards layout="grid" options={[
+                <WidgetCard title='layout="grid"' widgetType="SelectionCard — grid layout with icons">
+                  <SelectionCard layout="grid" options={[
                     { id: 'opt1', label: 'Option A', icon: 'user' },
                     { id: 'opt2', label: 'Option B', icon: 'heart' },
                     { id: 'opt3', label: 'Option C', icon: 'building' },
                     { id: 'opt4', label: 'Option D', icon: 'gift', badge: 'New' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
-                <WidgetCard title='layout="list"' widgetType="Stacked list — descriptions, icons, badges">
-                  <UnifiedSelectionCards layout="list" options={[
+                <WidgetCard title='layout="list"' widgetType="SelectionCard — stacked list with DsBadge">
+                  <SelectionCard layout="list" options={[
                     { id: 'a', label: 'Primary', icon: 'user', description: 'Main option with details' },
                     { id: 'b', label: 'Secondary', icon: 'heart', description: 'Alternative option' },
                     { id: 'c', label: 'Tertiary', description: 'No icon — label only', badge: 'Popular' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
-                <WidgetCard title='layout="compact-grid"' widgetType="Label-only → frequency, percentages, years">
-                  <UnifiedSelectionCards layout="compact-grid" columns={3} options={[
+                <WidgetCard title='layout="compact-grid"' widgetType="SelectionCard — label-only compact grid">
+                  <SelectionCard layout="compact-grid" columns={3} options={[
                     { id: '1', label: '10%' }, { id: '2', label: '20%' }, { id: '3', label: '30%' },
                     { id: '4', label: '40%' }, { id: '5', label: '50%' }, { id: '6', label: '60%' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
-                <WidgetCard title='layout="radio"' widgetType="Binary yes/no toggle">
-                  <UnifiedSelectionCards layout="radio" options={[
+                <WidgetCard title='layout="radio"' widgetType="SelectionCard — binary choice with DsRadio">
+                  <SelectionCard layout="radio" options={[
                     { id: 'yes', label: 'Yes, proceed' },
                     { id: 'no', label: 'No, skip' },
                   ]} onSelect={() => {}} />
@@ -2217,16 +2851,16 @@ export default function DesignSystemPage() {
             </section>
 
             <section>
-              <SectionHeader title="GridSelector" description="Multi-select grid with search — icons or initials auto-rendered" />
+              <SectionHeader title="GridSelector" description="Multi-select grid with search — uses DsInput for search, DsButton for CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Multi-select with icons" widgetType="multiSelect=true — checkmarks on selection">
-                  <UnifiedGridSelector multiSelect options={[
+                <WidgetCard title="Multi-select with icons" widgetType="GridSelector — multiSelect + DsButton CTA">
+                  <GridSelector multiSelect options={[
                     { id: 'a', label: 'Item 1', icon: 'user' }, { id: 'b', label: 'Item 2', icon: 'heart' },
                     { id: 'c', label: 'Item 3', icon: 'building' }, { id: 'd', label: 'Item 4', icon: 'child' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
-                <WidgetCard title="Searchable single-select" widgetType="searchable=true — filterable, initials auto-render">
-                  <UnifiedGridSelector columns={3} searchable options={[
+                <WidgetCard title="Searchable single-select" widgetType="GridSelector — DsInput search + initials fallback">
+                  <GridSelector columns={3} searchable options={[
                     { id: 'a', label: 'Alpha' }, { id: 'b', label: 'Bravo' }, { id: 'c', label: 'Charlie' },
                     { id: 'd', label: 'Delta' }, { id: 'e', label: 'Echo' }, { id: 'f', label: 'Foxtrot' },
                   ]} onSelect={() => {}} />
@@ -2234,58 +2868,60 @@ export default function DesignSystemPage() {
               </div>
             </section>
 
+            {/* Inputs */}
             <section>
-              <SectionHeader title="InputField" description="Text, number, currency, pincode, and vehicle registration input variants" />
+              <SectionHeader title="InputField" description="Text, number, currency, pincode — built on DsInput atom + DsButton CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Number Input" widgetType="number_input — numeric with validation">
-                  <DemoNumberInput />
+                <WidgetCard title="Input Variants" widgetType="InputField — DsInput + DsButton · text/number/currency/pincode">
+                  <div className="space-y-6">
+                    <InputField variant="text" placeholder="Enter your full name" buttonLabel="Continue" />
+                    <DsDivider />
+                    <InputField variant="number" placeholder="Enter your age" helperText="Between 18 and 65 years" buttonLabel="Continue"
+                      validate={(v) => { const n = parseInt(v); if (isNaN(n)) return 'Please enter a valid number'; if (n < 18) return 'Minimum age is 18'; if (n > 65) return 'Maximum age is 65'; return null; }} />
+                    <DsDivider />
+                    <InputField variant="currency" placeholder="Enter annual income" helperText="Minimum ₹3,00,000 per year" buttonLabel="Continue" />
+                    <DsDivider />
+                    <InputField variant="pincode" placeholder="Enter your pincode" icon="/icons/generic/Location.svg" buttonLabel="Find Hospitals"
+                      validate={(v) => !/^\d{6}$/.test(v) ? 'Please enter a valid 6-digit pincode' : null} />
+                  </div>
                 </WidgetCard>
-                <WidgetCard title="Text Input" widgetType="text_input — free-form text">
-                  <DemoTextInput />
-                </WidgetCard>
-                <WidgetCard title="Currency Input" widgetType="number_input — with ₹ formatting (K/L/Cr)">
-                  <DemoNumberInputWithCurrency />
-                </WidgetCard>
-                <WidgetCard title="Pincode Input" widgetType="pincode_input — 6-digit with location icon">
-                  <DemoPincodeInput />
-                </WidgetCard>
-                <WidgetCard title="Vehicle Registration" widgetType="vehicle_reg_input — IND prefix, uppercase">
-                  <DemoVehicleRegInput />
+                <WidgetCard title="Vehicle Registration" widgetType="VehicleRegInput — DsBadge prefix + DsButton">
+                  <VehicleRegInput />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="DatePicker" description="DD / MM / YYYY date collection with auto-focus advancement" />
+              <SectionHeader title="DatePicker" description="DD / MM / YYYY date inputs with auto-focus — uses var(--ds-input-*) tokens + DsButton" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Date Picker" widgetType="date_picker / dob_collection">
-                  <DemoDatePicker />
+                <WidgetCard title="Date Picker" widgetType="DatePicker — DsButton CTA">
+                  <DatePicker />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="RangeSlider" description="Interactive range sliders for coverage, term, and budget selection" />
+              <SectionHeader title="RangeSlider" description="Interactive range sliders for coverage and term — uses var(--ds-accent) + DsButton CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Range Sliders" widgetType="coverage_slider / term_selector — dynamic formula">
-                  <DemoPremiumSliders />
+                <WidgetCard title="Range Sliders" widgetType="RangeSlider — DsDivider + DsButton">
+                  <RangeSlider />
                 </WidgetCard>
               </div>
             </section>
 
             {/* Display & Summary */}
             <section>
-              <SectionHeader title="SummaryCard" description="Key-value display — read-only or editable rows. Absorbs premium breakdown, confirm details, vehicle info, coverage card" />
+              <SectionHeader title="SummaryCard" description="Key-value display — uses DsIconButton for edit, DsDivider for rows, DsButton for CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Read-only" widgetType="review_summary — pre-payment review">
-                  <UnifiedSummaryCard title="Plan Summary" subtitle="Review before proceeding" ctaLabel="Proceed to Payment" rows={[
+                <WidgetCard title="Read-only" widgetType="SummaryCard — DsButton CTA">
+                  <SummaryCard title="Plan Summary" subtitle="Review before proceeding" ctaLabel="Proceed to Payment" rows={[
                     { label: 'Name', value: 'Rahul Sharma' }, { label: 'Age', value: '32 years' },
                     { label: 'Plan', value: 'ACKO Platinum' }, { label: 'Cover', value: '₹25,00,000' },
                     { label: 'Premium', value: '₹12,999/year' },
                   ]} />
                 </WidgetCard>
-                <WidgetCard title="Editable" widgetType="editable_summary — pencil icons per row">
-                  <UnifiedSummaryCard title="Vehicle Summary" editable ctaLabel="View Prices" rows={[
+                <WidgetCard title="Editable" widgetType="SummaryCard — DsIconButton edit per row">
+                  <SummaryCard title="Vehicle Summary" editable ctaLabel="View Prices" rows={[
                     { label: 'Make', value: 'Maruti Suzuki' }, { label: 'Model', value: 'Swift' },
                     { label: 'Variant', value: 'VXi' }, { label: 'Fuel', value: 'Petrol' },
                     { label: 'Status', value: 'Active', editable: false },
@@ -2294,112 +2930,101 @@ export default function DesignSystemPage() {
               </div>
             </section>
 
+            {/* Progress */}
             <section>
-              <SectionHeader title="StepProgress" description="Sequential step displays — animated loaders, calculation theaters, status trackers, and timelines" />
+              <SectionHeader title="StepProgress" description="Sequential step displays — ProgressLoader, CalculationLoader, StepTracker (merged timeline)" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Animated Loader" widgetType="progressive_loader — progress bar with step text">
-                  <DemoProgressiveLoader />
+                <WidgetCard title="Progress Loader" widgetType="ProgressLoader — var(--ds-progress-*) tokens">
+                  <ProgressLoader />
                 </WidgetCard>
-                <WidgetCard title="Calculation Theater" widgetType="calculation — circular progress with step checklist">
-                  <DemoCalculationTheater />
+                <WidgetCard title="Calculation Loader" widgetType="CalculationLoader — SVG + DsBadge step status">
+                  <CalculationLoader />
                 </WidgetCard>
-                <WidgetCard title="Status Tracker" widgetType="policy_tracker — done/pending step chain">
-                  <DemoPolicyTracker />
-                </WidgetCard>
-                <WidgetCard title="Timeline" widgetType="post_payment_timeline — icon + text step chain">
-                  <DemoPostPaymentTimeline />
+                <WidgetCard title="Step Tracker" widgetType="StepTracker — DsBadge + DsAvatar + success/pending states">
+                  <StepTracker />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="SearchableList" description="Filterable card list with icons, metadata, and distance — used for hospitals, garages, etc." />
+              <SectionHeader title="SearchableList" description="Filterable list with DsAvatar icons, DsLink actions, and DsDivider rows" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Searchable List" widgetType="hospital_list / searchable_list">
-                  <DemoHospitalList />
+                <WidgetCard title="Searchable List" widgetType="SearchableList — DsAvatar + DsLink">
+                  <SearchableList />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="ComparisonCard" description="Covered vs gap checklist — side-by-side comparison with status dots" />
+              <SectionHeader title="ComparisonCard" description="Gap analysis with status indicators — uses var(--ds-error-*) and var(--ds-success) tokens" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Comparison Card" widgetType="gap_results / comparison_card">
-                  <DemoGapAnalysis />
+                <WidgetCard title="Comparison Card" widgetType="ComparisonCard — DsDivider rows">
+                  <ComparisonCard />
                 </WidgetCard>
               </div>
             </section>
 
             {/* Actions */}
             <section>
-              <SectionHeader title="ConsentWidget" description="Checkbox with terms & conditions links and CTA button" />
+              <SectionHeader title="ConsentWidget" description="DsCheckbox for consent, DsLink for T&C, DsButton for CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Consent" widgetType="consent — checkbox + T&C + CTA">
-                  <DemoConsentWidget />
+                <WidgetCard title="Consent" widgetType="ConsentWidget — DsCheckbox + DsLink + DsButton">
+                  <ConsentWidget />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="PaymentGateway" description="Payment method selection with amount display — UPI, Card, Net Banking, Wallet" />
+              <SectionHeader title="PaymentGateway" description="Payment method selection — DsRadio for methods, DsAvatar for branding, DsButton for CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Payment Gateway" widgetType="payment_gateway / payment_widget">
-                  <DemoPaymentGateway />
+                <WidgetCard title="Payment Gateway" widgetType="PaymentGateway — DsRadio + DsAvatar + DsButton">
+                  <PaymentGateway />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="FileUpload" description="Document upload with extraction animation — idle → extracting → done" />
+              <SectionHeader title="FileUpload" description="Document upload — idle / extracting / done states with DsAvatar and var(--ds-*) tokens" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="File Upload" widgetType="pdf_upload / file_upload">
-                  <DemoPdfUpload />
+                <WidgetCard title="File Upload" widgetType="FileUpload — DsAvatar + DsBadge status">
+                  <FileUpload />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="SchedulePicker" description="Multi-section picker — date, time slot, and provider selection" />
+              <SectionHeader title="SchedulePicker" description="Multi-section picker — DsButton for slots, DsDivider for sections, DsAvatar for lab icons" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Schedule Picker" widgetType="lab_schedule_widget / schedule_picker">
-                  <DemoLabSchedule />
+                <WidgetCard title="Schedule Picker" widgetType="SchedulePicker — DsButton + DsDivider + DsAvatar">
+                  <SchedulePicker />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="VerificationFlow" description="Step-by-step identity verification — info screen → verification loading" />
+              <SectionHeader title="VerificationFlow" description="KYC verification — DsButton for actions, DsIconButton for close, DsAvatar for step numbers" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Verification Flow" widgetType="kyc_verification / ekyc_screen">
-                  <DemoKycBottomSheet />
+                <WidgetCard title="Verification Flow" widgetType="VerificationFlow — DsButton + DsIconButton + DsAvatar">
+                  <VerificationFlow />
                 </WidgetCard>
               </div>
             </section>
 
             {/* Completion */}
             <section>
-              <SectionHeader title="Celebration" description="Success screen with confetti, policy details, and status badge" />
+              <SectionHeader title="CelebrationScreen" description="Success screen with confetti — DsButton CTA, DsBadge status, DsDivider rows" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Celebration" widgetType="celebration / motor_celebration">
-                  <DemoCelebration />
-                </WidgetCard>
-              </div>
-            </section>
-
-            <section>
-              <SectionHeader title="NpsFeedback" description="5-point emoji scale with optional text feedback" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="NPS Feedback" widgetType="nps_feedback">
-                  <DemoNpsFeedback />
+                <WidgetCard title="Celebration" widgetType="CelebrationScreen — DsBadge + DsDivider + DsButton">
+                  <CelebrationScreen />
                 </WidgetCard>
               </div>
             </section>
 
             <section className="pb-12">
-              <SectionHeader title="AppDownloadCta" description="App promotion with feature list and store buttons" />
+              <SectionHeader title="FeedbackForm" description="5-point emoji scale with optional text feedback — DsButton for submit" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="App Download CTA" widgetType="app_download_cta">
-                  <DemoAppDownloadCta />
+                <WidgetCard title="NPS Feedback" widgetType="FeedbackForm — DsButton submit">
+                  <FeedbackForm />
                 </WidgetCard>
               </div>
             </section>
@@ -2424,7 +3049,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="SelectionCards" description="Health-specific selection patterns — persona, family, plan tiers" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Who to cover?" widgetType='layout="grid" — persona selection'>
-                  <UnifiedSelectionCards layout="grid" options={[
+                  <SelectionCard layout="grid" options={[
                     { id: 'self', label: 'Just Me', icon: 'user' },
                     { id: 'family', label: 'My Family', icon: 'family' },
                     { id: 'parents', label: 'Parents', icon: 'child' },
@@ -2432,27 +3057,31 @@ export default function DesignSystemPage() {
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Policy intent" widgetType='layout="list" — buy/renew/switch'>
-                  <UnifiedSelectionCards layout="list" options={[
+                  <SelectionCard layout="list" options={[
                     { id: 'new', label: 'New Policy', description: 'First time buying health insurance' },
                     { id: 'renew', label: 'Renew Policy', description: 'Renew your existing health plan' },
                     { id: 'switch', label: 'Port / Switch', description: 'Move from another insurer', badge: 'Popular' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Family members" widgetType="GridSelector — multi-select members">
-                  <UnifiedGridSelector multiSelect options={[
+                  <GridSelector multiSelect options={[
                     { id: 'self', label: 'Self', icon: 'user' }, { id: 'spouse', label: 'Spouse', icon: 'heart' },
                     { id: 'mother', label: 'Mother', icon: 'user' }, { id: 'father', label: 'Father', icon: 'user' },
                     { id: 'son', label: 'Son', icon: 'child' }, { id: 'daughter', label: 'Daughter', icon: 'child' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Payment frequency" widgetType='layout="compact-grid" — monthly vs yearly'>
-                  <UnifiedSelectionCards layout="compact-grid" options={[
+                  <SelectionCard layout="compact-grid" options={[
                     { id: 'monthly', label: 'Monthly', description: '₹1,247/mo' },
                     { id: 'yearly', label: 'Yearly', description: '₹12,999/yr', badge: 'Save 17%' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Plan Switcher" widgetType="plan_switcher — tier tabs with feature comparison">
-                  <DemoPlanSwitcher />
+                  <SelectionCard layout="grid" options={[
+                    { id: 'platinum', label: 'Platinum', description: '₹12,999/yr' },
+                    { id: 'lite', label: 'Lite', description: '₹8,499/yr' },
+                    { id: 'topup', label: 'Top-up', description: '₹3,999/yr' },
+                  ]} onSelect={() => {}} />
                 </WidgetCard>
               </div>
             </section>
@@ -2460,14 +3089,16 @@ export default function DesignSystemPage() {
             <section>
               <SectionHeader title="InputField" description="Health-specific inputs — age, pincode, sum insured" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Age input" widgetType="number_input — age with 18-65 validation">
-                  <DemoNumberInput />
+                <WidgetCard title="Age input" widgetType="input — age with 18-65 validation">
+                  <InputField variant="number" placeholder="Enter your age" helperText="Between 18 and 65 years" buttonLabel="Continue"
+                    validate={(v) => { const n = parseInt(v); if (isNaN(n)) return 'Please enter a valid number'; if (n < 18) return 'Minimum age is 18'; if (n > 65) return 'Maximum age is 65'; return null; }} />
                 </WidgetCard>
-                <WidgetCard title="Pincode" widgetType="pincode_input — 6-digit for hospital network">
-                  <DemoPincodeInput />
+                <WidgetCard title="Pincode" widgetType="input — 6-digit for hospital network">
+                  <InputField variant="pincode" placeholder="Enter your pincode" icon="/icons/generic/Location.svg" buttonLabel="Find Hospitals"
+                    validate={(v) => !/^\d{6}$/.test(v) ? 'Please enter a valid 6-digit pincode' : null} />
                 </WidgetCard>
-                <WidgetCard title="Sum insured" widgetType="number_input — currency with ₹K/L/Cr format">
-                  <DemoNumberInputWithCurrency />
+                <WidgetCard title="Sum insured" widgetType="input — currency with ₹K/L/Cr format">
+                  <InputField variant="currency" placeholder="Enter sum insured" helperText="Minimum ₹5,00,000" buttonLabel="Continue" />
                 </WidgetCard>
               </div>
             </section>
@@ -2476,7 +3107,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="DatePicker" description="Date of birth collection for health plan eligibility" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="DOB" widgetType="dob_collection — DD/MM/YYYY">
-                  <DemoDatePicker />
+                  <DatePicker />
                 </WidgetCard>
               </div>
             </section>
@@ -2485,10 +3116,13 @@ export default function DesignSystemPage() {
               <SectionHeader title="SummaryCard" description="Health policy confirmation — extracted details from existing policy" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Confirm details" widgetType="confirm_details — extracted policy data">
-                  <DemoConfirmDetails />
+                  <SummaryCard title="Policy Details" subtitle="Extracted from policy" rows={[
+                    { label: 'Policy Holder', value: 'Rahul Sharma' }, { label: 'Sum Insured', value: '₹5,00,000' },
+                    { label: 'Members', value: 'Self (32 yrs), Spouse (30 yrs)' }, { label: 'Renewal Date', value: '15 Aug 2026' },
+                  ]} ctaLabel="Confirm" />
                 </WidgetCard>
                 <WidgetCard title="Review summary" widgetType="review_summary — pre-payment review">
-                  <UnifiedSummaryCard title="Health Plan Summary" subtitle="Review before payment" ctaLabel="Proceed to Payment" rows={[
+                  <SummaryCard title="Health Plan Summary" subtitle="Review before payment" ctaLabel="Proceed to Payment" rows={[
                     { label: 'Name', value: 'Rahul Sharma' }, { label: 'Age', value: '32 years' },
                     { label: 'Members', value: 'Self + Spouse + 1 Child' }, { label: 'Plan', value: 'ACKO Platinum' },
                     { label: 'Cover', value: '₹25,00,000' }, { label: 'Premium', value: '₹12,999/year' },
@@ -2501,7 +3135,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="StepProgress" description="Health calculation theater — plan comparison animation" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Calculation theater" widgetType="calculation — analyzing profile & comparing plans">
-                  <DemoCalculationTheater />
+                  <CalculationLoader />
                 </WidgetCard>
               </div>
             </section>
@@ -2510,7 +3144,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="SearchableList" description="Nearby cashless hospital network with distance" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Hospital list" widgetType="hospital_list — 42 cashless hospitals nearby">
-                  <DemoHospitalList />
+                  <SearchableList />
                 </WidgetCard>
               </div>
             </section>
@@ -2519,7 +3153,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="ComparisonCard" description="Coverage gap analysis — current plan vs ACKO" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Gap analysis" widgetType="gap_results — 5 gaps found in current plan">
-                  <DemoGapAnalysis />
+                  <ComparisonCard />
                 </WidgetCard>
               </div>
             </section>
@@ -2528,7 +3162,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="ConsentWidget" description="Health policy terms acceptance" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Health consent" widgetType="consent — T&C acceptance">
-                  <DemoConsentWidget />
+                  <ConsentWidget />
                 </WidgetCard>
               </div>
             </section>
@@ -2537,7 +3171,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="FileUpload" description="Existing health policy PDF upload with AI extraction" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Policy PDF upload" widgetType="pdf_upload — Care Health Insurance extraction">
-                  <DemoPdfUpload />
+                  <FileUpload />
                 </WidgetCard>
               </div>
             </section>
@@ -2546,7 +3180,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="SchedulePicker" description="Lab test scheduling — pick date, time slot, and lab" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Lab test scheduler" widgetType="lab_schedule_widget — date + time + lab">
-                  <DemoLabSchedule />
+                  <SchedulePicker />
                 </WidgetCard>
               </div>
             </section>
@@ -2555,7 +3189,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="PaymentGateway" description="Health premium payment — family floater plan" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Health payment" widgetType="payment_widget — health premium ₹12,999">
-                  <DemoPaymentGateway />
+                  <PaymentGateway />
                 </WidgetCard>
               </div>
             </section>
@@ -2564,7 +3198,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="Celebration" description="Health policy issuance success" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Health celebration" widgetType="celebration — policy active">
-                  <DemoCelebration />
+                  <CelebrationScreen />
                 </WidgetCard>
               </div>
             </section>
@@ -2573,19 +3207,11 @@ export default function DesignSystemPage() {
               <SectionHeader title="NpsFeedback" description="Rate your health insurance buying experience" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Health NPS" widgetType="nps_feedback — experience rating">
-                  <DemoNpsFeedback />
+                  <FeedbackForm />
                 </WidgetCard>
               </div>
             </section>
 
-            <section className="pb-12">
-              <SectionHeader title="AppDownloadCta" description="Download ACKO app for health claim management" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Health app CTA" widgetType="app_download_cta — claim & manage">
-                  <DemoAppDownloadCta />
-                </WidgetCard>
-              </div>
-            </section>
           </>
         )}
 
@@ -2607,13 +3233,13 @@ export default function DesignSystemPage() {
               <SectionHeader title="SelectionCards" description="Motor-specific selections — vehicle type, fuel, NCB, brand" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Vehicle type" widgetType='layout="grid" — car vs bike'>
-                  <UnifiedSelectionCards layout="grid" options={[
+                  <SelectionCard layout="grid" options={[
                     { id: 'car', label: 'Car', icon: 'car' },
                     { id: 'bike', label: 'Bike', icon: 'bike' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Fuel type" widgetType='layout="list" — petrol, diesel, CNG, electric'>
-                  <UnifiedSelectionCards layout="list" options={[
+                  <SelectionCard layout="list" options={[
                     { id: 'petrol', label: 'Petrol', icon: 'fuel', description: 'Most common fuel type' },
                     { id: 'diesel', label: 'Diesel', icon: 'fuel', description: 'Higher mileage' },
                     { id: 'cng', label: 'CNG', icon: 'fuel', description: 'Bi-fuel CNG + Petrol' },
@@ -2621,13 +3247,13 @@ export default function DesignSystemPage() {
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="NCB percentage" widgetType='layout="compact-grid" — no claim bonus selector'>
-                  <UnifiedSelectionCards layout="compact-grid" columns={3} options={[
+                  <SelectionCard layout="compact-grid" columns={3} options={[
                     { id: '0', label: '0%' }, { id: '20', label: '20%' }, { id: '25', label: '25%' },
                     { id: '35', label: '35%' }, { id: '45', label: '45%' }, { id: '50', label: '50%' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Brand selector" widgetType="GridSelector — searchable car brands">
-                  <UnifiedGridSelector columns={3} searchable options={[
+                  <GridSelector columns={3} searchable options={[
                     { id: 'maruti', label: 'Maruti Suzuki' }, { id: 'hyundai', label: 'Hyundai' },
                     { id: 'tata', label: 'Tata' }, { id: 'kia', label: 'Kia' },
                     { id: 'mahindra', label: 'Mahindra' }, { id: 'toyota', label: 'Toyota' },
@@ -2642,10 +3268,10 @@ export default function DesignSystemPage() {
               <SectionHeader title="InputField" description="Motor-specific inputs — vehicle registration, owner name" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Vehicle registration" widgetType="vehicle_reg_input — IND prefix, uppercase tracking">
-                  <DemoVehicleRegInput />
+                  <VehicleRegInput />
                 </WidgetCard>
-                <WidgetCard title="Owner name" widgetType="text_input — policy holder name">
-                  <DemoTextInput />
+                <WidgetCard title="Owner name" widgetType="input — policy holder name">
+                  <InputField variant="text" placeholder="Enter owner name" buttonLabel="Continue" />
                 </WidgetCard>
               </div>
             </section>
@@ -2654,13 +3280,21 @@ export default function DesignSystemPage() {
               <SectionHeader title="SummaryCard" description="Motor summary — vehicle details, premium breakdown, editable summary" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Vehicle details" widgetType="vehicle_details_card — fetched vehicle info">
-                  <DemoVehicleDetailsCard />
+                  <SummaryCard title="Vehicle Found" subtitle="KA 01 AB 1234" rows={[
+                    { label: 'Make', value: 'Maruti Suzuki' }, { label: 'Model', value: 'Swift VXi' },
+                    { label: 'Year', value: '2022' }, { label: 'Fuel', value: 'Petrol' },
+                    { label: 'Current Insurance', value: 'ICICI Lombard' }, { label: 'NCB', value: '50%' },
+                  ]} ctaLabel="This is correct" />
                 </WidgetCard>
                 <WidgetCard title="Premium breakdown" widgetType="premium_breakdown — TP + OD + add-ons - NCB = total">
-                  <DemoPremiumBreakdown />
+                  <SummaryCard title="Premium Breakdown" subtitle="Maruti Suzuki Swift · Comprehensive" rows={[
+                    { label: 'Third-party (TP)', value: '₹2,094' }, { label: 'Own Damage (OD)', value: '₹4,405' },
+                    { label: 'Engine Protection', value: '₹999' }, { label: 'Zero Depreciation', value: '₹1,499' },
+                    { label: 'NCB discount (50%)', value: '-₹2,203' }, { label: 'Total (incl. GST)', value: '₹8,017' },
+                  ]} ctaLabel="Proceed to Payment" />
                 </WidgetCard>
                 <WidgetCard title="Editable summary" widgetType="editable_summary — vehicle details with edit">
-                  <UnifiedSummaryCard title="Vehicle Summary" editable ctaLabel="View Prices" rows={[
+                  <SummaryCard title="Vehicle Summary" editable ctaLabel="View Prices" rows={[
                     { label: 'Make', value: 'Maruti Suzuki' }, { label: 'Model', value: 'Swift' },
                     { label: 'Variant', value: 'VXi' }, { label: 'Fuel', value: 'Petrol' },
                     { label: 'Registration', value: 'KA 01 AB 1234' }, { label: 'NCB', value: '50%' },
@@ -2674,10 +3308,10 @@ export default function DesignSystemPage() {
               <SectionHeader title="StepProgress" description="Motor step progress — vehicle lookup loader + policy tracker" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Vehicle lookup" widgetType="progressive_loader — checking registration">
-                  <DemoProgressiveLoader />
+                  <ProgressLoader />
                 </WidgetCard>
                 <WidgetCard title="Policy tracker" widgetType="policy_tracker — payment → inspection → KYC → issued">
-                  <DemoPolicyTracker />
+                  <StepTracker />
                 </WidgetCard>
               </div>
             </section>
@@ -2686,7 +3320,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="VerificationFlow" description="Motor KYC — PAN/Aadhaar verification via HyperVerge" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="KYC verification" widgetType="kyc_verification — 3-step identity flow">
-                  <DemoKycBottomSheet />
+                  <VerificationFlow />
                 </WidgetCard>
               </div>
             </section>
@@ -2695,7 +3329,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="PaymentGateway" description="Motor premium payment — Maruti Swift comprehensive" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Motor payment" widgetType="payment_gateway — motor premium ₹10,617">
-                  <DemoPaymentGateway />
+                  <PaymentGateway />
                 </WidgetCard>
               </div>
             </section>
@@ -2704,7 +3338,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="Celebration" description="Motor policy issuance success" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Motor celebration" widgetType="motor_celebration — policy active">
-                  <DemoCelebration />
+                  <CelebrationScreen />
                 </WidgetCard>
               </div>
             </section>
@@ -2713,19 +3347,11 @@ export default function DesignSystemPage() {
               <SectionHeader title="NpsFeedback" description="Rate your motor insurance experience" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Motor NPS" widgetType="nps_feedback — experience rating">
-                  <DemoNpsFeedback />
+                  <FeedbackForm />
                 </WidgetCard>
               </div>
             </section>
 
-            <section className="pb-12">
-              <SectionHeader title="AppDownloadCta" description="Download ACKO app for roadside assistance and claims" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Motor app CTA" widgetType="app_download_cta — roadside & claims">
-                  <DemoAppDownloadCta />
-                </WidgetCard>
-              </div>
-            </section>
           </>
         )}
 
@@ -2747,19 +3373,19 @@ export default function DesignSystemPage() {
               <SectionHeader title="SelectionCards" description="Life-specific selections — smoking status, frequency, riders" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Smoking status" widgetType='layout="radio" — yes/no binary'>
-                  <UnifiedSelectionCards layout="radio" options={[
+                  <SelectionCard layout="radio" options={[
                     { id: 'yes', label: 'Yes, I smoke or chew tobacco' },
                     { id: 'no', label: 'No, I don\'t use tobacco' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Payment frequency" widgetType='layout="compact-grid" — monthly vs yearly'>
-                  <UnifiedSelectionCards layout="compact-grid" options={[
+                  <SelectionCard layout="compact-grid" options={[
                     { id: 'monthly', label: 'Monthly', description: '₹987/mo' },
                     { id: 'yearly', label: 'Yearly', description: '₹9,999/yr', badge: 'Save 15%' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Rider selection" widgetType="GridSelector — multi-select riders">
-                  <UnifiedGridSelector multiSelect options={[
+                  <GridSelector multiSelect options={[
                     { id: 'ci', label: 'Critical Illness', icon: 'hospital' },
                     { id: 'ad', label: 'Accidental Death', icon: 'alert' },
                     { id: 'wp', label: 'Waiver of Premium', icon: 'coverage' },
@@ -2767,7 +3393,7 @@ export default function DesignSystemPage() {
                   ]} onSelect={() => {}} />
                 </WidgetCard>
                 <WidgetCard title="Income range" widgetType='layout="list" — income bracket selection'>
-                  <UnifiedSelectionCards layout="list" options={[
+                  <SelectionCard layout="list" options={[
                     { id: '5-10', label: '₹5 - 10 Lakh', description: 'Entry level' },
                     { id: '10-20', label: '₹10 - 20 Lakh', description: 'Mid range' },
                     { id: '20-50', label: '₹20 - 50 Lakh', description: 'Senior level' },
@@ -2780,11 +3406,11 @@ export default function DesignSystemPage() {
             <section>
               <SectionHeader title="InputField" description="Life-specific inputs — annual income, nominee name" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Annual income" widgetType="number_input — currency with ₹K/L/Cr format">
-                  <DemoNumberInputWithCurrency />
+                <WidgetCard title="Annual income" widgetType="input — currency with ₹K/L/Cr format">
+                  <InputField variant="currency" placeholder="Enter annual income" helperText="Minimum ₹3,00,000 per year" buttonLabel="Continue" />
                 </WidgetCard>
-                <WidgetCard title="Nominee name" widgetType="text_input — nominee full name">
-                  <DemoTextInput />
+                <WidgetCard title="Nominee name" widgetType="input — nominee full name">
+                  <InputField variant="text" placeholder="Enter nominee name" buttonLabel="Continue" />
                 </WidgetCard>
               </div>
             </section>
@@ -2793,7 +3419,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="DatePicker" description="Date of birth for life insurance premium calculation" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="DOB" widgetType="date_picker — DD/MM/YYYY">
-                  <DemoDatePicker />
+                  <DatePicker />
                 </WidgetCard>
               </div>
             </section>
@@ -2802,7 +3428,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="RangeSlider" description="Coverage and term sliders — dynamic premium calculation" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Coverage & term sliders" widgetType="coverage_slider + term_selector — ₹25L to ₹10Cr, 10-40 years">
-                  <DemoPremiumSliders />
+                  <RangeSlider />
                 </WidgetCard>
               </div>
             </section>
@@ -2811,10 +3437,13 @@ export default function DesignSystemPage() {
               <SectionHeader title="SummaryCard" description="Life coverage breakdown and review summary" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Coverage breakdown" widgetType="coverage_card — recommended ₹1.5 Cr with breakdown">
-                  <DemoCoverageCard />
+                  <SummaryCard title="Recommended Cover" subtitle="Based on your profile" rows={[
+                    { label: 'Cover Amount', value: '₹1.5 Cr' }, { label: 'Policy Term', value: '30 years' },
+                    { label: 'Covers till age', value: '62' },
+                  ]} ctaLabel="Continue with this plan" />
                 </WidgetCard>
                 <WidgetCard title="Review summary" widgetType="review_summary — pre-payment plan review">
-                  <UnifiedSummaryCard title="Life Plan Summary" subtitle="Review your term plan" ctaLabel="Proceed to Payment" rows={[
+                  <SummaryCard title="Life Plan Summary" subtitle="Review your term plan" ctaLabel="Proceed to Payment" rows={[
                     { label: 'Name', value: 'Rahul Sharma' }, { label: 'Age', value: '32 years' },
                     { label: 'Cover', value: '₹1.5 Cr' }, { label: 'Term', value: '30 years' },
                     { label: 'Riders', value: 'Critical Illness, Accidental Death' },
@@ -2828,7 +3457,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="StepProgress" description="Life post-payment timeline — medical, verification, underwriting" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Post-payment timeline" widgetType="post_payment_timeline — tele-medical to final approval">
-                  <DemoPostPaymentTimeline />
+                  <StepTracker />
                 </WidgetCard>
               </div>
             </section>
@@ -2837,7 +3466,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="ConsentWidget" description="Life insurance terms and conditions acceptance" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Life consent" widgetType="consent — T&C acceptance">
-                  <DemoConsentWidget />
+                  <ConsentWidget />
                 </WidgetCard>
               </div>
             </section>
@@ -2846,7 +3475,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="PaymentGateway" description="Life premium payment — term plan purchase" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Life payment" widgetType="payment_screen — life premium ₹9,999">
-                  <DemoPaymentGateway />
+                  <PaymentGateway />
                 </WidgetCard>
               </div>
             </section>
@@ -2855,7 +3484,7 @@ export default function DesignSystemPage() {
               <SectionHeader title="Celebration" description="Life policy issuance success" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Life celebration" widgetType="celebration — policy active">
-                  <DemoCelebration />
+                  <CelebrationScreen />
                 </WidgetCard>
               </div>
             </section>
@@ -2864,19 +3493,11 @@ export default function DesignSystemPage() {
               <SectionHeader title="NpsFeedback" description="Rate your life insurance buying experience" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Life NPS" widgetType="nps_feedback — experience rating">
-                  <DemoNpsFeedback />
+                  <FeedbackForm />
                 </WidgetCard>
               </div>
             </section>
 
-            <section className="pb-12">
-              <SectionHeader title="AppDownloadCta" description="Download ACKO app for policy management" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Life app CTA" widgetType="app_download_cta — manage & track">
-                  <DemoAppDownloadCta />
-                </WidgetCard>
-              </div>
-            </section>
           </>
         )}
 
