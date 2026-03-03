@@ -68,9 +68,9 @@
   }
 
   .glass {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .chat-bubble-bot {
@@ -82,20 +82,20 @@
   }
 
   .chat-bg-dark {
-    background: linear-gradient(180deg, #1C0B47 0%, #2A1463 40%, #1C0B47 100%);
+    background: #121214;
   }
 
   .glass-dark {
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(30, 30, 34, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .widget-glass-dark {
-    background: rgba(30, 15, 70, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(30, 30, 34, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 }

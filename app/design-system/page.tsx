@@ -1803,105 +1803,268 @@ function DemoChatMessageLife() {
    Main Design System Page
    ═══════════════════════════════════════════════ */
 
-type ThemeMode = 'dark' | 'light' | 'system';
+type ThemeMode = 'dark' | 'light';
 
 const DS_THEME_STYLES = `
+/* ═══════════════════════════════════════════════
+   DS-level tokens (used by all showcase widgets)
+   ═══════════════════════════════════════════════ */
 [data-ds-theme="dark"] {
-  --ds-bg: #0a0a12;
-  --ds-bg-95: rgba(10,10,18,0.95);
-  --ds-surface: rgba(255,255,255,0.05);
-  --ds-surface-hover: rgba(255,255,255,0.10);
-  --ds-text: #ffffff;
-  --ds-text-secondary: rgba(255,255,255,0.50);
-  --ds-text-tertiary: rgba(255,255,255,0.40);
-  --ds-border: rgba(255,255,255,0.10);
+  --ds-bg: #121214;
+  --ds-bg-95: rgba(18,18,20,0.95);
+  --ds-surface: #1E1E22;
+  --ds-surface-2: #2D2D35;
+  --ds-surface-hover: #3D3D45;
+  --ds-text: #FFFFFF;
+  --ds-text-secondary: #94A3B8;
+  --ds-text-tertiary: #64748B;
+  --ds-border: rgba(255,255,255,0.05);
+  --ds-border-strong: rgba(255,255,255,0.1);
   --ds-border-subtle: rgba(255,255,255,0.05);
   --ds-icon-filter: brightness(0) invert(1);
-  --ds-icon-opacity: 0.8;
-  --ds-card-bg: rgba(255,255,255,0.05);
-  --ds-card-border: rgba(255,255,255,0.10);
-  --ds-input-bg: rgba(255,255,255,0.06);
-  --ds-badge-bg: rgba(168,85,247,0.20);
-  --ds-badge-text: #c4b5fd;
-  --ds-badge-border: rgba(168,85,247,0.30);
+  --ds-icon-opacity: 0.85;
+  --ds-card-bg: rgba(255,255,255,0.08);
+  --ds-card-border: rgba(168,85,247,0.3);
+  --ds-input-bg: rgba(255,255,255,0.05);
+  --ds-input-border: rgba(255,255,255,0.1);
+  --ds-input-text: #FFFFFF;
+  --ds-input-placeholder: rgba(255,255,255,0.3);
+  --ds-badge-bg: rgba(124,58,237,0.2);
+  --ds-badge-text: #C4B5FD;
+  --ds-badge-border: rgba(168,85,247,0.3);
   --ds-cat-active-bg: rgba(168,85,247,0.30);
-  --ds-cat-active-text: #c4b5fd;
+  --ds-cat-active-text: #C4B5FD;
   --ds-cat-active-border: rgba(168,85,247,0.30);
   --ds-cat-bg: rgba(255,255,255,0.05);
   --ds-cat-text: rgba(255,255,255,0.50);
   --ds-version-bg: rgba(255,255,255,0.05);
   --ds-version-text: rgba(255,255,255,0.40);
   --ds-version-border: rgba(255,255,255,0.10);
-  --ds-accent: #a78bfa;
-  --ds-accent-bg: rgba(139,92,246,0.15);
-  --ds-success: #4ade80;
+  --ds-accent: #7C3AED;
+  --ds-accent-bg: rgba(124,58,237,0.2);
+  --ds-link: #C4B5FD;
+  --ds-success: #4ADE80;
   --ds-success-bg: rgba(74,222,128,0.15);
   --ds-warning-bg: rgba(251,191,36,0.10);
   --ds-warning-text: #fbbf24;
   --ds-error-bg: rgba(248,113,113,0.10);
   --ds-error-text: #f87171;
-  --ds-selected-bg: rgba(139,92,246,0.20);
-  --ds-selected-border: rgba(139,92,246,0.50);
-  --ds-cta-bg: #8b5cf6;
-  --ds-cta-text: #ffffff;
+  --ds-selected-bg: rgba(168,85,247,0.15);
+  --ds-selected-border: rgba(168,85,247,0.5);
+  --ds-cta-bg: #7C3AED;
+  --ds-cta-hover: #6D28D9;
+  --ds-cta-text: #FFFFFF;
   --ds-progress-bg: rgba(255,255,255,0.10);
-  --ds-progress-fill: #8b5cf6;
+  --ds-progress-fill: linear-gradient(90deg,#7C3AED,#A78BFA);
+  --ds-overlay-bg: rgba(255,255,255,0.08);
+  --ds-glass-bg: rgba(30,30,34,0.92);
+  --ds-header-bg: #121214;
+  --ds-divider: rgba(255,255,255,0.08);
+  --ds-tab-bg: rgba(255,255,255,0.06);
+  --ds-tab-inactive: rgba(255,255,255,0.4);
+  --ds-bot-text: #F8FAFC;
+  --ds-user-bubble-bg: #FFFFFF;
+  --ds-user-bubble-text: #1C0B47;
   --ds-bubble-bg: rgba(255,255,255,0.08);
   --ds-bubble-border: rgba(255,255,255,0.10);
+  --ds-feature-check: #4ADE80;
+
+  /* ── App tokens (Health / Life / Home) ── */
+  --app-bg: #121214;
+  --app-surface: #1E1E22;
+  --app-surface-2: #2D2D35;
+  --app-surface-hover: #3D3D45;
+  --app-text: #FFFFFF;
+  --app-text-muted: #94A3B8;
+  --app-text-subtle: #64748B;
+  --app-border: rgba(255,255,255,0.05);
+  --app-border-strong: rgba(255,255,255,0.1);
+  --app-header-bg: #121214;
+  --app-overlay-bg: rgba(255,255,255,0.08);
+  --app-glass-bg: rgba(30,30,34,0.92);
+  --app-accent: #7C3AED;
+  --app-link: #C4B5FD;
+  --app-divider: rgba(255,255,255,0.08);
+  --app-input-bg: rgba(255,255,255,0.05);
+  --app-input-border: rgba(255,255,255,0.1);
+  --app-input-text: #FFFFFF;
+  --app-input-placeholder: rgba(255,255,255,0.3);
+  --app-badge-bg: rgba(124,58,237,0.2);
+  --app-badge-text: #C4B5FD;
+  --app-badge-border: rgba(168,85,247,0.3);
+  --app-feature-check: #4ADE80;
+  --app-plan-card-bg: rgba(255,255,255,0.08);
+  --app-plan-card-border: rgba(168,85,247,0.3);
+  --app-tab-bg: rgba(255,255,255,0.06);
+  --app-tab-inactive: rgba(255,255,255,0.4);
+  --app-bot-text: #F8FAFC;
+  --app-user-bubble-bg: #FFFFFF;
+  --app-user-bubble-text: #1C0B47;
+
+  /* ── Motor tokens ── */
+  --motor-bg: #121214;
+  --motor-surface: #1E1E22;
+  --motor-surface-2: #2D2D35;
+  --motor-surface-hover: #3D3D45;
+  --motor-text: #FFFFFF;
+  --motor-text-muted: #94A3B8;
+  --motor-text-subtle: #64748B;
+  --motor-border: rgba(255,255,255,0.05);
+  --motor-border-strong: rgba(255,255,255,0.1);
+  --motor-overlay-bg: rgba(255,255,255,0.08);
+  --motor-glass-bg: rgba(30,30,34,0.92);
+  --motor-cta-bg: #7C3AED;
+  --motor-cta-hover: #6D28D9;
+  --motor-cta-text: #FFFFFF;
+  --motor-selected-bg: rgba(168,85,247,0.15);
+  --motor-selected-border: rgba(168,85,247,0.5);
+  --motor-input-bg: rgba(255,255,255,0.05);
+  --motor-input-border: rgba(255,255,255,0.1);
+  --motor-input-text: #FFFFFF;
+  --motor-input-placeholder: rgba(255,255,255,0.3);
+  --motor-plan-rec-badge: #C084FC;
+  --motor-plan-rec-check: #34D399;
+  --motor-bot-text: #F8FAFC;
+  --motor-user-bubble-bg: #FFFFFF;
+  --motor-user-bubble-text: #1C0B47;
+  --motor-icon-filter: brightness(0) invert(1);
+  --motor-icon-opacity: 0.85;
 }
+
 [data-ds-theme="light"] {
-  --ds-bg: #F5F5F7;
-  --ds-bg-95: rgba(245,245,247,0.95);
+  --ds-bg: #EDE9FA;
+  --ds-bg-95: rgba(237,233,250,0.95);
   --ds-surface: #FFFFFF;
-  --ds-surface-hover: rgba(0,0,0,0.04);
-  --ds-text: #1a1a1a;
-  --ds-text-secondary: rgba(0,0,0,0.55);
-  --ds-text-tertiary: rgba(0,0,0,0.40);
-  --ds-border: rgba(0,0,0,0.10);
-  --ds-border-subtle: rgba(0,0,0,0.05);
-  --ds-icon-filter: none;
-  --ds-icon-opacity: 1;
+  --ds-surface-2: #F3F0FC;
+  --ds-surface-hover: #E8E3F5;
+  --ds-text: #111827;
+  --ds-text-secondary: #6B7280;
+  --ds-text-tertiary: #9CA3AF;
+  --ds-border: rgba(0,0,0,0.06);
+  --ds-border-strong: rgba(0,0,0,0.1);
+  --ds-border-subtle: rgba(0,0,0,0.06);
+  --ds-icon-filter: brightness(0);
+  --ds-icon-opacity: 0.7;
   --ds-card-bg: #FFFFFF;
-  --ds-card-border: rgba(0,0,0,0.10);
-  --ds-input-bg: rgba(0,0,0,0.04);
-  --ds-badge-bg: rgba(168,85,247,0.10);
-  --ds-badge-text: #7c3aed;
-  --ds-badge-border: rgba(168,85,247,0.20);
-  --ds-cat-active-bg: rgba(168,85,247,0.15);
-  --ds-cat-active-text: #7c3aed;
-  --ds-cat-active-border: rgba(168,85,247,0.25);
+  --ds-card-border: rgba(109,40,217,0.2);
+  --ds-input-bg: rgba(0,0,0,0.03);
+  --ds-input-border: rgba(0,0,0,0.1);
+  --ds-input-text: #1C0B47;
+  --ds-input-placeholder: rgba(0,0,0,0.3);
+  --ds-badge-bg: rgba(109,40,217,0.08);
+  --ds-badge-text: #5B21B6;
+  --ds-badge-border: rgba(109,40,217,0.2);
+  --ds-cat-active-bg: rgba(109,40,217,0.12);
+  --ds-cat-active-text: #6D28D9;
+  --ds-cat-active-border: rgba(109,40,217,0.25);
   --ds-cat-bg: rgba(0,0,0,0.04);
   --ds-cat-text: rgba(0,0,0,0.50);
   --ds-version-bg: rgba(0,0,0,0.04);
   --ds-version-text: rgba(0,0,0,0.40);
   --ds-version-border: rgba(0,0,0,0.10);
-  --ds-accent: #7c3aed;
-  --ds-accent-bg: rgba(124,58,237,0.08);
-  --ds-success: #16a34a;
-  --ds-success-bg: rgba(22,163,74,0.10);
+  --ds-accent: #6D28D9;
+  --ds-accent-bg: rgba(109,40,217,0.08);
+  --ds-link: #6D28D9;
+  --ds-success: #059669;
+  --ds-success-bg: rgba(5,150,105,0.10);
   --ds-warning-bg: rgba(245,158,11,0.10);
   --ds-warning-text: #d97706;
   --ds-error-bg: rgba(239,68,68,0.10);
   --ds-error-text: #dc2626;
-  --ds-selected-bg: rgba(124,58,237,0.10);
-  --ds-selected-border: rgba(124,58,237,0.40);
-  --ds-cta-bg: #7c3aed;
-  --ds-cta-text: #ffffff;
+  --ds-selected-bg: rgba(168,85,247,0.1);
+  --ds-selected-border: rgba(168,85,247,0.4);
+  --ds-cta-bg: #6D28D9;
+  --ds-cta-hover: #5B21B6;
+  --ds-cta-text: #FFFFFF;
   --ds-progress-bg: rgba(0,0,0,0.08);
-  --ds-progress-fill: #7c3aed;
-  --ds-bubble-bg: #ffffff;
+  --ds-progress-fill: linear-gradient(90deg,#6D28D9,#7C3AED);
+  --ds-overlay-bg: rgba(0,0,0,0.04);
+  --ds-glass-bg: rgba(255,255,255,0.95);
+  --ds-header-bg: #EDE9FA;
+  --ds-divider: rgba(0,0,0,0.06);
+  --ds-tab-bg: rgba(0,0,0,0.04);
+  --ds-tab-inactive: rgba(0,0,0,0.4);
+  --ds-bot-text: #1C0B47;
+  --ds-user-bubble-bg: linear-gradient(0deg,#5920C5,#7C47E1);
+  --ds-user-bubble-text: #FFFFFF;
+  --ds-bubble-bg: #FFFFFF;
   --ds-bubble-border: rgba(0,0,0,0.10);
+  --ds-feature-check: #059669;
+
+  /* ── App tokens (Health / Life / Home) ── */
+  --app-bg: #EDE9FA;
+  --app-surface: #FFFFFF;
+  --app-surface-2: #F3F0FC;
+  --app-surface-hover: #E8E3F5;
+  --app-text: #111827;
+  --app-text-muted: #6B7280;
+  --app-text-subtle: #9CA3AF;
+  --app-border: rgba(0,0,0,0.06);
+  --app-border-strong: rgba(0,0,0,0.1);
+  --app-header-bg: #EDE9FA;
+  --app-overlay-bg: rgba(0,0,0,0.04);
+  --app-glass-bg: rgba(255,255,255,0.95);
+  --app-accent: #6D28D9;
+  --app-link: #6D28D9;
+  --app-divider: rgba(0,0,0,0.06);
+  --app-input-bg: rgba(0,0,0,0.03);
+  --app-input-border: rgba(0,0,0,0.1);
+  --app-input-text: #1C0B47;
+  --app-input-placeholder: rgba(0,0,0,0.3);
+  --app-badge-bg: rgba(109,40,217,0.08);
+  --app-badge-text: #5B21B6;
+  --app-badge-border: rgba(109,40,217,0.2);
+  --app-feature-check: #059669;
+  --app-plan-card-bg: #FFFFFF;
+  --app-plan-card-border: rgba(109,40,217,0.2);
+  --app-tab-bg: rgba(0,0,0,0.04);
+  --app-tab-inactive: rgba(0,0,0,0.4);
+  --app-bot-text: #1C0B47;
+  --app-user-bubble-bg: linear-gradient(0deg,#5920C5,#7C47E1);
+  --app-user-bubble-text: #FFFFFF;
+
+  /* ── Motor tokens ── */
+  --motor-bg: #F8F7FC;
+  --motor-surface: #FFFFFF;
+  --motor-surface-2: #FFFFFF;
+  --motor-surface-hover: #F3F1FA;
+  --motor-text: #1C0B47;
+  --motor-text-muted: #4B5563;
+  --motor-text-subtle: #6B7280;
+  --motor-border: rgba(0,0,0,0.08);
+  --motor-border-strong: rgba(0,0,0,0.14);
+  --motor-overlay-bg: rgba(0,0,0,0.04);
+  --motor-glass-bg: rgba(255,255,255,0.95);
+  --motor-cta-bg: #6D28D9;
+  --motor-cta-hover: #5B21B6;
+  --motor-cta-text: #FFFFFF;
+  --motor-selected-bg: rgba(168,85,247,0.1);
+  --motor-selected-border: rgba(168,85,247,0.4);
+  --motor-input-bg: rgba(0,0,0,0.03);
+  --motor-input-border: rgba(0,0,0,0.1);
+  --motor-input-text: #1C0B47;
+  --motor-input-placeholder: rgba(0,0,0,0.3);
+  --motor-plan-rec-badge: #6D28D9;
+  --motor-plan-rec-check: #059669;
+  --motor-bot-text: #1C0B47;
+  --motor-user-bubble-bg: linear-gradient(0deg,#5920C5,#7C47E1);
+  --motor-user-bubble-text: #FFFFFF;
+  --motor-icon-filter: brightness(0);
+  --motor-icon-opacity: 0.7;
 }
 
-/* Scoped Tailwind overrides for light theme */
-[data-ds-theme="light"] .text-white { color: #1a1a1a !important; }
-[data-ds-theme="light"] .text-white\\/90 { color: rgba(0,0,0,0.85) !important; }
-[data-ds-theme="light"] .text-white\\/80 { color: rgba(0,0,0,0.75) !important; }
-[data-ds-theme="light"] .text-white\\/70 { color: rgba(0,0,0,0.65) !important; }
-[data-ds-theme="light"] .text-white\\/60 { color: rgba(0,0,0,0.55) !important; }
-[data-ds-theme="light"] .text-white\\/50 { color: rgba(0,0,0,0.50) !important; }
-[data-ds-theme="light"] .text-white\\/40 { color: rgba(0,0,0,0.40) !important; }
-[data-ds-theme="light"] .text-white\\/30 { color: rgba(0,0,0,0.30) !important; }
+/* ═══════════════════════════════════════════════
+   Scoped Tailwind overrides for light theme
+   Text-white → dark text, matching skill spec
+   ═══════════════════════════════════════════════ */
+[data-ds-theme="light"] .text-white { color: var(--ds-text) !important; }
+[data-ds-theme="light"] .text-white\\/90 { color: var(--ds-text) !important; }
+[data-ds-theme="light"] .text-white\\/80 { color: var(--ds-text) !important; }
+[data-ds-theme="light"] .text-white\\/70 { color: var(--ds-text-secondary) !important; }
+[data-ds-theme="light"] .text-white\\/60 { color: var(--ds-text-secondary) !important; }
+[data-ds-theme="light"] .text-white\\/50 { color: var(--ds-text-secondary) !important; }
+[data-ds-theme="light"] .text-white\\/40 { color: var(--ds-text-tertiary) !important; }
+[data-ds-theme="light"] .text-white\\/30 { color: var(--ds-text-tertiary) !important; }
 
 [data-ds-theme="light"] .bg-white\\/5 { background-color: rgba(0,0,0,0.03) !important; }
 [data-ds-theme="light"] .bg-white\\/10 { background-color: rgba(0,0,0,0.05) !important; }
@@ -1909,10 +2072,10 @@ const DS_THEME_STYLES = `
 [data-ds-theme="light"] .bg-white\\/20 { background-color: rgba(0,0,0,0.08) !important; }
 
 [data-ds-theme="light"] .border-white\\/5 { border-color: rgba(0,0,0,0.05) !important; }
-[data-ds-theme="light"] .border-white\\/10 { border-color: rgba(0,0,0,0.10) !important; }
+[data-ds-theme="light"] .border-white\\/10 { border-color: rgba(0,0,0,0.08) !important; }
 [data-ds-theme="light"] .border-white\\/15 { border-color: rgba(0,0,0,0.12) !important; }
-[data-ds-theme="light"] .border-white\\/20 { border-color: rgba(0,0,0,0.15) !important; }
-[data-ds-theme="light"] .border-white\\/30 { border-color: rgba(0,0,0,0.20) !important; }
+[data-ds-theme="light"] .border-white\\/20 { border-color: rgba(0,0,0,0.12) !important; }
+[data-ds-theme="light"] .border-white\\/30 { border-color: rgba(0,0,0,0.18) !important; }
 
 [data-ds-theme="light"] .placeholder-white\\/30::placeholder { color: rgba(0,0,0,0.30) !important; }
 [data-ds-theme="light"] .placeholder-white\\/40::placeholder { color: rgba(0,0,0,0.40) !important; }
@@ -1920,37 +2083,45 @@ const DS_THEME_STYLES = `
 [data-ds-theme="light"] .placeholder\\:text-white\\/40::placeholder { color: rgba(0,0,0,0.40) !important; }
 
 [data-ds-theme="light"] .hover\\:bg-white\\/10:hover { background-color: rgba(0,0,0,0.06) !important; }
-[data-ds-theme="light"] .hover\\:border-white\\/20:hover { border-color: rgba(0,0,0,0.15) !important; }
-[data-ds-theme="light"] .hover\\:text-white\\/70:hover { color: rgba(0,0,0,0.65) !important; }
+[data-ds-theme="light"] .hover\\:border-white\\/20:hover { border-color: rgba(0,0,0,0.12) !important; }
+[data-ds-theme="light"] .hover\\:text-white\\/70:hover { color: var(--ds-text-secondary) !important; }
 [data-ds-theme="light"] .focus\\:bg-white\\/15:focus { background-color: rgba(0,0,0,0.07) !important; }
 
-[data-ds-theme="light"] .bg-\\[\\#0a0a12\\] { background-color: #F5F5F7 !important; }
+[data-ds-theme="light"] .bg-\\[\\#121214\\] { background-color: #EDE9FA !important; }
+[data-ds-theme="light"] .bg-\\[\\#0a0a12\\] { background-color: #EDE9FA !important; }
 
-[data-ds-theme="light"] .shadow-purple-900\\/20 { --tw-shadow-color: rgba(124,58,237,0.12) !important; }
+[data-ds-theme="light"] .shadow-purple-900\\/20 { --tw-shadow-color: rgba(109,40,217,0.12) !important; }
 
-[data-ds-theme="light"] .divide-white\\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.05) !important; }
+[data-ds-theme="light"] .divide-white\\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.06) !important; }
 
 [data-ds-theme="light"] .from-white\\/10 { --tw-gradient-from: rgba(0,0,0,0.06) !important; }
 [data-ds-theme="light"] .to-white\\/5 { --tw-gradient-to: rgba(0,0,0,0.03) !important; }
+
+/* Colored bg buttons keep white text in light mode */
+[data-ds-theme="light"] [class*="bg-purple-"] { color: #FFFFFF !important; }
+[data-ds-theme="light"] [class*="bg-violet-"] { color: #FFFFFF !important; }
+[data-ds-theme="light"] [class*="bg-green-"] { color: #FFFFFF !important; }
+[data-ds-theme="light"] [class*="bg-red-"] { color: #FFFFFF !important; }
+[data-ds-theme="light"] [class*="bg-blue-"] { color: #FFFFFF !important; }
+
+/* Inline gradients always keep white text */
+[data-ds-theme="light"] [style*="linear-gradient"] { color: #FFFFFF !important; }
+
+/* Colored status tag backgrounds soften in light mode */
+[data-ds-theme="light"] .bg-emerald-500\\/15 { background-color: rgba(16,185,129,0.12) !important; }
+[data-ds-theme="light"] .bg-emerald-500\\/20 { background-color: rgba(16,185,129,0.12) !important; }
+[data-ds-theme="light"] .bg-amber-500\\/15 { background-color: rgba(245,158,11,0.12) !important; }
+[data-ds-theme="light"] .bg-red-500\\/15 { background-color: rgba(239,68,68,0.12) !important; }
+[data-ds-theme="light"] .bg-blue-500\\/15 { background-color: rgba(59,130,246,0.12) !important; }
+[data-ds-theme="light"] .bg-violet-500\\/20 { background-color: rgba(139,92,246,0.12) !important; }
 `;
 
 export default function DesignSystemPage() {
   const [activeLob, setActiveLob] = useState<LobTab>('base');
   const [themeMode, setThemeMode] = useState<ThemeMode>('dark');
-  const [systemPrefersDark, setSystemPrefersDark] = useState(true);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    setSystemPrefersDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setSystemPrefersDark(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
-  const resolvedTheme = themeMode === 'system' ? (systemPrefersDark ? 'dark' : 'light') : themeMode;
 
   return (
-    <div data-ds-theme={resolvedTheme} className="min-h-screen transition-colors duration-300" style={{ background: 'var(--ds-bg)', color: 'var(--ds-text)' }}>
+    <div data-ds-theme={themeMode} className="min-h-screen transition-colors duration-300" style={{ background: 'var(--ds-bg)', color: 'var(--ds-text)' }}>
       <style dangerouslySetInnerHTML={{ __html: DS_THEME_STYLES }} />
       <div className="sticky top-0 z-50 backdrop-blur-xl transition-colors duration-300" style={{ background: 'var(--ds-bg-95)', borderBottom: '1px solid var(--ds-border)' }}>
         <div className="max-w-6xl mx-auto px-6 py-4">
@@ -1964,7 +2135,6 @@ export default function DesignSystemPage() {
                 {([
                   { id: 'light' as ThemeMode, label: 'Light', icon: 'M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z' },
                   { id: 'dark' as ThemeMode, label: 'Dark', icon: 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z' },
-                  { id: 'system' as ThemeMode, label: 'System', icon: 'M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25' },
                 ]).map(t => (
                   <button key={t.id} onClick={() => setThemeMode(t.id)} title={t.label}
                     className="px-2.5 py-1.5 flex items-center gap-1.5 text-[11px] font-medium transition-all"
