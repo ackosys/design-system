@@ -1967,8 +1967,8 @@ const DS_THEME_STYLES = `
   --ds-surface-2: #2D2D35;
   --ds-surface-hover: #3D3D45;
   --ds-text: #FFFFFF;
-  --ds-text-secondary: #94A3B8;
-  --ds-text-tertiary: #64748B;
+  --ds-text-secondary: #B0B0B0;
+  --ds-text-tertiary: #808080;
   --ds-border: rgba(255,255,255,0.05);
   --ds-border-strong: rgba(255,255,255,0.1);
   --ds-border-subtle: rgba(255,255,255,0.05);
@@ -2013,7 +2013,7 @@ const DS_THEME_STYLES = `
   --ds-divider: rgba(255,255,255,0.08);
   --ds-tab-bg: rgba(255,255,255,0.06);
   --ds-tab-inactive: rgba(255,255,255,0.4);
-  --ds-bot-text: #F8FAFC;
+  --ds-bot-text: #FFFFFF;
   --ds-user-bubble-bg: #FFFFFF;
   --ds-user-bubble-text: #1C0B47;
   --ds-bubble-bg: rgba(255,255,255,0.08);
@@ -2026,8 +2026,8 @@ const DS_THEME_STYLES = `
   --app-surface-2: #2D2D35;
   --app-surface-hover: #3D3D45;
   --app-text: #FFFFFF;
-  --app-text-muted: #94A3B8;
-  --app-text-subtle: #64748B;
+  --app-text-muted: #B0B0B0;
+  --app-text-subtle: #808080;
   --app-border: rgba(255,255,255,0.05);
   --app-border-strong: rgba(255,255,255,0.1);
   --app-header-bg: #121214;
@@ -2048,7 +2048,7 @@ const DS_THEME_STYLES = `
   --app-plan-card-border: rgba(168,85,247,0.3);
   --app-tab-bg: rgba(255,255,255,0.06);
   --app-tab-inactive: rgba(255,255,255,0.4);
-  --app-bot-text: #F8FAFC;
+  --app-bot-text: #FFFFFF;
   --app-user-bubble-bg: #FFFFFF;
   --app-user-bubble-text: #1C0B47;
 
@@ -2058,8 +2058,8 @@ const DS_THEME_STYLES = `
   --motor-surface-2: #2D2D35;
   --motor-surface-hover: #3D3D45;
   --motor-text: #FFFFFF;
-  --motor-text-muted: #94A3B8;
-  --motor-text-subtle: #64748B;
+  --motor-text-muted: #B0B0B0;
+  --motor-text-subtle: #808080;
   --motor-border: rgba(255,255,255,0.05);
   --motor-border-strong: rgba(255,255,255,0.1);
   --motor-overlay-bg: rgba(255,255,255,0.08);
@@ -2075,7 +2075,7 @@ const DS_THEME_STYLES = `
   --motor-input-placeholder: rgba(255,255,255,0.3);
   --motor-plan-rec-badge: #C084FC;
   --motor-plan-rec-check: #34D399;
-  --motor-bot-text: #F8FAFC;
+  --motor-bot-text: #FFFFFF;
   --motor-user-bubble-bg: #FFFFFF;
   --motor-user-bubble-text: #1C0B47;
   --motor-icon-filter: brightness(0) invert(1);
