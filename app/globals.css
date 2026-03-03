@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Noto+Sans+Kannada:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-euclid), 'Euclid Circular B', system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: var(--font-euclid), 'Euclid Circular B', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #0A0A0A;
+    background: #FFFFFF;
+    overflow-x: hidden;
+  }
+
+  button, a, input {
+    touch-action: manipulation;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  .counter, .price, .timer {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gradient-purple {
+    background: linear-gradient(135deg, #4E29BB 0%, #2E1773 50%, #18084A 100%);
+  }
+
+  .gradient-purple-light {
+    background: linear-gradient(135deg, #F8F7FD 0%, #ECEBFF 100%);
+  }
+
+  .gradient-celebration {
+    background: linear-gradient(135deg, #149A40 0%, #55B94D 50%, #85E37D 100%);
+  }
+
+  .text-gradient-purple {
+    background: linear-gradient(135deg, #4E29BB, #926FF3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .chat-bubble-bot {
+    border-radius: 4px 16px 16px 16px;
+  }
+
+  .chat-bubble-user {
+    border-radius: 16px 4px 16px 16px;
+  }
+
+  .chat-bg-dark {
+    background: linear-gradient(180deg, #1C0B47 0%, #2A1463 40%, #1C0B47 100%);
+  }
+
+  .glass-dark {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .widget-glass-dark {
+    background: rgba(30, 15, 70, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ── Typing animation ── */
+@keyframes typing {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+.animate-typing {
+  animation: typing 1.2s ease-in-out infinite;
+}
+
+/* ── Breathing Orb ── */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(99,77,234,0.3); }
+  50% { transform: scale(1.06); box-shadow: 0 0 40px rgba(99,77,234,0.5); }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* ── Pulse Ring ── */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* ── IDV Range Slider ── */
+.idv-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+}
+.idv-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #4ade80;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+.idv-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #4ade80;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  border: none;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Hairline Borders ── */
+@media (min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .border-hairline {
+    border-width: 0.5px;
+  }
+}
