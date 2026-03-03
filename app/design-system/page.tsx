@@ -191,19 +191,27 @@ function SelectionCard({
   options,
   layout = 'auto',
   columns = 2,
+  multiSelect = false,
   onSelect,
 }: {
   options: SelectionOption[];
   layout?: SelectionLayout;
   columns?: 2 | 3;
+  multiSelect?: boolean;
   onSelect: (id: string) => void;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const handleSelect = (id: string) => {
-    setSelected(id);
-    setTimeout(() => onSelect(id), 250);
+    if (multiSelect) {
+      setSelected(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+    } else {
+      setSelected([id]);
+      setTimeout(() => onSelect(id), 250);
+    }
   };
+
+  const isSelected = (id: string) => selected.includes(id);
 
   const resolvedLayout: Exclude<SelectionLayout, 'auto'> =
     layout !== 'auto'
@@ -224,14 +232,19 @@ function SelectionCard({
             onClick={() => handleSelect(opt.id)}
             className="relative flex flex-col items-center text-center p-5 rounded-2xl border transition-all duration-200 active:scale-[0.97] min-h-[120px] justify-center"
             style={{
-              background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
-              border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
             }}
           >
             {opt.badge && (
               <span className="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>
                 {opt.badge}
               </span>
+            )}
+            {multiSelect && isSelected(opt.id) && (
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2 left-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--ds-accent)' }}>
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </motion.div>
             )}
             {opt.icon && ICON_MAP[opt.icon] && (
               <div className="mb-2 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--ds-overlay-bg)' }}>
@@ -255,12 +268,12 @@ function SelectionCard({
             onClick={() => handleSelect(opt.id)}
             className="relative flex flex-col items-center py-4 px-3 rounded-xl border text-center transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
-              border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
-              color: selected === opt.id ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+              background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              color: isSelected(opt.id) ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
             }}
           >
-            {opt.badge && <span className="absolute -top-2 right-3 text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>{opt.badge}</span>}
+            {opt.badge && <span className="absolute top-1.5 right-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>{opt.badge}</span>}
             <span className="text-[15px] font-semibold">{opt.label}</span>
             {opt.description && <span className="text-[13px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</span>}
           </button>
@@ -281,12 +294,12 @@ function SelectionCard({
             onClick={() => handleSelect(opt.id)}
             className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
-              border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+              border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
             }}
           >
-            <DsRadio selected={selected === opt.id} />
-            <span className="text-[15px] font-medium" style={{ color: selected === opt.id ? 'var(--ds-text)' : 'var(--ds-text-secondary)' }}>{opt.label}</span>
+            {multiSelect ? <DsCheckbox checked={isSelected(opt.id)} /> : <DsRadio selected={isSelected(opt.id)} />}
+            <span className="text-[15px] font-medium" style={{ color: isSelected(opt.id) ? 'var(--ds-text)' : 'var(--ds-text-secondary)' }}>{opt.label}</span>
           </motion.button>
         ))}
       </div>
@@ -304,8 +317,8 @@ function SelectionCard({
           onClick={() => handleSelect(opt.id)}
           className="text-left px-4 py-3.5 rounded-xl transition-all duration-200 active:scale-[0.97]"
           style={{
-            background: selected === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
-            border: `1.5px solid ${selected === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+            background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+            border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
           }}
         >
           <div className="flex items-center gap-3">
@@ -2267,6 +2280,53 @@ const DS_THEME_STYLES = `
 [data-ds-theme="light"] .bg-violet-500\\/20 { background-color: rgba(139,92,246,0.12) !important; }
 `;
 
+function SelectorShowcase() {
+  const [multi, setMulti] = useState(false);
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-[20px] font-bold" style={{ color: 'var(--ds-text)' }}>Selector</h2>
+          <p className="text-[13px] mt-0.5" style={{ color: 'var(--ds-text-secondary)' }}>Single or multi-select — icon + text, text-only, with or without search. Behaviour adapts via props.</p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-[12px] font-medium" style={{ color: 'var(--ds-text-secondary)' }}>Multi-select</span>
+          <DsToggle on={multi} onChange={setMulti} />
+        </div>
+      </div>
+      <div key={multi ? 'multi' : 'single'} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <WidgetCard title="Icon + Text" widgetType={`Selector — ${multi ? 'multi' : 'single'}-select grid with icons`}>
+          <SelectionCard layout="grid" multiSelect={multi} options={[
+            { id: 'opt1', label: 'Option A', icon: 'user' },
+            { id: 'opt2', label: 'Option B', icon: 'heart' },
+            { id: 'opt3', label: 'Option C', icon: 'building' },
+            { id: 'opt4', label: 'Option D', icon: 'gift', badge: 'New' },
+          ]} onSelect={() => {}} />
+        </WidgetCard>
+        <WidgetCard title="Text Only" widgetType={`Selector — ${multi ? 'multi' : 'single'}-select compact grid`}>
+          <SelectionCard layout="compact-grid" columns={3} multiSelect={multi} options={[
+            { id: '1', label: '10%' }, { id: '2', label: '20%' }, { id: '3', label: '30%' },
+            { id: '4', label: '40%' }, { id: '5', label: '50%' }, { id: '6', label: '60%' },
+          ]} onSelect={() => {}} />
+        </WidgetCard>
+        <WidgetCard title="With Search" widgetType={`Selector — ${multi ? 'multi' : 'single'}-select searchable`}>
+          <GridSelector columns={3} searchable multiSelect={multi} options={[
+            { id: 'a', label: 'Alpha' }, { id: 'b', label: 'Bravo' }, { id: 'c', label: 'Charlie' },
+            { id: 'd', label: 'Delta' }, { id: 'e', label: 'Echo' }, { id: 'f', label: 'Foxtrot' },
+          ]} onSelect={() => {}} />
+        </WidgetCard>
+        <WidgetCard title="List" widgetType={`Selector — ${multi ? 'multi' : 'single'}-select list`}>
+          <SelectionCard layout="list" multiSelect={multi} options={[
+            { id: 'a', label: 'Primary', icon: 'user', description: 'Main option with details' },
+            { id: 'b', label: 'Secondary', icon: 'heart', description: 'Alternative option' },
+            { id: 'c', label: 'Tertiary', description: 'No icon — label only', badge: 'Popular' },
+          ]} onSelect={() => {}} />
+        </WidgetCard>
+      </div>
+    </section>
+  );
+}
+
 export default function DesignSystemPage() {
   const [activeLob, setActiveLob] = useState<LobTab>('foundations');
   const [themeMode, setThemeMode] = useState<ThemeMode>('dark');
@@ -2817,73 +2877,14 @@ export default function DesignSystemPage() {
             </section>
 
             {/* Selection */}
-            <section>
-              <SectionHeader title="SelectionCard" description="Unified single-select component — layout adapts via props: grid, list, compact-grid, radio" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title='layout="grid"' widgetType="SelectionCard — grid layout with icons">
-                  <SelectionCard layout="grid" options={[
-                    { id: 'opt1', label: 'Option A', icon: 'user' },
-                    { id: 'opt2', label: 'Option B', icon: 'heart' },
-                    { id: 'opt3', label: 'Option C', icon: 'building' },
-                    { id: 'opt4', label: 'Option D', icon: 'gift', badge: 'New' },
-                  ]} onSelect={() => {}} />
-                </WidgetCard>
-                <WidgetCard title='layout="list"' widgetType="SelectionCard — stacked list with DsBadge">
-                  <SelectionCard layout="list" options={[
-                    { id: 'a', label: 'Primary', icon: 'user', description: 'Main option with details' },
-                    { id: 'b', label: 'Secondary', icon: 'heart', description: 'Alternative option' },
-                    { id: 'c', label: 'Tertiary', description: 'No icon — label only', badge: 'Popular' },
-                  ]} onSelect={() => {}} />
-                </WidgetCard>
-                <WidgetCard title='layout="compact-grid"' widgetType="SelectionCard — label-only compact grid">
-                  <SelectionCard layout="compact-grid" columns={3} options={[
-                    { id: '1', label: '10%' }, { id: '2', label: '20%' }, { id: '3', label: '30%' },
-                    { id: '4', label: '40%' }, { id: '5', label: '50%' }, { id: '6', label: '60%' },
-                  ]} onSelect={() => {}} />
-                </WidgetCard>
-                <WidgetCard title='layout="radio"' widgetType="SelectionCard — binary choice with DsRadio">
-                  <SelectionCard layout="radio" options={[
-                    { id: 'yes', label: 'Yes, proceed' },
-                    { id: 'no', label: 'No, skip' },
-                  ]} onSelect={() => {}} />
-                </WidgetCard>
-              </div>
-            </section>
-
-            <section>
-              <SectionHeader title="GridSelector" description="Multi-select grid with search — uses DsInput for search, DsButton for CTA" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Multi-select with icons" widgetType="GridSelector — multiSelect + DsButton CTA">
-                  <GridSelector multiSelect options={[
-                    { id: 'a', label: 'Item 1', icon: 'user' }, { id: 'b', label: 'Item 2', icon: 'heart' },
-                    { id: 'c', label: 'Item 3', icon: 'building' }, { id: 'd', label: 'Item 4', icon: 'child' },
-                  ]} onSelect={() => {}} />
-                </WidgetCard>
-                <WidgetCard title="Searchable single-select" widgetType="GridSelector — DsInput search + initials fallback">
-                  <GridSelector columns={3} searchable options={[
-                    { id: 'a', label: 'Alpha' }, { id: 'b', label: 'Bravo' }, { id: 'c', label: 'Charlie' },
-                    { id: 'd', label: 'Delta' }, { id: 'e', label: 'Echo' }, { id: 'f', label: 'Foxtrot' },
-                  ]} onSelect={() => {}} />
-                </WidgetCard>
-              </div>
-            </section>
+            <SelectorShowcase />
 
             {/* Inputs */}
             <section>
               <SectionHeader title="InputField" description="Text, number, currency, pincode — built on DsInput atom + DsButton CTA" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Input Variants" widgetType="InputField — DsInput + DsButton · text/number/currency/pincode">
-                  <div className="space-y-6">
-                    <InputField variant="text" placeholder="Enter your full name" buttonLabel="Continue" />
-                    <DsDivider />
-                    <InputField variant="number" placeholder="Enter your age" helperText="Between 18 and 65 years" buttonLabel="Continue"
-                      validate={(v) => { const n = parseInt(v); if (isNaN(n)) return 'Please enter a valid number'; if (n < 18) return 'Minimum age is 18'; if (n > 65) return 'Maximum age is 65'; return null; }} />
-                    <DsDivider />
-                    <InputField variant="currency" placeholder="Enter annual income" helperText="Minimum ₹3,00,000 per year" buttonLabel="Continue" />
-                    <DsDivider />
-                    <InputField variant="pincode" placeholder="Enter your pincode" icon="/icons/generic/Location.svg" buttonLabel="Find Hospitals"
-                      validate={(v) => !/^\d{6}$/.test(v) ? 'Please enter a valid 6-digit pincode' : null} />
-                  </div>
+                <WidgetCard title="InputField" widgetType="DsInput + DsButton — input type & button variant adapt to context">
+                  <InputField variant="text" placeholder="Enter your full name" buttonLabel="Continue" />
                 </WidgetCard>
                 <WidgetCard title="Vehicle Registration" widgetType="VehicleRegInput — DsBadge prefix + DsButton">
                   <VehicleRegInput />
