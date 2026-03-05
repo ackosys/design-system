@@ -231,10 +231,11 @@ function SelectionCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
             onClick={() => handleSelect(opt.id)}
-            className="relative flex flex-col items-center text-center p-5 rounded-2xl border transition-all duration-200 active:scale-[0.97] min-h-[120px] justify-center"
+            className="relative flex flex-col items-center text-center p-5 rounded-2xl active:scale-[0.97] min-h-[120px] justify-center"
             style={{
               background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
               border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, border-color var(--duration-micro) ease',
             }}
           >
             {opt.badge && (
@@ -263,21 +264,25 @@ function SelectionCard({
   if (resolvedLayout === 'compact-grid') {
     return (
       <div className={`grid gap-2 max-w-md ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-        {options.map((opt) => (
-          <button
+        {options.map((opt, i) => (
+          <motion.button
             key={opt.id}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.04, duration: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
             onClick={() => handleSelect(opt.id)}
-            className="relative flex flex-col items-center py-4 px-3 rounded-xl border text-center transition-all duration-200 active:scale-[0.97]"
+            className="relative flex flex-col items-center py-4 px-3 rounded-xl text-center active:scale-[0.97]"
             style={{
               background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
               border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
               color: isSelected(opt.id) ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+              transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, border-color var(--duration-micro) ease',
             }}
           >
             {opt.badge && <span className="absolute top-1.5 right-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: 'var(--ds-accent-bg)', color: 'var(--ds-accent)' }}>{opt.badge}</span>}
             <span className="text-[15px] font-semibold">{opt.label}</span>
             {opt.description && <span className="text-[13px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</span>}
-          </button>
+          </motion.button>
         ))}
       </div>
     );
@@ -293,10 +298,11 @@ function SelectionCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.id)}
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all duration-200 active:scale-[0.97]"
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-left active:scale-[0.97]"
             style={{
               background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
               border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+              transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, border-color var(--duration-micro) ease',
             }}
           >
             {multiSelect ? <DsCheckbox checked={isSelected(opt.id)} /> : <DsRadio selected={isSelected(opt.id)} />}
@@ -316,10 +322,11 @@ function SelectionCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.04 }}
           onClick={() => handleSelect(opt.id)}
-          className="text-left px-4 py-3.5 rounded-xl transition-all duration-200 active:scale-[0.97]"
+          className="text-left px-4 py-3.5 rounded-xl active:scale-[0.97]"
           style={{
             background: isSelected(opt.id) ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
             border: `1.5px solid ${isSelected(opt.id) ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+            transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, border-color var(--duration-micro) ease',
           }}
         >
           <div className="flex items-center gap-3">
@@ -398,12 +405,18 @@ function GridSelector({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
               onClick={() => toggle(opt.id)}
-              className="flex flex-col items-center text-center p-4 rounded-xl transition-all duration-150 active:scale-[0.97]"
+              className="relative flex flex-col items-center text-center p-4 rounded-xl active:scale-[0.97]"
               style={{
                 background: isSelected ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
                 border: `1.5px solid ${isSelected ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, border-color var(--duration-micro) ease',
               }}
             >
+              {multiSelect && isSelected && (
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2 left-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--ds-accent)' }}>
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </motion.div>
+              )}
               <div className="mb-1.5 w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: isSelected ? 'var(--ds-accent-bg)' : 'var(--ds-overlay-bg)' }}>
                 {hasIcon ? (
                   <img src={ICON_MAP[opt.icon!]} alt={opt.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
@@ -412,11 +425,6 @@ function GridSelector({
                 )}
               </div>
               <span className="text-[12px] font-medium leading-tight" style={{ color: 'var(--ds-text)' }}>{opt.label}</span>
-              {multiSelect && isSelected && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'var(--ds-accent)' }}>
-                  <img src={ICON_MAP.tick} alt="selected" className="w-3 h-3" style={{ filter: 'brightness(0) invert(1)' }} />
-                </motion.div>
-              )}
             </motion.button>
           );
         })}
@@ -825,17 +833,20 @@ function RedirectionFlow({
           </div>
         </div>
 
+        <AnimatePresence mode="wait">
         {stage === 'info' ? (
-          <div className="px-5 pb-5">
+          <motion.div key="info" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="px-5 pb-5">
             {features && features.length > 0 && (
               <div className="space-y-2 mb-4">
                 {features.map((f, i) => (
-                  <div key={i} className="flex items-start gap-2.5">
+                  <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06, duration: 0.2, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start gap-2.5">
                     <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="var(--ds-accent)" viewBox="0 0 24 24" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>{f}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}
@@ -843,7 +854,9 @@ function RedirectionFlow({
             {variant === 'steps' && steps && (
               <div className="space-y-2 mb-5">
                 {steps.map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+                  <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.08, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }}
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
                     {item.icon
                       ? <DsAvatar size="sm" icon={<img src={ICON_MAP[item.icon] || item.icon} alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
                       : <DsAvatar size="sm" initials={String(i + 1)} />
@@ -852,7 +865,7 @@ function RedirectionFlow({
                       <p className="text-[14px] font-medium" style={{ color: 'var(--ds-text)' }}>{item.label}</p>
                       <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{item.description}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}
@@ -861,10 +874,11 @@ function RedirectionFlow({
               <div className="space-y-2.5 mb-5">
                 {options.map(opt => (
                   <button key={opt.id} onClick={() => setSelectedOption(opt.id)}
-                    className="w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-all text-left"
+                    className="w-full flex items-center gap-3.5 p-3.5 rounded-xl text-left"
                     style={{
                       background: selectedOption === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
                       border: `1.5px solid ${selectedOption === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                      transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease',
                     }}>
                     <img src={opt.icon} alt={opt.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
                     <div className="flex-1">
@@ -887,16 +901,18 @@ function RedirectionFlow({
                 <DsButton variant="ghost" onClick={() => setStage('info')}>{skipLabel}</DsButton>
               </div>
             )}
-          </div>
+          </motion.div>
         ) : (
-          <div className="px-5 pb-5">
+          <motion.div key="redirect" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="px-5 pb-5">
             <div className="h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 mb-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
               <div className="w-7 h-7 rounded-full animate-spin" style={{ border: '2px solid var(--ds-accent)', borderTopColor: 'transparent' }} />
               <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>{redirectLabel || 'Redirecting...'}</p>
             </div>
             <DsButton fullWidth onClick={() => setStage('info')}>I&apos;ve Completed</DsButton>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -980,11 +996,12 @@ function VMERFlow() {
               <div className="flex flex-wrap gap-2">
                 {languages.map(l => (
                   <button key={l} onClick={() => setSelectedLang(l)}
-                    className="px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all"
+                    className="px-3.5 py-2 rounded-lg text-[13px] font-medium"
                     style={{
                       background: selectedLang === l ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
                       border: `1.5px solid ${selectedLang === l ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
                       color: selectedLang === l ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+                      transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease, color var(--duration-micro) ease',
                     }}>{l}</button>
                 ))}
               </div>
@@ -994,10 +1011,11 @@ function VMERFlow() {
               <div className="flex gap-2 overflow-x-auto">
                 {dates.map(d => (
                   <button key={d.key} onClick={() => setSelectedDate(d.key)}
-                    className="flex flex-col items-center px-4 py-3 rounded-xl text-center transition-all flex-shrink-0"
+                    className="flex flex-col items-center px-4 py-3 rounded-xl text-center flex-shrink-0"
                     style={{
                       background: selectedDate === d.key ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
                       border: `1.5px solid ${selectedDate === d.key ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                      transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease',
                     }}>
                     <span className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{d.day}</span>
                     <span className="text-[14px] font-semibold mt-0.5" style={{ color: selectedDate === d.key ? 'var(--ds-text)' : 'var(--ds-text-secondary)' }}>{d.date}</span>
@@ -1010,11 +1028,12 @@ function VMERFlow() {
               <div className="grid grid-cols-3 gap-2">
                 {times.map(t => (
                   <button key={t} onClick={() => setSelectedTime(t)}
-                    className="py-3 rounded-xl text-[13px] font-medium transition-all"
+                    className="py-3 rounded-xl text-[13px] font-medium"
                     style={{
                       background: selectedTime === t ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
                       border: `1.5px solid ${selectedTime === t ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
                       color: selectedTime === t ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+                      transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease, color var(--duration-micro) ease',
                     }}>{t}</button>
                 ))}
               </div>
@@ -1122,11 +1141,12 @@ function FeedbackForm() {
       <div className="flex justify-center gap-3">
         {emojis.map((e) => (
           <button key={e.value} onClick={() => setScore(e.value)}
-            className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all"
+            className="flex flex-col items-center gap-1.5 p-3 rounded-xl"
             style={{
               background: score === e.value ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
               border: `1.5px solid ${score === e.value ? 'var(--ds-selected-border)' : 'transparent'}`,
               transform: score === e.value ? 'scale(1.1)' : 'scale(1)',
+              transition: 'transform var(--duration-standard) var(--ease-out-cubic), background var(--duration-micro) ease, border-color var(--duration-micro) ease',
             }}>
             <span className="text-[28px]">{e.emoji}</span>
             <span className="text-[10px] font-medium" style={{ color: score === e.value ? 'var(--ds-text)' : 'var(--ds-text-tertiary)' }}>{e.label}</span>
@@ -1173,8 +1193,8 @@ function SearchableList() {
       <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
         {visible.map((h, i) => (
           <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
-            className="flex items-center gap-3 px-4 py-3 transition-colors"
-            style={{ borderBottom: i < visible.length - 1 ? '1px solid var(--ds-divider)' : 'none' }}>
+            className="flex items-center gap-3 px-4 py-3"
+            style={{ borderBottom: i < visible.length - 1 ? '1px solid var(--ds-divider)' : 'none', transition: 'background var(--duration-micro) ease' }}>
             <DsAvatar size="md" icon={<img src="/icons/health-life/hospital.svg" alt="" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />} />
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>{h.name}</p>
@@ -1225,8 +1245,8 @@ function ComparisonCard() {
         </div>
         {gaps.map((g, i) => (
           <button key={i} onClick={() => setExpanded(expanded === i ? null : i)}
-            className="w-full grid grid-cols-3 items-center px-4 py-3 text-left transition-colors"
-            style={{ borderBottom: i < gaps.length - 1 ? '1px solid var(--ds-divider)' : 'none', background: expanded === i ? 'var(--ds-overlay-bg)' : 'transparent' }}>
+            className="w-full grid grid-cols-3 items-center px-4 py-3 text-left"
+            style={{ borderBottom: i < gaps.length - 1 ? '1px solid var(--ds-divider)' : 'none', background: expanded === i ? 'var(--ds-overlay-bg)' : 'transparent', transition: 'background var(--duration-micro) ease' }}>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: g.status === 'gap' ? 'var(--ds-error-text)' : 'var(--ds-success)' }} />
               <span className="text-[12px]" style={{ color: 'var(--ds-text)' }}>{g.feature}</span>
@@ -1247,8 +1267,8 @@ function FileUpload() {
     <div className="max-w-md">
       {phase === 'idle' && (
         <div onClick={() => setPhase('extracting')}
-          className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all"
-          style={{ borderColor: 'var(--ds-border-strong)', background: 'var(--ds-overlay-bg)' }}
+          className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer"
+          style={{ borderColor: 'var(--ds-border-strong)', background: 'var(--ds-overlay-bg)', transition: 'border-color var(--duration-standard) var(--ease-out-cubic), background var(--duration-standard) var(--ease-out-cubic)' }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--ds-accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--ds-border-strong)'; }}>
           <div className="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center" style={{ background: 'var(--ds-accent-bg)' }}>
@@ -1324,11 +1344,12 @@ function SchedulePicker() {
         <div className="flex gap-2 overflow-x-auto pb-1">
           {dates.map(d => (
             <button key={d.value} onClick={() => setSelectedDate(d.value)}
-              className="flex-shrink-0 px-3 py-2.5 rounded text-[12px] transition-all"
+              className="flex-shrink-0 px-3 py-2.5 rounded text-[12px]"
               style={{
                 background: selectedDate === d.value ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
                 border: `1px solid ${selectedDate === d.value ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
                 color: selectedDate === d.value ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+                transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease, color var(--duration-micro) ease',
               }}>
               {d.label}
             </button>
@@ -1343,10 +1364,11 @@ function SchedulePicker() {
         <div className="grid grid-cols-3 gap-2">
           {timeSlots.map(s => (
             <button key={s.id} onClick={() => setSelectedTime(s.id)}
-              className="p-3 rounded text-center transition-all"
+              className="p-3 rounded text-center"
               style={{
                 background: selectedTime === s.id ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
                 border: `1px solid ${selectedTime === s.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease',
               }}>
               <p className="text-[12px] font-medium" style={{ color: 'var(--ds-text)' }}>{s.label}</p>
               <p className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{s.time}</p>
@@ -1363,10 +1385,11 @@ function SchedulePicker() {
         <div className="space-y-2">
           {labs.map(lab => (
             <button key={lab.id} onClick={() => setSelectedLab(lab.id)}
-              className="w-full text-left p-3 rounded transition-all flex items-center gap-3"
+              className="w-full text-left p-3 rounded flex items-center gap-3"
               style={{
                 background: selectedLab === lab.id ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
                 border: `1px solid ${selectedLab === lab.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease',
               }}>
               <DsAvatar size="md" icon={<img src="/icons/health-life/lab test 3.svg" alt="" className="w-4 h-4" style={{ filter: 'var(--ds-icon-filter)' }} />} />
               <div className="flex-1">
@@ -1391,21 +1414,24 @@ function SchedulePicker() {
 function ChatBubble() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start">
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Hi there! I&apos;m your ACKO assistant. Let&apos;s find the perfect insurance plan for you.</p>
         </div>
-      </div>
-      <div className="flex justify-end">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex justify-end">
         <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
           <p className="text-[14px]">I want health insurance for my family</p>
         </div>
-      </div>
-      <div className="flex items-start">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Great choice! Who all do you want to cover?</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -1482,21 +1508,24 @@ function RangeSlider() {
 function DemoChatMessageHealth() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start">
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Hi! Let&apos;s find the best health plan for your family. How many members do you want to cover?</p>
         </div>
-      </div>
-      <div className="flex justify-end">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex justify-end">
         <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
           <p className="text-[14px]">Me, my wife, and 2 kids</p>
         </div>
-      </div>
-      <div className="flex items-start">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Great! A family floater plan will give you the best value. What&apos;s your pincode?</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -1504,21 +1533,24 @@ function DemoChatMessageHealth() {
 function DemoChatMessageMotor() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start">
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Welcome! Let&apos;s get your vehicle insured. Please enter your registration number.</p>
         </div>
-      </div>
-      <div className="flex justify-end">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex justify-end">
         <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
           <p className="text-[14px]">KA 01 AB 1234</p>
         </div>
-      </div>
-      <div className="flex items-start">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Found it! Maruti Suzuki Swift VXi Petrol 2022. Is this correct?</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -1526,21 +1558,24 @@ function DemoChatMessageMotor() {
 function DemoChatMessageLife() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start">
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Let&apos;s find the right life insurance cover for you. What&apos;s your annual income?</p>
         </div>
-      </div>
-      <div className="flex justify-end">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex justify-end">
         <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
           <p className="text-[14px]">Around 18 lakhs per year</p>
         </div>
-      </div>
-      <div className="flex items-start">
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }} className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Based on your income, I&apos;d recommend a ₹1.5 Cr cover. Do you smoke?</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -1596,8 +1631,8 @@ function DsButton({
   return (
     <button
       onClick={onClick} disabled={isOff}
-      className={`ds-btn-${variant} inline-flex items-center justify-center font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${sizeMap[size]} ${fullWidth ? 'w-full' : ''}`}
-      style={resolvedStyle}
+      className={`ds-btn-${variant} inline-flex items-center justify-center font-medium active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${sizeMap[size]} ${fullWidth ? 'w-full' : ''}`}
+      style={{ ...resolvedStyle, transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, box-shadow var(--duration-micro) ease, opacity var(--duration-micro) ease' }}
     >
       {loading ? (
         <div className="w-4 h-4 rounded-full animate-spin" style={{ border: '2px solid currentColor', borderTopColor: 'transparent' }} />
@@ -1625,11 +1660,12 @@ function DsInput({
         <input
           type={type} placeholder={placeholder} disabled={disabled}
           value={value} onChange={(e) => onChange?.(e.target.value)}
-          className={`w-full py-3 rounded text-[14px] font-medium transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed ${icon ? 'pl-10 pr-4' : 'px-4'} ${suffix ? 'pr-16' : ''}`}
+          className={`w-full py-3 rounded text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed ${icon ? 'pl-10 pr-4' : 'px-4'} ${suffix ? 'pr-16' : ''}`}
           style={{
             background: 'var(--ds-input-bg)',
             border: `1px solid ${error ? 'var(--ds-error-text)' : 'var(--ds-input-border)'}`,
             color: 'var(--ds-input-text)',
+            transition: 'border-color var(--duration-micro) var(--ease-out-quad), box-shadow var(--duration-micro) var(--ease-out-quad)',
           }}
         />
         {suffix && <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>{suffix}</span>}
@@ -1653,15 +1689,17 @@ function DsCheckbox({
       onClick={() => !disabled && onChange?.(!checked)} disabled={disabled}
       className="flex items-center gap-2.5 group disabled:opacity-40 disabled:cursor-not-allowed"
     >
-      <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
+      <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
         style={{
           background: checked ? 'var(--ds-accent)' : 'transparent',
           border: `2px solid ${checked ? 'var(--ds-accent)' : 'var(--ds-border-strong)'}`,
+          transition: 'background var(--duration-micro) var(--ease-out-quart), border-color var(--duration-micro) var(--ease-out-quart)',
         }}>
         {checked && (
-          <svg className="w-3 h-3" fill="none" stroke="#FFFFFF" viewBox="0 0 24 24" strokeWidth={3}>
+          <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.12, ease: [0.165, 0.84, 0.44, 1] }}
+            className="w-3 h-3" fill="none" stroke="#FFFFFF" viewBox="0 0 24 24" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
+          </motion.svg>
         )}
       </div>
       {label && <span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{label}</span>}
@@ -1679,11 +1717,13 @@ function DsRadio({
       onClick={() => !disabled && onChange?.()} disabled={disabled}
       className="flex items-center gap-2.5 group disabled:opacity-40 disabled:cursor-not-allowed"
     >
-      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
         style={{
           border: `2px solid ${selected ? 'var(--ds-accent)' : 'var(--ds-border-strong)'}`,
+          transition: 'border-color var(--duration-micro) var(--ease-out-quart)',
         }}>
-        {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--ds-accent)' }} />}
+        {selected && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.12, ease: [0.165, 0.84, 0.44, 1] }}
+          className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--ds-accent)' }} />}
       </div>
       {label && <span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{label}</span>}
     </button>
@@ -1700,8 +1740,8 @@ function DsToggle({
       onClick={() => !disabled && onChange?.(!on)} disabled={disabled}
       className="flex items-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed"
     >
-      <div className="relative w-10 h-[22px] rounded-full transition-colors" style={{ background: on ? 'var(--ds-accent)' : 'var(--ds-border-strong)' }}>
-        <div className="absolute top-[3px] w-4 h-4 rounded-full shadow-sm transition-all" style={{ left: on ? '21px' : '3px', background: on ? 'var(--ds-cta-text)' : 'var(--ds-text)' }} />
+      <div className="relative w-10 h-[22px] rounded-full" style={{ background: on ? 'var(--ds-accent)' : 'var(--ds-border-strong)', transition: 'background var(--duration-standard) var(--ease-out-cubic)' }}>
+        <div className="absolute top-[3px] w-4 h-4 rounded-full shadow-sm" style={{ left: on ? '21px' : '3px', background: on ? 'var(--ds-cta-text)' : 'var(--ds-text)', transition: 'left var(--duration-standard) var(--ease-out-cubic), background var(--duration-standard) var(--ease-out-cubic)' }} />
       </div>
       {label && <span className="text-[13px]" style={{ color: 'var(--ds-text)' }}>{label}</span>}
     </button>
@@ -1727,10 +1767,10 @@ function DsBadge({ variant = 'default', children }: { variant?: DsBadgeVariant; 
 
 function DsLink({ href, children, arrow = false }: { href?: string; children: React.ReactNode; arrow?: boolean }) {
   return (
-    <a href={href || '#'} className="inline-flex items-center gap-1 text-[13px] font-medium transition-opacity hover:opacity-80" style={{ color: 'var(--ds-link)' }}>
+    <a href={href || '#'} className="inline-flex items-center gap-1 text-[13px] font-medium hover:opacity-80 group" style={{ color: 'var(--ds-link)', transition: 'opacity var(--duration-micro) ease' }}>
       <span className="underline underline-offset-2">{children}</span>
       {arrow && (
-        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5" style={{ transition: 'transform var(--duration-micro) var(--ease-out-cubic)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
         </svg>
       )}
@@ -1774,11 +1814,12 @@ function DsIconButton({
   const sizeMap = { sm: 'w-7 h-7 rounded-lg', md: 'w-9 h-9 rounded-xl' };
   return (
     <button onClick={onClick} disabled={disabled}
-      className={`${sizeMap[size]} flex items-center justify-center transition-all active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed`}
+      className={`${sizeMap[size]} flex items-center justify-center active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed`}
       style={{
         background: variant === 'filled' ? 'var(--ds-overlay-bg)' : 'transparent',
         color: 'var(--ds-text-secondary)',
         border: variant === 'filled' ? '1px solid var(--ds-border-strong)' : 'none',
+        transition: 'transform var(--duration-micro) var(--ease-out-cubic), background var(--duration-micro) ease, opacity var(--duration-micro) ease',
       }}>
       {children}
     </button>
@@ -2394,6 +2435,21 @@ function LogoGallery() {
 type ThemeMode = 'dark' | 'light';
 
 const DS_THEME_STYLES = `
+/* ═══════════════════════════════════════════════
+   Animation tokens (theme-independent)
+   ═══════════════════════════════════════════════ */
+:root {
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-micro: 120ms;
+  --duration-standard: 200ms;
+  --duration-modal: 250ms;
+  --duration-page: 350ms;
+}
+
 /* ═══════════════════════════════════════════════
    DS-level tokens (used by all showcase widgets)
    ═══════════════════════════════════════════════ */
@@ -3163,7 +3219,131 @@ export default function DesignSystemPage() {
               </div>
             </section>
 
-            {/* ── 8. Copy Principles ── */}
+            {/* ── 8. Animations ── */}
+            <section>
+              <SectionHeader title="Animations" description="Easing curves, duration guidelines, and performance rules — only animate transform and opacity" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Easing Curves</h4>
+                  <div className="space-y-3">
+                    {[
+                      { name: '--ease-out-quad', value: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', use: 'Enter / exit (default)' },
+                      { name: '--ease-out-cubic', value: 'cubic-bezier(0.215, 0.61, 0.355, 1)', use: 'Smooth enter / exit' },
+                      { name: '--ease-out-quart', value: 'cubic-bezier(0.165, 0.84, 0.44, 1)', use: 'Snappy enter / exit' },
+                      { name: '--ease-in-out-cubic', value: 'cubic-bezier(0.645, 0.045, 0.355, 1)', use: 'On-screen movement' },
+                      { name: '--ease-in-out-quart', value: 'cubic-bezier(0.77, 0, 0.175, 1)', use: 'Dramatic movement' },
+                    ].map(e => (
+                      <div key={e.name} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border)' }}>
+                        <div className="w-16 h-8 rounded-lg overflow-hidden flex-shrink-0 relative" style={{ background: 'var(--ds-surface-2)' }}>
+                          <motion.div className="absolute top-1 left-1 w-6 h-6 rounded" style={{ background: 'var(--ds-accent)' }}
+                            animate={{ x: [0, 32, 0] }} transition={{ duration: 2, repeat: Infinity, ease: [0.25, 0.46, 0.45, 0.94] }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] font-mono font-semibold truncate" style={{ color: 'var(--ds-accent)' }}>{e.name}</p>
+                          <p className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{e.use}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Duration Guidelines</h4>
+                    <div className="space-y-2">
+                      {[
+                        { label: 'Micro-interactions', token: '--duration-micro', value: '120ms', desc: 'Hover, focus, active states' },
+                        { label: 'Standard UI', token: '--duration-standard', value: '200ms', desc: 'Tooltips, dropdowns, toggles' },
+                        { label: 'Modals & drawers', token: '--duration-modal', value: '250ms', desc: 'Panels, bottom sheets' },
+                        { label: 'Page transitions', token: '--duration-page', value: '350ms', desc: 'Route changes, large reveals' },
+                      ].map(d => (
+                        <div key={d.token} className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border)' }}>
+                          <div>
+                            <p className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>{d.label}</p>
+                            <p className="text-[10px]" style={{ color: 'var(--ds-text-tertiary)' }}>{d.desc}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[14px] font-mono font-bold" style={{ color: 'var(--ds-accent)' }}>{d.value}</p>
+                            <p className="text-[9px] font-mono" style={{ color: 'var(--ds-text-tertiary)' }}>{d.token}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                    <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>Easing Decision Guide</h4>
+                    <div className="space-y-2">
+                      {[
+                        { q: 'Element entering or exiting?', a: 'ease-out' },
+                        { q: 'On-screen element moving?', a: 'ease-in-out' },
+                        { q: 'Hover / color transition?', a: 'ease (CSS default)' },
+                        { q: 'Users see this 100+ times daily?', a: 'Don\u2019t animate' },
+                      ].map(g => (
+                        <div key={g.q} className="flex items-center gap-2 text-[12px]">
+                          <span style={{ color: 'var(--ds-text-secondary)' }}>{g.q}</span>
+                          <span className="font-mono font-semibold" style={{ color: 'var(--ds-accent)' }}>→ {g.a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>Performance Rules</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--ds-success)' }}>Only animate (GPU-accelerated)</p>
+                      <div className="flex gap-2">
+                        {['transform', 'opacity'].map(p => (
+                          <span key={p} className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium" style={{ background: 'var(--ds-success-bg)', color: 'var(--ds-success)' }}>{p}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-semibold mb-1.5" style={{ color: 'var(--ds-error-text)' }}>Avoid animating</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['padding', 'margin', 'height', 'width', 'blur > 20px'].map(p => (
+                          <span key={p} className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium" style={{ background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)' }}>{p}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+                  <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>When to Animate</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[12px] font-semibold mb-2" style={{ color: 'var(--ds-success)' }}>Do animate</p>
+                      <ul className="space-y-1.5">
+                        {['Enter / exit transitions', 'State changes for continuity', 'User action feedback'].map(r => (
+                          <li key={r} className="flex items-start gap-1.5 text-[11px]" style={{ color: 'var(--ds-text-secondary)' }}>
+                            <svg className="w-3 h-3 mt-0.5 flex-shrink-0" fill="none" stroke="var(--ds-success)" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-semibold mb-2" style={{ color: 'var(--ds-error-text)' }}>Don&apos;t animate</p>
+                      <ul className="space-y-1.5">
+                        {['Keyboard-initiated actions', 'High-frequency interactions', 'When speed > smoothness'].map(r => (
+                          <li key={r} className="flex items-start gap-1.5 text-[11px]" style={{ color: 'var(--ds-text-secondary)' }}>
+                            <svg className="w-3 h-3 mt-0.5 flex-shrink-0" fill="none" stroke="var(--ds-error-text)" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ── 9. Copy Principles ── */}
             <section>
               <SectionHeader title="Copy Principles" description="ACKO content writing guidelines — voice, tone, vocabulary, and formatting rules" />
               <div className="space-y-6">

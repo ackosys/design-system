@@ -183,6 +183,11 @@
   cursor: pointer;
 }
 
+/* ── GPU-accelerated animation helper ── */
+.will-animate {
+  will-change: transform, opacity;
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
