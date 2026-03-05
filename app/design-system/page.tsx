@@ -733,6 +733,98 @@ interface SummaryRow {
   editable?: boolean;
 }
 
+interface PremiumSection {
+  title: string;
+  rows: { label: string; value: string; highlight?: 'discount' | 'accent' }[];
+}
+
+interface MotorPremiumBreakdownProps {
+  vehicleName: string;
+  planInfo: string;
+  idvLabel?: string;
+  idvValue?: string;
+  sections: PremiumSection[];
+  netPremium?: string;
+  gstLabel?: string;
+  gstValue?: string;
+  totalLabel?: string;
+  totalValue: string;
+  ctaLabel?: string;
+}
+
+function MotorPremiumBreakdown({
+  vehicleName, planInfo, idvLabel, idvValue, sections,
+  netPremium, gstLabel, gstValue, totalLabel = 'Total (Including GST)', totalValue,
+  ctaLabel = 'Proceed to Payment',
+}: MotorPremiumBreakdownProps) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-md">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="px-5 py-4 flex items-center justify-between" style={{ background: 'var(--ds-surface-2)' }}>
+          <div>
+            <h3 className="text-[17px] font-bold" style={{ color: 'var(--ds-text)' }}>{vehicleName}</h3>
+            <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{planInfo}</p>
+            {idvLabel && idvValue && (
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-secondary)' }}>
+                {idvLabel} : <span className="font-bold" style={{ color: 'var(--ds-text)' }}>{idvValue}</span>
+              </p>
+            )}
+          </div>
+          <div className="w-16 h-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--ds-overlay-bg)' }}>
+            <svg className="w-10 h-6" viewBox="0 0 40 24" fill="none">
+              <rect x="4" y="8" width="32" height="12" rx="3" fill="var(--ds-text-tertiary)" opacity="0.3" />
+              <circle cx="12" cy="20" r="3" fill="var(--ds-text-tertiary)" opacity="0.5" />
+              <circle cx="28" cy="20" r="3" fill="var(--ds-text-tertiary)" opacity="0.5" />
+              <rect x="8" y="6" width="14" height="8" rx="2" fill="var(--ds-accent)" opacity="0.6" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="px-5 py-3 space-y-4">
+          {sections.map((section, si) => (
+            <div key={si}>
+              <p className="text-[13px] font-bold mb-2" style={{ color: 'var(--ds-text)' }}>{section.title}</p>
+              {section.rows.map((row, ri) => (
+                <div key={ri} className="flex items-center justify-between py-2" style={{ borderBottom: ri < section.rows.length - 1 ? '1px solid var(--ds-divider)' : 'none' }}>
+                  <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>{row.label}</span>
+                  <span className="text-[13px] font-medium" style={{
+                    color: row.highlight === 'discount' ? 'var(--ds-success)' : row.highlight === 'accent' ? 'var(--ds-accent)' : 'var(--ds-text)',
+                  }}>{row.value}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <div className="px-5 pb-2">
+          <div style={{ borderTop: '1px solid var(--ds-border-strong)' }} className="pt-3 space-y-1.5">
+            {netPremium && (
+              <div className="flex items-center justify-between">
+                <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>Net Premium</span>
+                <span className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>{netPremium}</span>
+              </div>
+            )}
+            {gstLabel && gstValue && (
+              <div className="flex items-center justify-between">
+                <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>{gstLabel}</span>
+                <span className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>{gstValue}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="px-5 pb-5">
+          <div className="flex items-center justify-between pt-3 mb-4" style={{ borderTop: '1px solid var(--ds-border-strong)' }}>
+            <span className="text-[15px] font-bold" style={{ color: 'var(--ds-text)' }}>{totalLabel}</span>
+            <span className="text-[20px] font-bold" style={{ color: 'var(--ds-text)' }}>{totalValue}</span>
+          </div>
+          <DsButton fullWidth>{ctaLabel}</DsButton>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function SummaryCard({
   title,
   subtitle,
@@ -935,6 +1027,256 @@ function PlanSelector({ plans }: { plans: PlanOption[] }) {
 
       <div className="mt-4">
         <DsButton fullWidth>{activePlan.ctaLabel}</DsButton>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   AddOnSelector — Unified add-on selection molecule
+   Grouped cards with toggle, coverage picker, live premium breakdown
+   ═══════════════════════════════════════════════ */
+
+interface AddOnOption {
+  id: string;
+  name: string;
+  icon?: string;
+  description: string;
+  price: number;
+  priceLabel?: string;
+  badge?: string;
+  badgeVariant?: 'accent' | 'warning';
+  detail?: string;
+  coverageOptions?: number[];
+  coverageLabel?: string;
+  limitWarning?: string;
+  infoNote?: string;
+}
+
+interface AddOnGroup {
+  label?: string;
+  options: AddOnOption[];
+}
+
+interface AddOnSelectorProps {
+  title: string;
+  subtitle?: string;
+  groups: AddOnGroup[];
+  basePremium: number;
+  basePremiumLabel?: string;
+  gstPercent?: number;
+  priceUnit?: string;
+  skipLabel?: string;
+  continueLabel?: string;
+}
+
+function AddOnSelector({
+  title, subtitle, groups, basePremium, basePremiumLabel = 'Base Premium',
+  gstPercent, priceUnit = '', skipLabel = 'Continue without add-ons',
+  continueLabel = 'Continue',
+}: AddOnSelectorProps) {
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [coverages, setCoverages] = useState<Record<string, number>>({});
+
+  const toggle = (id: string, opts?: number[]) => {
+    setSelected(prev => {
+      const next = { ...prev, [id]: !prev[id] };
+      if (!prev[id] && opts && opts.length > 0 && !coverages[id]) {
+        setCoverages(c => ({ ...c, [id]: opts[0] }));
+      }
+      return next;
+    });
+  };
+
+  const setCoverage = (id: string, val: number) => setCoverages(prev => ({ ...prev, [id]: val }));
+
+  const formatPrice = (n: number) => {
+    if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
+    if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+    if (n >= 1000) return `₹${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}K`;
+    return `₹${n.toLocaleString('en-IN')}`;
+  };
+
+  const allOptions = groups.flatMap(g => g.options);
+  const selectedAddons = allOptions.filter(o => selected[o.id]);
+  const addonsTotal = selectedAddons.reduce((s, o) => s + o.price, 0);
+  const subtotal = basePremium + addonsTotal;
+  const gstAmount = gstPercent ? Math.round(subtotal * gstPercent / 100) : 0;
+  const total = subtotal + gstAmount;
+  const hasSelection = selectedAddons.length > 0;
+
+  const badgeStyles: Record<string, React.CSSProperties> = {
+    accent: { background: 'var(--ds-success-bg)', color: 'var(--ds-success)' },
+    warning: { background: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)' },
+  };
+
+  return (
+    <div className="max-w-md">
+      <div className="mb-4">
+        <h3 className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>{title}</h3>
+        {subtitle && <p className="text-[13px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{subtitle}</p>}
+      </div>
+
+      <div className="space-y-4">
+        {groups.map((group, gi) => (
+          <div key={gi}>
+            {group.label && (
+              <p className="text-[13px] font-semibold mb-2" style={{ color: 'var(--ds-text-secondary)' }}>{group.label}</p>
+            )}
+            <div className="space-y-3">
+              {group.options.map((opt) => {
+                const isOn = !!selected[opt.id];
+                const chosenCoverage = coverages[opt.id];
+                return (
+                  <div key={opt.id}>
+                    <div className="rounded-2xl overflow-hidden"
+                      style={{
+                        background: isOn ? 'var(--ds-selected-bg)' : 'var(--ds-surface)',
+                        border: `1.5px solid ${isOn ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                        transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease',
+                      }}>
+                      <div className="p-4">
+                        <div className="flex items-start gap-3">
+                          {opt.icon && ICON_MAP[opt.icon] && (
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: 'var(--ds-overlay-bg)' }}>
+                              <img src={ICON_MAP[opt.icon]} alt="" className="w-4.5 h-4.5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[15px] font-semibold" style={{ color: 'var(--ds-text)' }}>{opt.name}</span>
+                              {opt.badge && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                  style={badgeStyles[opt.badgeVariant || 'accent']}>
+                                  {opt.badge}
+                                </span>
+                              )}
+                              {isOn && (
+                                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                                  transition={{ duration: 0.15, ease: [0.165, 0.84, 0.44, 1] }}
+                                  className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                                  style={{ background: 'var(--ds-success-bg)', color: 'var(--ds-success)' }}>
+                                  Added
+                                </motion.span>
+                              )}
+                            </div>
+                            <p className="text-[12px] mt-1 leading-relaxed" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</p>
+                            {isOn && opt.detail && (
+                              <p className="text-[11px] mt-1 font-medium" style={{ color: 'var(--ds-text-secondary)' }}>{opt.detail}</p>
+                            )}
+                            {isOn && opt.coverageOptions && chosenCoverage && (
+                              <p className="text-[14px] font-bold mt-1" style={{ color: 'var(--ds-accent)' }}>+{formatPrice(opt.price)}{priceUnit}</p>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                            <span className="text-[15px] font-bold" style={{ color: 'var(--ds-text)' }}>
+                              {opt.priceLabel || `₹${opt.price.toLocaleString('en-IN')}`}
+                            </span>
+                            <button onClick={() => toggle(opt.id, opt.coverageOptions)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center"
+                              style={{
+                                background: isOn ? 'var(--ds-accent)' : 'var(--ds-overlay-bg)',
+                                border: isOn ? 'none' : '1px solid var(--ds-border-strong)',
+                                transition: 'background var(--duration-micro) var(--ease-out-cubic)',
+                              }}>
+                              {isOn ? (
+                                <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.12, ease: [0.165, 0.84, 0.44, 1] }}
+                                  className="w-4 h-4" fill="none" stroke="#FFFFFF" viewBox="0 0 24 24" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </motion.svg>
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {isOn && opt.coverageOptions && opt.coverageOptions.length > 0 && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                          transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }}
+                          className="px-4 pb-4">
+                          <div className="pt-3" style={{ borderTop: '1px solid var(--ds-divider)' }}>
+                            <p className="text-[12px] mb-2" style={{ color: 'var(--ds-text-secondary)' }}>{opt.coverageLabel || 'Select coverage amount:'}</p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {opt.coverageOptions.map(cv => (
+                                <button key={cv} onClick={() => setCoverage(opt.id, cv)}
+                                  className="py-2.5 rounded-lg text-[12px] font-medium text-center"
+                                  style={{
+                                    background: chosenCoverage === cv ? 'var(--ds-accent)' : 'var(--ds-overlay-bg)',
+                                    color: chosenCoverage === cv ? '#FFFFFF' : 'var(--ds-text-secondary)',
+                                    border: `1px solid ${chosenCoverage === cv ? 'var(--ds-accent)' : 'var(--ds-border-strong)'}`,
+                                    transition: 'background var(--duration-micro) ease, border-color var(--duration-micro) ease, color var(--duration-micro) ease',
+                                  }}>
+                                  {formatPrice(cv)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {isOn && opt.limitWarning && (
+                        <div className="px-4 pb-4">
+                          <div className="w-full h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'var(--ds-progress-bg)' }}>
+                            <div className="h-full rounded-full" style={{ width: '100%', background: 'var(--ds-error-text)' }} />
+                          </div>
+                          <p className="text-[11px] flex items-center gap-1" style={{ color: 'var(--ds-warning-text)' }}>
+                            <span>⚠</span> {opt.limitWarning}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {opt.infoNote && (
+                      <p className="text-[11px] mt-2 px-1 leading-relaxed" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.infoNote}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-2xl p-4" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        {hasSelection && (
+          <p className="text-[11px] uppercase font-semibold tracking-wider mb-2" style={{ color: 'var(--ds-text-tertiary)' }}>Premium Breakdown</p>
+        )}
+        <div className="flex justify-between items-center py-1">
+          <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>{basePremiumLabel}</span>
+          <span className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>₹{basePremium.toLocaleString('en-IN')}{priceUnit}</span>
+        </div>
+        {hasSelection && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>Add-ons</span>
+              <span className="text-[13px] font-medium" style={{ color: 'var(--ds-accent)' }}>+₹{addonsTotal.toLocaleString('en-IN')}{priceUnit}</span>
+            </div>
+          </motion.div>
+        )}
+        {gstPercent && hasSelection ? (
+          <div className="flex justify-between items-center py-1">
+            <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>GST ({gstPercent}%)</span>
+            <span className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>₹{gstAmount.toLocaleString('en-IN')}</span>
+          </div>
+        ) : null}
+        <div className="mt-1 pt-2" style={{ borderTop: '1px solid var(--ds-divider)' }}>
+          <div className="flex justify-between items-center">
+            <span className="text-[15px] font-bold" style={{ color: 'var(--ds-text)' }}>Total</span>
+            <span className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹{total.toLocaleString('en-IN')}{priceUnit}</span>
+          </div>
+          {priceUnit && (
+            <p className="text-[11px] text-right mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>≈ ₹{Math.round(total / 12).toLocaleString('en-IN')}/month</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 flex gap-3">
+        <DsButton variant="secondary" fullWidth>{skipLabel}</DsButton>
+        <DsButton fullWidth>{hasSelection ? continueLabel : skipLabel}</DsButton>
       </div>
     </div>
   );
@@ -3878,6 +4220,45 @@ export default function DesignSystemPage() {
               </div>
             </section>
 
+            {/* Add-On Selection */}
+            <section>
+              <SectionHeader title="AddOnSelector" description="Grouped add-on cards with toggle, optional coverage picker, live premium breakdown, and dual CTA. Used by motor and life with different data." />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <WidgetCard title="Add-On Selector" widgetType="AddOnSelector — toggle cards, premium breakdown, dual CTA">
+                  <AddOnSelector
+                    title="Enhance your plan"
+                    subtitle="Recommended add-ons for you"
+                    basePremium={5999}
+                    basePremiumLabel="Base Plan"
+                    priceUnit="/yr"
+                    groups={[{
+                      options: [
+                        {
+                          id: 'extended-warranty', name: 'Extended Warranty', icon: 'shield',
+                          description: 'Extend your coverage for an additional 2 years beyond the standard term.',
+                          price: 899, badge: 'Recommended', badgeVariant: 'accent',
+                        },
+                        {
+                          id: 'priority-support', name: 'Priority Support', icon: 'headphones',
+                          description: 'Get 24/7 dedicated priority support with faster resolution times.',
+                          price: 499,
+                        },
+                        {
+                          id: 'premium-cover', name: 'Premium Cover', icon: 'zap',
+                          description: 'Select a coverage tier that fits your needs.',
+                          price: 1299, priceLabel: 'from ₹1,299',
+                          coverageOptions: [100000, 300000, 500000],
+                          coverageLabel: 'Select coverage amount:',
+                        },
+                      ],
+                    }]}
+                    skipLabel="Skip add-ons"
+                    continueLabel="Continue with add-ons"
+                  />
+                </WidgetCard>
+              </div>
+            </section>
+
             {/* Progress */}
             <section>
               <SectionHeader title="StepProgress" description="Sequential step displays — ProgressLoader, CalculationLoader, StepTracker (merged timeline)" />
@@ -4355,6 +4736,96 @@ export default function DesignSystemPage() {
             </section>
 
             <section>
+              <SectionHeader title="AddOnSelector" description="Motor add-ons — out-of-pocket expense covers with GST, and grouped people protection add-ons" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <WidgetCard title="Expense add-ons" widgetType="AddOnSelector — flat list with GST (18%)">
+                  <AddOnSelector
+                    title="Cut down your out-of-pocket expenses"
+                    subtitle="Recommended for you"
+                    basePremium={24582}
+                    basePremiumLabel="Zero Dep Premium"
+                    gstPercent={18}
+                    priceUnit="/yr"
+                    groups={[{
+                      options: [
+                        {
+                          id: 'm-engine', name: 'Engine Protect', icon: 'settings',
+                          description: 'Covers repair costs for engine and gearbox damage due to water ingression or oil leakage.',
+                          price: 1199, badge: 'Recommended', badgeVariant: 'accent',
+                        },
+                        {
+                          id: 'm-extra', name: 'Extra Car Protect', icon: 'shield',
+                          description: 'Covers key loss, tyre damage, and roadside assistance for everyday risks.',
+                          price: 899,
+                        },
+                        {
+                          id: 'm-consumable', name: 'Consumables Cover', icon: 'tool',
+                          description: 'Covers the cost of nuts, bolts, engine oil, and other consumables during repairs.',
+                          price: 599,
+                        },
+                        {
+                          id: 'm-ncb', name: 'NCB Protect', icon: 'award',
+                          description: 'Your No Claim Bonus stays intact even if you make a claim during the policy year.',
+                          price: 799,
+                        },
+                        {
+                          id: 'm-rti', name: 'Return to Invoice', icon: 'file-text',
+                          description: 'Get the full invoice value of your car in case of total loss or theft — no depreciation deducted.',
+                          price: 1499, badge: 'Most claimed', badgeVariant: 'accent',
+                        },
+                      ],
+                    }]}
+                    skipLabel="Continue without add-ons"
+                    continueLabel="Continue with selected add-ons"
+                  />
+                </WidgetCard>
+                <WidgetCard title="People protection add-ons" widgetType="AddOnSelector — grouped (For you / Loved ones / Driver)">
+                  <AddOnSelector
+                    title="Protect everyone in your car"
+                    basePremium={24582}
+                    basePremiumLabel="Zero Dep Premium"
+                    gstPercent={18}
+                    priceUnit="/yr"
+                    groups={[
+                      {
+                        label: 'For you',
+                        options: [
+                          {
+                            id: 'mp-pa', name: 'Personal Accident Cover', icon: 'user',
+                            description: 'Covers accidental death or disability of the car owner-driver. Mandatory by law if no existing PA cover.',
+                            price: 399, badge: 'Mandatory by law', badgeVariant: 'warning',
+                          },
+                        ],
+                      },
+                      {
+                        label: 'For your loved ones',
+                        options: [
+                          {
+                            id: 'mp-passenger', name: 'Passenger Cover', icon: 'users',
+                            description: 'Covers accidental death or disability for passengers in your car.',
+                            price: 299,
+                          },
+                        ],
+                      },
+                      {
+                        label: 'For your driver',
+                        options: [
+                          {
+                            id: 'mp-driver', name: 'Paid Driver Cover', icon: 'briefcase',
+                            description: 'Covers accidental death or disability for the paid driver of the vehicle.',
+                            price: 199,
+                          },
+                        ],
+                      },
+                    ]}
+                    skipLabel="Skip"
+                    continueLabel="Continue"
+                  />
+                </WidgetCard>
+              </div>
+            </section>
+
+            <section>
               <SectionHeader title="InputField" description="Motor-specific inputs — vehicle registration, owner name" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Vehicle registration" widgetType="vehicle_reg_input — IND prefix, uppercase tracking">
@@ -4376,12 +4847,40 @@ export default function DesignSystemPage() {
                     { label: 'Current Insurance', value: 'ICICI Lombard' }, { label: 'NCB', value: '50%' },
                   ]} ctaLabel="This is correct" />
                 </WidgetCard>
-                <WidgetCard title="Premium breakdown" widgetType="premium_breakdown — TP + OD + add-ons - NCB = total">
-                  <SummaryCard title="Premium Breakdown" subtitle="Maruti Suzuki Swift · Comprehensive" rows={[
-                    { label: 'Third-party (TP)', value: '₹2,094' }, { label: 'Own Damage (OD)', value: '₹4,405' },
-                    { label: 'Engine Protection', value: '₹999' }, { label: 'Zero Depreciation', value: '₹1,499' },
-                    { label: 'NCB discount (50%)', value: '-₹2,203' }, { label: 'Total (incl. GST)', value: '₹8,017' },
-                  ]} ctaLabel="Proceed to Payment" />
+                <WidgetCard title="Premium breakdown" widgetType="MotorPremiumBreakdown — grouped sections, discount highlight, GST">
+                  <MotorPremiumBreakdown
+                    vehicleName="TATA Punch"
+                    planInfo="Zero Depreciation · Smart"
+                    idvLabel="IDV" idvValue="7.6 Lakh"
+                    sections={[
+                      {
+                        title: 'Base policy premium',
+                        rows: [
+                          { label: 'Third-party (TP) premium', value: '₹3,221' },
+                          { label: 'Zero Depreciation (ZD) premium', value: '₹17,611' },
+                        ],
+                      },
+                      {
+                        title: 'Add-on premium',
+                        rows: [
+                          { label: 'Consumables Cover', value: '₹399' },
+                          { label: 'Extra Car Protection', value: '₹399' },
+                          { label: 'Passenger Protection', value: '₹399' },
+                          { label: 'Paid Driver', value: '₹399' },
+                        ],
+                      },
+                      {
+                        title: 'Discounts',
+                        rows: [
+                          { label: 'NCB discount', value: '-₹8,246', highlight: 'discount' },
+                        ],
+                      },
+                    ]}
+                    netPremium="₹20,832"
+                    gstLabel="18% GST" gstValue="₹4,037"
+                    totalLabel="Total (Including GST)" totalValue="₹26,465"
+                    ctaLabel="Proceed to Payment"
+                  />
                 </WidgetCard>
                 <WidgetCard title="Editable summary" widgetType="editable_summary — vehicle details with edit">
                   <SummaryCard title="Vehicle Summary" editable ctaLabel="View Prices" rows={[
@@ -4553,6 +5052,72 @@ export default function DesignSystemPage() {
                     { label: 'Riders', value: 'Critical Illness, Accidental Death' },
                     { label: 'Premium', value: '₹9,999/year' },
                   ]} />
+                </WidgetCard>
+              </div>
+            </section>
+
+            <section>
+              <SectionHeader title="AddOnSelector" description="Life add-on riders — grouped with coverage pickers, limit warnings, and info notes" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <WidgetCard title="Accidental & disability riders" widgetType="AddOnSelector — coverage grid, limit warning">
+                  <AddOnSelector
+                    title="Boost your coverage"
+                    subtitle="Add riders to your term plan"
+                    basePremium={9999}
+                    basePremiumLabel="Base Term Premium"
+                    priceUnit="/yr"
+                    groups={[
+                      {
+                        label: 'Accidental Protection',
+                        options: [
+                          {
+                            id: 'l-ad', name: 'Accidental Death Cover', icon: 'alert',
+                            description: 'Get an additional lump sum payout if death occurs due to an accident.',
+                            price: 456, priceLabel: 'from ₹456/yr',
+                            coverageOptions: [1000000, 1500000, 2000000, 2500000, 3000000],
+                            coverageLabel: 'Select coverage amount:',
+                            badge: 'Recommended', badgeVariant: 'accent',
+                          },
+                          {
+                            id: 'l-pd', name: 'Permanent Disability Cover', icon: 'shield',
+                            description: 'Receive monthly payouts if you suffer permanent total disability due to an accident.',
+                            price: 312,
+                            coverageOptions: [500000, 1000000, 1500000, 2000000],
+                            coverageLabel: 'Select coverage amount:',
+                          },
+                        ],
+                      },
+                    ]}
+                    skipLabel="Continue without riders"
+                    continueLabel="Continue with riders"
+                  />
+                </WidgetCard>
+                <WidgetCard title="Critical illness rider" widgetType="AddOnSelector — coverage grid, info note, limit warning">
+                  <AddOnSelector
+                    title="Protect against critical illness"
+                    subtitle="Add financial safety net for serious diagnoses"
+                    basePremium={9999}
+                    basePremiumLabel="Base Term Premium"
+                    priceUnit="/yr"
+                    groups={[
+                      {
+                        label: 'Critical Illness Protection',
+                        options: [
+                          {
+                            id: 'l-ci', name: 'Critical Illness Cover', icon: 'hospital',
+                            description: 'Lump sum payout on diagnosis of listed critical illnesses — covers 36 conditions including cancer, heart attack, and stroke.',
+                            price: 789, priceLabel: 'from ₹789/yr',
+                            coverageOptions: [500000, 750000, 1000000],
+                            coverageLabel: 'Select coverage amount:',
+                            limitWarning: 'You have reached the maximum critical illness limit based on your base cover.',
+                            infoNote: 'Critical illness cover can be up to 50% of your base cover amount. Increasing your base cover will unlock higher limits.',
+                          },
+                        ],
+                      },
+                    ]}
+                    skipLabel="Skip riders"
+                    continueLabel="Add critical illness cover"
+                  />
                 </WidgetCard>
               </div>
             </section>
