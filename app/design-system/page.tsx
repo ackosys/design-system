@@ -1987,17 +1987,225 @@ function AssetLibrary() {
         )}
       </section>
 
-      {/* Illustrations placeholder */}
+      {/* ── Vehicle Images ── */}
       <section>
-        <SectionHeader title="Illustrations" description="Coming soon — brand illustrations for onboarding, empty states, and success moments" />
-        <div className="py-12 text-center rounded-2xl" style={{ background: 'var(--ds-surface)', border: '1px dashed var(--ds-border-strong)' }}>
-          <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V4.5a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v15a1.5 1.5 0 001.5 1.5z" />
-          </svg>
-          <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text-secondary)' }}>Illustrations coming soon</p>
-          <p className="text-[12px] mt-1" style={{ color: 'var(--ds-text-tertiary)' }}>Drop illustration SVGs into <code className="text-[11px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'var(--ds-overlay-bg)', color: 'var(--ds-accent)' }}>public/illustrations/</code></p>
-        </div>
+        <SectionHeader title="Vehicle Images" description="15 vehicle PNGs — cars and bikes — public/images/vehicles/" />
+        <VehicleImageGallery />
       </section>
+
+      {/* ── Logos ── */}
+      <section>
+        <SectionHeader title="Logos" description="43 vehicle brand SVGs + 4 ACKO brand logos — public/logos/" />
+        <LogoGallery />
+      </section>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────
+   Vehicle Image Gallery
+───────────────────────────────────────── */
+
+type VehicleType = 'all' | 'car' | 'bike';
+
+const VEHICLE_IMAGES: { name: string; type: VehicleType; file: string }[] = [
+  // Cars
+  { name: 'Swift', type: 'car', file: 'Swift.png' },
+  { name: 'Nexon', type: 'car', file: 'Nexon.png' },
+  { name: 'Venue', type: 'car', file: 'Venue.png' },
+  { name: 'Verna', type: 'car', file: 'Verna.png' },
+  { name: 'XUV 700', type: 'car', file: 'XUV700.png' },
+  { name: 'Harrier', type: 'car', file: 'harrier.png' },
+  { name: 'Toyota', type: 'car', file: 'Toyota.png' },
+  { name: 'MG Comet', type: 'car', file: 'MG comet.png' },
+  { name: 'Citroen', type: 'car', file: 'Citroen.png' },
+  // Bikes
+  { name: 'Activa', type: 'bike', file: 'Activa.png' },
+  { name: 'CT 100', type: 'bike', file: 'CT 100.png' },
+  { name: 'Pulsar', type: 'bike', file: 'Pulsar.png' },
+  { name: 'Splendor', type: 'bike', file: 'Splendor.png' },
+  { name: 'KTM', type: 'bike', file: 'KTM.png' },
+  { name: 'Kawasaki', type: 'bike', file: 'kawasaki.png' },
+];
+
+function VehicleImageGallery() {
+  const [filter, setFilter] = useState<VehicleType>('all');
+  const [copiedName, setCopiedName] = useState<string | null>(null);
+  const filtered = filter === 'all' ? VEHICLE_IMAGES : VEHICLE_IMAGES.filter(v => v.type === filter);
+
+  const handleCopy = (file: string) => {
+    navigator.clipboard.writeText(`/images/vehicles/${file}`);
+    setCopiedName(file);
+    setTimeout(() => setCopiedName(null), 1500);
+  };
+
+  return (
+    <>
+      {/* Filter tabs */}
+      <div className="flex gap-1.5 p-1 rounded-xl mb-6 w-fit" style={{ background: 'var(--ds-surface-2)' }}>
+        {(['all', 'car', 'bike'] as VehicleType[]).map(t => (
+          <button key={t} onClick={() => setFilter(t)}
+            className="px-4 py-2 rounded-lg text-[12px] font-semibold transition-all capitalize"
+            style={{
+              background: filter === t ? 'var(--ds-cta-bg)' : 'transparent',
+              color: filter === t ? 'var(--ds-cta-text)' : 'var(--ds-text-secondary)',
+            }}>
+            {t === 'all' ? `All (${VEHICLE_IMAGES.length})` : t === 'car' ? `Cars (${VEHICLE_IMAGES.filter(v => v.type === 'car').length})` : `Bikes (${VEHICLE_IMAGES.filter(v => v.type === 'bike').length})`}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {filtered.map(v => (
+          <button key={v.file} onClick={() => handleCopy(v.file)}
+            title={`Click to copy path\n/images/vehicles/${v.file}`}
+            className="group flex flex-col items-center gap-3 p-4 rounded-2xl transition-all active:scale-95 text-left"
+            style={{
+              background: copiedName === v.file ? 'var(--ds-success-bg)' : 'var(--ds-surface)',
+              border: `1px solid ${copiedName === v.file ? 'var(--ds-success)' : 'var(--ds-border-strong)'}`,
+            }}>
+            <div className="w-full h-28 flex items-center justify-center overflow-hidden rounded-xl" style={{ background: 'var(--ds-surface-2)' }}>
+              <img
+                src={`/images/vehicles/${v.file}`}
+                alt={v.name}
+                className="w-full h-full object-contain p-2 transition-transform group-hover:scale-105"
+              />
+            </div>
+            <div className="w-full">
+              <p className="text-[12px] font-semibold truncate" style={{ color: copiedName === v.file ? 'var(--ds-success)' : 'var(--ds-text)' }}>
+                {copiedName === v.file ? '✓ Copied!' : v.name}
+              </p>
+              <p className="text-[10px] font-mono mt-0.5 truncate" style={{ color: 'var(--ds-text-tertiary)' }}>
+                {v.type} · PNG
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────
+   Logo Gallery
+───────────────────────────────────────── */
+
+type LogoCategory = 'all' | 'brand' | 'vehicle';
+
+const BRAND_LOGOS: { name: string; file: string }[] = [
+  { name: 'ACKO Master', file: 'ACKO Logo Master.svg' },
+  { name: 'ACKO Full Black', file: 'ACKO Logo Full Black.svg' },
+  { name: 'ACKO Full White', file: 'ACKO Logo Full White.svg' },
+  { name: 'ACKO White Text', file: 'ACKO Logo with white text.svg' },
+];
+
+const VEHICLE_LOGOS: { name: string; file: string }[] = [
+  { name: 'Ather', file: 'Ather.svg' },
+  { name: 'Audi', file: 'Audi.svg' },
+  { name: 'BMW', file: 'BMW.svg' },
+  { name: 'BYD', file: 'BYD.svg' },
+  { name: 'Bajaj', file: 'Bajaj.svg' },
+  { name: 'Bounce', file: 'Bounce.svg' },
+  { name: 'Bugatti', file: 'Buggati.svg' },
+  { name: 'Daewoo', file: 'Daewoo.svg' },
+  { name: 'Eicher', file: 'Eicher.svg' },
+  { name: 'Ferrari', file: 'Ferrari.svg' },
+  { name: 'Ferrari Alt', file: 'Ferrari_2.svg' },
+  { name: 'Fiat', file: 'Fiat.svg' },
+  { name: 'Force', file: 'Force_1.svg' },
+  { name: 'Force Alt', file: 'Force_2.svg' },
+  { name: 'Hero Electric', file: 'Hero electric.svg' },
+  { name: 'Hero', file: 'Hero.svg' },
+  { name: 'Hindustan Motors', file: 'Hindustan motors.svg' },
+  { name: 'Honda', file: 'Honda.svg' },
+  { name: 'Hummer', file: 'Hummer.svg' },
+  { name: 'Hyundai', file: 'Hyundai.svg' },
+  { name: 'Isuzu', file: 'Isuzu.svg' },
+  { name: 'Jaguar', file: 'Jaguar.svg' },
+  { name: 'Jeep', file: 'Jeep.svg' },
+  { name: 'Kia', file: 'Kia.svg' },
+  { name: 'Lexus', file: 'Lexus.svg' },
+  { name: 'MG', file: 'MG.svg' },
+  { name: 'Mahindra', file: 'Mahindra.svg' },
+  { name: 'Maserati', file: 'Maserati.svg' },
+  { name: 'Maybach', file: 'Maybach.svg' },
+  { name: 'Mercedes', file: 'Mercedez.svg' },
+  { name: 'Mitsubishi', file: 'Mitsubishi.svg' },
+  { name: 'Ola', file: 'ola.svg' },
+  { name: 'Opel', file: 'Opel.svg' },
+  { name: 'Porsche', file: 'Porsche.svg' },
+  { name: 'Renault', file: 'Renault.svg' },
+  { name: 'Revolt', file: 'Revolt.svg' },
+  { name: 'Royal Enfield', file: 'Royal Enfield.svg' },
+  { name: 'Ssangyong', file: 'Ssangyong.svg' },
+  { name: 'Suzuki', file: 'Suzuki.svg' },
+  { name: 'TATA', file: 'TATA.svg' },
+  { name: 'TVS', file: 'TVS.svg' },
+  { name: 'Tork', file: 'Tork.svg' },
+  { name: 'Volvo', file: 'Volvo.svg' },
+];
+
+function LogoGallery() {
+  const [filter, setFilter] = useState<LogoCategory>('all');
+  const [copiedName, setCopiedName] = useState<string | null>(null);
+
+  const allLogos = [
+    ...BRAND_LOGOS.map(l => ({ ...l, category: 'brand' as LogoCategory, path: `/logos/brand/${l.file}` })),
+    ...VEHICLE_LOGOS.map(l => ({ ...l, category: 'vehicle' as LogoCategory, path: `/logos/vehicles/${l.file}` })),
+  ];
+  const filtered = filter === 'all' ? allLogos : allLogos.filter(l => l.category === filter);
+
+  const handleCopy = (path: string, name: string) => {
+    navigator.clipboard.writeText(path);
+    setCopiedName(name);
+    setTimeout(() => setCopiedName(null), 1500);
+  };
+
+  return (
+    <>
+      {/* Filter tabs */}
+      <div className="flex gap-1.5 p-1 rounded-xl mb-6 w-fit" style={{ background: 'var(--ds-surface-2)' }}>
+        {([
+          { id: 'all', label: `All (${allLogos.length})` },
+          { id: 'brand', label: `ACKO Brand (${BRAND_LOGOS.length})` },
+          { id: 'vehicle', label: `Vehicle Brands (${VEHICLE_LOGOS.length})` },
+        ] as { id: LogoCategory; label: string }[]).map(t => (
+          <button key={t.id} onClick={() => setFilter(t.id)}
+            className="px-4 py-2 rounded-lg text-[12px] font-semibold transition-all"
+            style={{
+              background: filter === t.id ? 'var(--ds-cta-bg)' : 'transparent',
+              color: filter === t.id ? 'var(--ds-cta-text)' : 'var(--ds-text-secondary)',
+            }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+        {filtered.map(logo => (
+          <button key={logo.path} onClick={() => handleCopy(logo.path, logo.name)}
+            title={`Click to copy path\n${logo.path}`}
+            className="group flex flex-col items-center gap-2.5 p-3 rounded-xl transition-all active:scale-95"
+            style={{
+              background: copiedName === logo.name ? 'var(--ds-success-bg)' : 'var(--ds-surface)',
+              border: `1px solid ${copiedName === logo.name ? 'var(--ds-success)' : 'var(--ds-border-strong)'}`,
+            }}>
+            <div className="w-12 h-12 flex items-center justify-center rounded-lg overflow-hidden"
+              style={{ background: logo.category === 'brand' ? 'var(--ds-surface-2)' : 'var(--ds-surface-2)' }}>
+              <img
+                src={logo.path}
+                alt={logo.name}
+                className="w-10 h-10 object-contain transition-transform group-hover:scale-110"
+                style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }}
+              />
+            </div>
+            <p className="text-[10px] font-medium text-center leading-tight w-full truncate"
+              style={{ color: copiedName === logo.name ? 'var(--ds-success)' : 'var(--ds-text-secondary)' }}>
+              {copiedName === logo.name ? '✓ Copied!' : logo.name}
+            </p>
+          </button>
+        ))}
+      </div>
     </>
   );
 }
