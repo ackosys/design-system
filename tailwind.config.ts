@@ -72,11 +72,9 @@ const config: Config = {
         },
       },
       borderRadius: {
-        'sm': '6px',
+        'sm': '4px',
         'DEFAULT': '8px',
-        'md': '10px',
         'lg': '12px',
-        'xl': '14px',
         '2xl': '16px',
         '3xl': '20px',
         '4xl': '24px',

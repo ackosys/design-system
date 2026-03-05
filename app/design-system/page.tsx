@@ -137,6 +137,7 @@ const ICON_MAP: Record<string, string> = {
   download: '/icons/generic/Download.svg',
   share: '/icons/generic/Share.svg',
   phone: '/icons/generic/Phone.svg',
+  video: '/icons/generic/Video Camera.svg',
   mail: '/icons/generic/Mail.svg',
   wallet: '/icons/generic/wallet.svg',
   credit: '/icons/generic/credit-card.svg',
@@ -770,51 +771,288 @@ function SummaryCard({
   );
 }
 
-function PaymentGateway() {
-  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
-  const methods = [
-    { id: 'upi', label: 'UPI', desc: 'Google Pay, PhonePe, Paytm', icon: '/icons/generic/UPI payment.svg' },
-    { id: 'card', label: 'Card', desc: 'Visa, Mastercard, RuPay', icon: '/icons/generic/credit-card.svg' },
-    { id: 'netbanking', label: 'Net Banking', desc: 'All major banks', icon: '/icons/generic/bank.svg' },
-    { id: 'wallet', label: 'Wallet', desc: 'Paytm, Amazon Pay', icon: '/icons/generic/wallet.svg' },
-  ];
+interface RedirectionStep {
+  label: string;
+  description: string;
+  icon?: string;
+}
+
+interface RedirectionOption {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+}
+
+interface RedirectionProps {
+  title: string;
+  subtitle: string;
+  variant: 'steps' | 'selection';
+  steps?: RedirectionStep[];
+  options?: RedirectionOption[];
+  features?: string[];
+  ctaLabel: string;
+  skipLabel?: string;
+  closable?: boolean;
+  partnerLabel?: string;
+  redirectLabel?: string;
+  header?: React.ReactNode;
+}
+
+function RedirectionFlow({
+  title, subtitle, variant, steps, options, features, ctaLabel,
+  skipLabel, closable = false, partnerLabel, redirectLabel, header,
+}: RedirectionProps) {
+  const [stage, setStage] = useState<'info' | 'redirect'>('info');
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   return (
-    <div className="rounded-2xl overflow-hidden max-w-md" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
-      <div className="px-5 py-4 flex items-center justify-between" style={{ background: 'var(--ds-surface-2)' }}>
-        <div className="flex items-center gap-3">
-          <DsAvatar size="md" icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="var(--ds-accent)"><path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" /></svg>} />
-          <div>
-            <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO Insurance</p>
-            <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Maruti Swift — Motor Insurance</p>
+    <div className="max-w-md mx-auto">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        {header && <div style={{ background: 'var(--ds-surface-2)' }}>{header}</div>}
+
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <p className="text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>{title}</p>
+              <p className="text-[13px] mt-1.5 leading-snug" style={{ color: 'var(--ds-text-secondary)' }}>{subtitle}</p>
+            </div>
+            {closable && (
+              <DsIconButton variant="filled" size="sm" onClick={() => setStage('info')}>
+                <img src="/icons/generic/Close.svg" alt="close" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)', opacity: '0.5' }} />
+              </DsIconButton>
+            )}
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Amount</p>
-          <p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹10,617</p>
+
+        {stage === 'info' ? (
+          <div className="px-5 pb-5">
+            {features && features.length > 0 && (
+              <div className="space-y-2 mb-4">
+                {features.map((f, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="var(--ds-accent)" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {variant === 'steps' && steps && (
+              <div className="space-y-2 mb-5">
+                {steps.map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+                    {item.icon
+                      ? <DsAvatar size="sm" icon={<img src={ICON_MAP[item.icon] || item.icon} alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+                      : <DsAvatar size="sm" initials={String(i + 1)} />
+                    }
+                    <div>
+                      <p className="text-[14px] font-medium" style={{ color: 'var(--ds-text)' }}>{item.label}</p>
+                      <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {variant === 'selection' && options && (
+              <div className="space-y-2.5 mb-5">
+                {options.map(opt => (
+                  <button key={opt.id} onClick={() => setSelectedOption(opt.id)}
+                    className="w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-all text-left"
+                    style={{
+                      background: selectedOption === opt.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+                      border: `1.5px solid ${selectedOption === opt.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                    }}>
+                    <img src={opt.icon} alt={opt.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
+                    <div className="flex-1">
+                      <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>{opt.label}</p>
+                      <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{opt.description}</p>
+                    </div>
+                    <DsRadio selected={selectedOption === opt.id} onChange={() => setSelectedOption(opt.id)} />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {partnerLabel && (
+              <p className="text-[11px] text-center mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>Powered by {partnerLabel}</p>
+            )}
+
+            <DsButton fullWidth disabled={variant === 'selection' && !selectedOption} onClick={() => setStage('redirect')}>{ctaLabel}</DsButton>
+            {skipLabel && (
+              <div className="mt-2 text-center">
+                <DsButton variant="ghost" onClick={() => setStage('info')}>{skipLabel}</DsButton>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="px-5 pb-5">
+            <div className="h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 mb-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+              <div className="w-7 h-7 rounded-full animate-spin" style={{ border: '2px solid var(--ds-accent)', borderTopColor: 'transparent' }} />
+              <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>{redirectLabel || 'Redirecting...'}</p>
+            </div>
+            <DsButton fullWidth onClick={() => setStage('info')}>I&apos;ve Completed</DsButton>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VMERFlow() {
+  const [stage, setStage] = useState<'choose' | 'schedule' | 'confirmed' | 'redirect'>('choose');
+  const [selectedLang, setSelectedLang] = useState('English');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+  const languages = ['English', 'Hindi', 'Hinglish', 'Kannada', 'Tamil', 'Malayalam'];
+  const dates = Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() + i + 1);
+    return { key: d.toISOString().slice(0, 10), day: d.toLocaleDateString('en-IN', { weekday: 'short' }), date: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) };
+  });
+  const times = ['9:00 AM', '11:00 AM', '2:00 PM', '4:00 PM', '6:00 PM'];
+
+  if (stage === 'redirect') {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+          <div className="px-5 pt-5 pb-4">
+            <p className="text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>Video Medical Exam</p>
+            <p className="text-[13px] mt-1.5" style={{ color: 'var(--ds-text-secondary)' }}>Connecting you with a doctor</p>
+          </div>
+          <div className="px-5 pb-5">
+            <div className="h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 mb-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+              <div className="w-7 h-7 rounded-full animate-spin" style={{ border: '2px solid var(--ds-accent)', borderTopColor: 'transparent' }} />
+              <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Connecting to video call...</p>
+            </div>
+            <DsButton fullWidth onClick={() => setStage('choose')}>I&apos;ve Completed</DsButton>
+          </div>
         </div>
       </div>
-      <div className="p-5">
-        <p className="text-[12px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ds-text-secondary)' }}>Payment Method</p>
-        <div className="space-y-2.5">
-          {methods.map(m => (
-            <button key={m.id} onClick={() => setSelectedMethod(m.id)}
-              className="w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-all text-left"
-              style={{
-                background: selectedMethod === m.id ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
-                border: `1.5px solid ${selectedMethod === m.id ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
-              }}>
-              <img src={m.icon} alt={m.label} className="w-5 h-5" style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
-              <div className="flex-1">
-                <p className="text-[14px] font-semibold" style={{ color: 'var(--ds-text)' }}>{m.label}</p>
-                <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{m.desc}</p>
+    );
+  }
+
+  if (stage === 'confirmed') {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="rounded-2xl overflow-hidden p-5" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+          <div className="text-center mb-5">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style={{ background: 'var(--ds-success-bg)' }}>
+              <svg className="w-7 h-7" fill="none" stroke="var(--ds-success)" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>Call Scheduled</p>
+            <p className="text-[13px] mt-1" style={{ color: 'var(--ds-text-secondary)' }}>
+              {selectedDate && dates.find(d => d.key === selectedDate)?.date} at {selectedTime}
+            </p>
+          </div>
+          <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+            <div className="flex items-center gap-3">
+              <DsAvatar size="sm" icon={<img src={ICON_MAP.video} alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+              <div>
+                <p className="text-[13px] font-medium" style={{ color: 'var(--ds-text)' }}>Language: {selectedLang}</p>
+                <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>You&apos;ll receive a reminder before the call</p>
               </div>
-              <DsRadio selected={selectedMethod === m.id} onChange={() => setSelectedMethod(m.id)} />
-            </button>
-          ))}
+            </div>
+          </div>
+          <DsButton fullWidth onClick={() => setStage('redirect')}>Join Call</DsButton>
+          <div className="mt-2 text-center">
+            <DsButton variant="ghost" onClick={() => setStage('schedule')}>Reschedule</DsButton>
+          </div>
         </div>
-        <div className="mt-5">
-          <DsButton fullWidth disabled={!selectedMethod}>Pay ₹10,617</DsButton>
+      </div>
+    );
+  }
+
+  if (stage === 'schedule') {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+          <div className="px-5 pt-5 pb-4">
+            <p className="text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>Schedule VMER Call</p>
+            <p className="text-[13px] mt-1.5" style={{ color: 'var(--ds-text-secondary)' }}>Pick a language, date, and time</p>
+          </div>
+          <div className="px-5 pb-5 space-y-5">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--ds-text-secondary)' }}>Language preference</p>
+              <div className="flex flex-wrap gap-2">
+                {languages.map(l => (
+                  <button key={l} onClick={() => setSelectedLang(l)}
+                    className="px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all"
+                    style={{
+                      background: selectedLang === l ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+                      border: `1.5px solid ${selectedLang === l ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                      color: selectedLang === l ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+                    }}>{l}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--ds-text-secondary)' }}>Pick a date</p>
+              <div className="flex gap-2 overflow-x-auto">
+                {dates.map(d => (
+                  <button key={d.key} onClick={() => setSelectedDate(d.key)}
+                    className="flex flex-col items-center px-4 py-3 rounded-xl text-center transition-all flex-shrink-0"
+                    style={{
+                      background: selectedDate === d.key ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+                      border: `1.5px solid ${selectedDate === d.key ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                    }}>
+                    <span className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>{d.day}</span>
+                    <span className="text-[14px] font-semibold mt-0.5" style={{ color: selectedDate === d.key ? 'var(--ds-text)' : 'var(--ds-text-secondary)' }}>{d.date}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--ds-text-secondary)' }}>Pick a time</p>
+              <div className="grid grid-cols-3 gap-2">
+                {times.map(t => (
+                  <button key={t} onClick={() => setSelectedTime(t)}
+                    className="py-3 rounded-xl text-[13px] font-medium transition-all"
+                    style={{
+                      background: selectedTime === t ? 'var(--ds-selected-bg)' : 'var(--ds-overlay-bg)',
+                      border: `1.5px solid ${selectedTime === t ? 'var(--ds-selected-border)' : 'var(--ds-border-strong)'}`,
+                      color: selectedTime === t ? 'var(--ds-text)' : 'var(--ds-text-secondary)',
+                    }}>{t}</button>
+                ))}
+              </div>
+            </div>
+            <DsButton fullWidth disabled={!selectedDate || !selectedTime} onClick={() => setStage('confirmed')}>Confirm schedule</DsButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-md mx-auto">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
+        <div className="px-5 pt-5 pb-4">
+          <p className="text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>Video Medical Exam</p>
+          <p className="text-[13px] mt-1.5" style={{ color: 'var(--ds-text-secondary)' }}>Connect with a doctor for your medical examination via video call</p>
+        </div>
+        <div className="px-5 pb-5">
+          <div className="space-y-2 mb-5">
+            {[
+              { label: 'Instant video call', description: 'Jump on a call with an available doctor now', icon: 'video' },
+              { label: 'Schedule for later', description: 'Pick a convenient date and time slot', icon: 'calendar' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
+                <DsAvatar size="sm" icon={<img src={ICON_MAP[item.icon]} alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+                <div>
+                  <p className="text-[14px] font-medium" style={{ color: 'var(--ds-text)' }}>{item.label}</p>
+                  <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-center mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>Powered by Video Platform</p>
+          <DsButton fullWidth onClick={() => setStage('redirect')}>Join Call</DsButton>
+          <div className="mt-2 text-center">
+            <DsButton variant="ghost" onClick={() => setStage('schedule')}>Schedule for later</DsButton>
+          </div>
         </div>
       </div>
     </div>
@@ -1149,63 +1387,6 @@ function SchedulePicker() {
   );
 }
 
-function VerificationFlow() {
-  const [stage, setStage] = useState<'info' | 'verify'>('info');
-
-  return (
-    <div className="max-w-md mx-auto">
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ds-surface)', border: '1px solid var(--ds-border-strong)' }}>
-        <div className="px-5 pt-5 pb-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="text-[22px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>Complete KYC</p>
-              <p className="text-[13px] mt-1.5 leading-snug" style={{ color: 'var(--ds-text-secondary)' }}>
-                {stage === 'info'
-                  ? 'HyperVerge, our reliable partner, will handle the KYC process for you with 100% security'
-                  : 'Complete the steps below to verify your identity and activate your policy'}
-              </p>
-            </div>
-            <DsIconButton variant="filled" size="sm" onClick={() => setStage('info')}>
-              <img src="/icons/generic/Close.svg" alt="close" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)', opacity: '0.5' }} />
-            </DsIconButton>
-          </div>
-        </div>
-
-        {stage === 'info' ? (
-          <div className="px-5 pb-5">
-            <div className="space-y-2 mb-5">
-              {[
-                { step: '1', title: 'Verify your identity', desc: 'Upload PAN card or Aadhaar' },
-                { step: '2', title: 'Take a quick selfie', desc: 'Face match for security' },
-                { step: '3', title: 'Instant confirmation', desc: 'Approved in most cases' },
-              ].map((item) => (
-                <div key={item.step} className="flex items-center gap-3 px-4 py-3.5 rounded-2xl" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
-                  <DsAvatar size="sm" initials={item.step} />
-                  <div>
-                    <p className="text-[14px] font-medium" style={{ color: 'var(--ds-text)' }}>{item.title}</p>
-                    <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <DsButton fullWidth onClick={() => setStage('verify')}>Start KYC Verification</DsButton>
-            <div className="mt-2 text-center">
-              <DsButton variant="ghost" onClick={() => setStage('info')}>I&apos;ll do this later</DsButton>
-            </div>
-          </div>
-        ) : (
-          <div className="px-5 pb-5">
-            <div className="h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 mb-4" style={{ background: 'var(--ds-overlay-bg)', border: '1px solid var(--ds-border-strong)' }}>
-              <div className="w-7 h-7 rounded-full animate-spin" style={{ border: '2px solid var(--ds-accent)', borderTopColor: 'transparent' }} />
-              <p className="text-[12px]" style={{ color: 'var(--ds-text-tertiary)' }}>Loading KYC verification...</p>
-            </div>
-            <DsButton fullWidth onClick={() => setStage('info')}>I&apos;ve Completed Verification</DsButton>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 function ChatBubble() {
   return (
@@ -2855,8 +3036,8 @@ export default function DesignSystemPage() {
                   <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--ds-text-secondary)' }}>Border Radius</h4>
                   <div className="grid grid-cols-4 gap-3">
                     {[
-                      { name: 'sm', value: '6px' }, { name: 'DEFAULT', value: '8px' }, { name: 'md', value: '10px' },
-                      { name: 'lg', value: '12px' }, { name: 'xl', value: '14px' }, { name: '2xl', value: '16px' },
+                      { name: 'sm', value: '4px' }, { name: 'DEFAULT', value: '8px' },
+                      { name: 'lg', value: '12px' }, { name: '2xl', value: '16px' },
                       { name: '3xl', value: '20px' }, { name: '4xl', value: '24px' },
                     ].map(r => (
                       <div key={r.name} className="text-center">
@@ -3283,10 +3464,77 @@ export default function DesignSystemPage() {
             </section>
 
             <section>
-              <SectionHeader title="PaymentGateway" description="Payment method selection — DsRadio for methods, DsAvatar for branding, DsButton for CTA" />
+              <SectionHeader title="RedirectionFlow" description="Unified redirection pattern — show info/steps, then redirect to third-party service. Supports steps and selection variants." />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Payment Gateway" widgetType="PaymentGateway — DsRadio + DsAvatar + DsButton">
-                  <PaymentGateway />
+                <WidgetCard title="KYC Verification" widgetType="RedirectionFlow — steps variant, closable, skip option">
+                  <RedirectionFlow
+                    variant="steps"
+                    title="Complete KYC"
+                    subtitle="HyperVerge, our reliable partner, will handle the KYC process for you with 100% security"
+                    closable
+                    steps={[
+                      { label: 'Verify your identity', description: 'Upload PAN card or Aadhaar' },
+                      { label: 'Take a quick selfie', description: 'Face match for security' },
+                      { label: 'Instant confirmation', description: 'Approved in most cases' },
+                    ]}
+                    ctaLabel="Start KYC Verification"
+                    skipLabel="I'll do this later"
+                    partnerLabel="HyperVerge"
+                    redirectLabel="Loading KYC verification..."
+                  />
+                </WidgetCard>
+                <WidgetCard title="Income Verification" widgetType="RedirectionFlow — steps variant with features list">
+                  <RedirectionFlow
+                    variant="steps"
+                    title="Verify your income"
+                    subtitle="We will verify your income via your salary account"
+                    features={[
+                      'Safe way to retrieve financial data with your consent',
+                      'Revoke data access when required',
+                      'Licensed by RBI',
+                    ]}
+                    steps={[
+                      { label: 'Give consent', description: 'Check details and provide consent' },
+                      { label: 'Connect account', description: 'Connect with account aggregator using your phone number' },
+                      { label: 'Select & verify', description: 'Using OTP sent by bank' },
+                    ]}
+                    ctaLabel="Proceed to Verify"
+                    partnerLabel="Anumati"
+                    redirectLabel="Redirecting to Anumati..."
+                  />
+                </WidgetCard>
+                <WidgetCard title="Payment Gateway" widgetType="RedirectionFlow — selection variant with header">
+                  <RedirectionFlow
+                    variant="selection"
+                    title="Payment Method"
+                    subtitle="Choose how you'd like to pay"
+                    header={
+                      <div className="px-5 py-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <DsAvatar size="md" icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="var(--ds-accent)"><path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" /></svg>} />
+                          <div>
+                            <p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO Insurance</p>
+                            <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Maruti Swift — Motor Insurance</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Amount</p>
+                          <p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹10,617</p>
+                        </div>
+                      </div>
+                    }
+                    options={[
+                      { id: 'upi', label: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: '/icons/generic/UPI payment.svg' },
+                      { id: 'card', label: 'Card', description: 'Visa, Mastercard, RuPay', icon: '/icons/generic/credit-card.svg' },
+                      { id: 'netbanking', label: 'Net Banking', description: 'All major banks', icon: '/icons/generic/bank.svg' },
+                      { id: 'wallet', label: 'Wallet', description: 'Paytm, Amazon Pay', icon: '/icons/generic/wallet.svg' },
+                    ]}
+                    ctaLabel="Pay ₹10,617"
+                    redirectLabel="Redirecting to payment gateway..."
+                  />
+                </WidgetCard>
+                <WidgetCard title="VMER Call" widgetType="VMERFlow — join instantly or schedule, then redirect to video call">
+                  <VMERFlow />
                 </WidgetCard>
               </div>
             </section>
@@ -3305,15 +3553,6 @@ export default function DesignSystemPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WidgetCard title="Schedule Picker" widgetType="SchedulePicker — DsButton + DsDivider + DsAvatar">
                   <SchedulePicker />
-                </WidgetCard>
-              </div>
-            </section>
-
-            <section>
-              <SectionHeader title="VerificationFlow" description="KYC verification — DsButton for actions, DsIconButton for close, DsAvatar for step numbers" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Verification Flow" widgetType="VerificationFlow — DsButton + DsIconButton + DsAvatar">
-                  <VerificationFlow />
                 </WidgetCard>
               </div>
             </section>
@@ -3494,10 +3733,18 @@ export default function DesignSystemPage() {
             </section>
 
             <section>
-              <SectionHeader title="PaymentGateway" description="Health premium payment — family floater plan" />
+              <SectionHeader title="RedirectionFlow" description="Health premium payment — family floater plan" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Health payment" widgetType="payment_widget — health premium ₹12,999">
-                  <PaymentGateway />
+                <WidgetCard title="Health payment" widgetType="RedirectionFlow — selection variant, health premium">
+                  <RedirectionFlow variant="selection" title="Payment Method" subtitle="Choose how you'd like to pay"
+                    header={<div className="px-5 py-4 flex items-center justify-between"><div className="flex items-center gap-3"><DsAvatar size="md" icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="var(--ds-accent)"><path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" /></svg>} /><div><p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO Insurance</p><p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Family Floater — Health Insurance</p></div></div><div className="text-right"><p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Amount</p><p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹12,999</p></div></div>}
+                    options={[
+                      { id: 'upi', label: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: '/icons/generic/UPI payment.svg' },
+                      { id: 'card', label: 'Card', description: 'Visa, Mastercard, RuPay', icon: '/icons/generic/credit-card.svg' },
+                      { id: 'netbanking', label: 'Net Banking', description: 'All major banks', icon: '/icons/generic/bank.svg' },
+                      { id: 'wallet', label: 'Wallet', description: 'Paytm, Amazon Pay', icon: '/icons/generic/wallet.svg' },
+                    ]}
+                    ctaLabel="Pay ₹12,999" redirectLabel="Redirecting to payment gateway..." />
                 </WidgetCard>
               </div>
             </section>
@@ -3625,19 +3872,33 @@ export default function DesignSystemPage() {
             </section>
 
             <section>
-              <SectionHeader title="VerificationFlow" description="Motor KYC — PAN/Aadhaar verification via HyperVerge" />
+              <SectionHeader title="RedirectionFlow" description="Motor KYC — PAN/Aadhaar verification via HyperVerge" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="KYC verification" widgetType="kyc_verification — 3-step identity flow">
-                  <VerificationFlow />
+                <WidgetCard title="KYC verification" widgetType="RedirectionFlow — steps variant, motor KYC">
+                  <RedirectionFlow variant="steps" title="Complete KYC" subtitle="HyperVerge, our reliable partner, will handle the KYC process for you with 100% security" closable
+                    steps={[
+                      { label: 'Verify your identity', description: 'Upload PAN card or Aadhaar' },
+                      { label: 'Take a quick selfie', description: 'Face match for security' },
+                      { label: 'Instant confirmation', description: 'Approved in most cases' },
+                    ]}
+                    ctaLabel="Start KYC Verification" skipLabel="I'll do this later" partnerLabel="HyperVerge" redirectLabel="Loading KYC verification..." />
                 </WidgetCard>
               </div>
             </section>
 
             <section>
-              <SectionHeader title="PaymentGateway" description="Motor premium payment — Maruti Swift comprehensive" />
+              <SectionHeader title="RedirectionFlow" description="Motor premium payment — Maruti Swift comprehensive" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Motor payment" widgetType="payment_gateway — motor premium ₹10,617">
-                  <PaymentGateway />
+                <WidgetCard title="Motor payment" widgetType="RedirectionFlow — selection variant, motor premium">
+                  <RedirectionFlow variant="selection" title="Payment Method" subtitle="Choose how you'd like to pay"
+                    header={<div className="px-5 py-4 flex items-center justify-between"><div className="flex items-center gap-3"><DsAvatar size="md" icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="var(--ds-accent)"><path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" /></svg>} /><div><p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO Insurance</p><p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Maruti Swift — Motor Insurance</p></div></div><div className="text-right"><p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Amount</p><p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹10,617</p></div></div>}
+                    options={[
+                      { id: 'upi', label: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: '/icons/generic/UPI payment.svg' },
+                      { id: 'card', label: 'Card', description: 'Visa, Mastercard, RuPay', icon: '/icons/generic/credit-card.svg' },
+                      { id: 'netbanking', label: 'Net Banking', description: 'All major banks', icon: '/icons/generic/bank.svg' },
+                      { id: 'wallet', label: 'Wallet', description: 'Paytm, Amazon Pay', icon: '/icons/generic/wallet.svg' },
+                    ]}
+                    ctaLabel="Pay ₹10,617" redirectLabel="Redirecting to payment gateway..." />
                 </WidgetCard>
               </div>
             </section>
@@ -3780,10 +4041,18 @@ export default function DesignSystemPage() {
             </section>
 
             <section>
-              <SectionHeader title="PaymentGateway" description="Life premium payment — term plan purchase" />
+              <SectionHeader title="RedirectionFlow" description="Life premium payment — term plan purchase" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <WidgetCard title="Life payment" widgetType="payment_screen — life premium ₹9,999">
-                  <PaymentGateway />
+                <WidgetCard title="Life payment" widgetType="RedirectionFlow — selection variant, life premium">
+                  <RedirectionFlow variant="selection" title="Payment Method" subtitle="Choose how you'd like to pay"
+                    header={<div className="px-5 py-4 flex items-center justify-between"><div className="flex items-center gap-3"><DsAvatar size="md" icon={<svg className="w-4 h-4" viewBox="0 0 24 24" fill="var(--ds-accent)"><path d="M7.076 2L4 12.239l3.076 0L11.153 2zM11.669 2L8.593 12.239l3.076 0L15.746 2zM20 2l-7.077 10.239L16 22l4-9.761L16.923 2z" /></svg>} /><div><p className="text-[13px] font-semibold" style={{ color: 'var(--ds-text)' }}>ACKO Insurance</p><p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Term Plan — Life Insurance</p></div></div><div className="text-right"><p className="text-[11px]" style={{ color: 'var(--ds-text-tertiary)' }}>Amount</p><p className="text-[18px] font-bold" style={{ color: 'var(--ds-text)' }}>₹9,999</p></div></div>}
+                    options={[
+                      { id: 'upi', label: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: '/icons/generic/UPI payment.svg' },
+                      { id: 'card', label: 'Card', description: 'Visa, Mastercard, RuPay', icon: '/icons/generic/credit-card.svg' },
+                      { id: 'netbanking', label: 'Net Banking', description: 'All major banks', icon: '/icons/generic/bank.svg' },
+                      { id: 'wallet', label: 'Wallet', description: 'Paytm, Amazon Pay', icon: '/icons/generic/wallet.svg' },
+                    ]}
+                    ctaLabel="Pay ₹9,999" redirectLabel="Redirecting to payment gateway..." />
                 </WidgetCard>
               </div>
             </section>
