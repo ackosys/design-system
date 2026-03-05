@@ -1210,8 +1210,7 @@ function VerificationFlow() {
 function ChatBubble() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Hi there! I&apos;m your ACKO assistant. Let&apos;s find the perfect insurance plan for you.</p>
         </div>
@@ -1221,8 +1220,7 @@ function ChatBubble() {
           <p className="text-[14px]">I want health insurance for my family</p>
         </div>
       </div>
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Great choice! Who all do you want to cover?</p>
         </div>
@@ -1303,8 +1301,7 @@ function RangeSlider() {
 function DemoChatMessageHealth() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Hi! Let&apos;s find the best health plan for your family. How many members do you want to cover?</p>
         </div>
@@ -1314,8 +1311,7 @@ function DemoChatMessageHealth() {
           <p className="text-[14px]">Me, my wife, and 2 kids</p>
         </div>
       </div>
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Great! A family floater plan will give you the best value. What&apos;s your pincode?</p>
         </div>
@@ -1327,8 +1323,7 @@ function DemoChatMessageHealth() {
 function DemoChatMessageMotor() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Welcome! Let&apos;s get your vehicle insured. Please enter your registration number.</p>
         </div>
@@ -1338,8 +1333,7 @@ function DemoChatMessageMotor() {
           <p className="text-[14px]">KA 01 AB 1234</p>
         </div>
       </div>
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Found it! Maruti Suzuki Swift VXi Petrol 2022. Is this correct?</p>
         </div>
@@ -1351,19 +1345,17 @@ function DemoChatMessageMotor() {
 function DemoChatMessageLife() {
   return (
     <div className="space-y-3 max-w-md">
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Let&apos;s find the right life insurance cover for you. What&apos;s your annual income?</p>
         </div>
       </div>
       <div className="flex justify-end">
-        <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)' }}>
-          <p className="text-[14px]" style={{ color: 'var(--ds-user-bubble-text)' }}>Around 18 lakhs per year</p>
+        <div className="rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-user-bubble-bg)', color: 'var(--ds-user-bubble-text)' }}>
+          <p className="text-[14px]">Around 18 lakhs per year</p>
         </div>
       </div>
-      <div className="flex items-start gap-2.5">
-        <DsAvatar size="sm" icon={<img src="/icons/generic/Customer service.svg" alt="bot" className="w-3.5 h-3.5" style={{ filter: 'var(--ds-icon-filter)' }} />} />
+      <div className="flex items-start">
         <div className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]" style={{ background: 'var(--ds-bubble-bg)', border: '1px solid var(--ds-bubble-border)' }}>
           <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ds-bot-text)' }}>Based on your income, I&apos;d recommend a ₹1.5 Cr cover. Do you smoke?</p>
         </div>
@@ -1380,38 +1372,58 @@ function DemoChatMessageLife() {
    Atom Components — Single Source of Truth
    ═══════════════════════════════════════════════ */
 
-type DsButtonVariant = 'primary' | 'secondary' | 'ghost' | 'link' | 'danger';
+type DsButtonVariant = 'primary' | 'secondary' | 'inverted' | 'ghost' | 'link' | 'disabled' | 'danger';
 type DsSize = 'sm' | 'md' | 'lg';
 
 function DsButton({
-  variant = 'primary', size = 'md', disabled = false, loading = false,
+  variant = 'primary', size = 'lg', disabled = false, loading = false,
   fullWidth = false, icon, children, onClick,
 }: {
   variant?: DsButtonVariant; size?: DsSize; disabled?: boolean; loading?: boolean;
   fullWidth?: boolean; icon?: React.ReactNode; children: React.ReactNode; onClick?: () => void;
 }) {
-  const sizeMap = { sm: 'py-1.5 px-3 text-[12px] rounded gap-1.5', md: 'py-2.5 px-4 text-[13px] rounded gap-2', lg: 'py-3.5 px-5 text-[15px] rounded gap-2' };
+  const sizeMap = {
+    // lg = default: 48px height (16px padding × 2 + 16px line-height), 14px font, 8px radius
+    lg: 'py-4 px-5 text-[14px] leading-[16px] rounded-lg gap-2',
+    // md: 40px height (12px padding × 2 + 16px line-height), 12px font, 8px radius
+    md: 'py-3 px-4 text-[12px] leading-[16px] rounded-lg gap-2',
+    // sm: 32px height (8px padding × 2 + 16px line-height), 11px font, 6px radius
+    sm: 'py-2 px-3 text-[11px] leading-[16px] rounded-md gap-1.5',
+  };
 
   const variantStyles: Record<DsButtonVariant, React.CSSProperties> = {
-    primary: { background: 'var(--ds-cta-bg)', color: 'var(--ds-cta-text)', boxShadow: 'inset 0px 2px 2px rgba(255,255,255,0.12)' },
-    secondary: { background: 'var(--ds-surface)', color: 'var(--ds-text)', border: '1px solid var(--ds-accent)', boxShadow: 'inset 0px 2px 4px rgba(255,255,255,0.08)' },
-    ghost: { background: 'transparent', color: 'var(--ds-accent)' },
-    link: { background: 'transparent', color: 'var(--ds-link)', padding: '0' },
-    danger: { background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: '1px solid transparent' },
+    primary: { background: 'var(--btn-primary-bg)', color: 'var(--btn-primary-text)', boxShadow: 'var(--btn-primary-shadow)' },
+    secondary: { background: 'var(--btn-secondary-bg)', color: 'var(--btn-secondary-text)', border: '1px solid var(--btn-secondary-border)', boxShadow: 'var(--btn-secondary-shadow)' },
+    inverted: { background: 'var(--btn-inverted-bg)', color: 'var(--btn-inverted-text)', boxShadow: 'var(--btn-inverted-shadow)' },
+    ghost: { background: 'transparent', color: 'var(--btn-ghost-text)' },
+    link: { background: 'transparent', color: 'var(--btn-link-text)' },
+    disabled: { background: 'var(--btn-disabled-bg)', color: 'var(--btn-disabled-text)' },
+    danger: { background: 'var(--btn-danger-bg)', color: 'var(--btn-danger-text)', boxShadow: 'var(--btn-danger-shadow)' },
   };
+
+  const isOff = disabled || loading || variant === 'disabled';
+
+  const disabledOverride: React.CSSProperties =
+    (disabled || loading) && variant !== 'disabled' && variant !== 'link' && variant !== 'ghost'
+      ? { background: 'var(--btn-disabled-bg)', color: 'var(--btn-disabled-text)', boxShadow: 'none', border: 'none' }
+      : (disabled || loading) && (variant === 'link' || variant === 'ghost')
+        ? { color: 'var(--btn-disabled-text)', opacity: 0.6 }
+        : {};
+
+  const resolvedStyle = { ...variantStyles[variant], ...disabledOverride };
 
   return (
     <button
-      onClick={onClick} disabled={disabled || loading}
-      className={`inline-flex items-center justify-center font-medium transition-all active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 ${sizeMap[size]} ${fullWidth ? 'w-full' : ''}`}
-      style={variantStyles[variant]}
+      onClick={onClick} disabled={isOff}
+      className={`ds-btn-${variant} inline-flex items-center justify-center font-medium transition-all active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${sizeMap[size]} ${fullWidth ? 'w-full' : ''}`}
+      style={resolvedStyle}
     >
       {loading ? (
         <div className="w-4 h-4 rounded-full animate-spin" style={{ border: '2px solid currentColor', borderTopColor: 'transparent' }} />
       ) : icon ? (
         <span className="flex-shrink-0">{icon}</span>
       ) : null}
-      {variant !== 'link' ? <span>{children}</span> : <span className="underline underline-offset-2">{children}</span>}
+      <span>{children}</span>
     </button>
   );
 }
@@ -1607,38 +1619,60 @@ function AtomsShowcase() {
     <div className="space-y-12">
       {/* ── Buttons ── */}
       <section>
-        <SectionHeader title="Button" description="DsButton — primary, secondary, ghost, link, danger variants · sm/md/lg sizes · loading & disabled states" />
-        <div className="grid grid-cols-1 gap-6">
-          <WidgetCard title="Button Variants" widgetType="DsButton — variant · size · disabled · loading · fullWidth · icon">
-            <div className="space-y-6">
-              <div>
-                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>variants (md)</p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <DsButton variant="primary">Primary</DsButton>
-                  <DsButton variant="secondary">Secondary</DsButton>
-                  <DsButton variant="ghost">Ghost</DsButton>
-                  <DsButton variant="link">Link Action</DsButton>
-                  <DsButton variant="danger">Danger</DsButton>
+        <SectionHeader title="Button" description="DsButton — primary, secondary, inverted, ghost, link, disabled, danger · sm/md/lg sizes · loading states · 12px/16px · 8px 16px · border-radius 8px" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Variant catalogue — mirrors Figma layout */}
+          <WidgetCard title="Button Variants" widgetType="DsButton — all 7 types with token annotations">
+            <div className="space-y-5">
+              {([
+                { variant: 'primary' as const, label: 'Primary', desc: 'Primary' },
+                { variant: 'secondary' as const, label: 'Secondary', desc: 'Fill · --btn-secondary-bg\nBorder · --btn-secondary-border\nText · --btn-secondary-text' },
+                { variant: 'inverted' as const, label: 'Inverted', desc: 'Fill · Grey 100\nText · Purple 700' },
+                { variant: 'ghost' as const, label: 'Ghost', desc: 'Text · --btn-ghost-text\nHover · --btn-ghost-hover-bg' },
+                { variant: 'link' as const, label: 'Link', desc: 'Text · --btn-link-text\nHover state underline' },
+                { variant: 'disabled' as const, label: 'Disable', desc: 'Fill · --btn-disabled-bg\nText · --btn-disabled-text' },
+                { variant: 'danger' as const, label: 'Danger', desc: 'Fill · --btn-danger-bg\nText · --btn-danger-text' },
+              ]).map((row) => (
+                <div key={row.label} className="flex items-center gap-5">
+                  <div className="w-40 flex-shrink-0">
+                    <DsButton variant={row.variant}>{row.label}</DsButton>
+                  </div>
+                  <p className="text-[11px] font-mono whitespace-pre-line" style={{ color: 'var(--ds-text-tertiary)' }}>{row.desc}</p>
                 </div>
-              </div>
-              <DsDivider />
+              ))}
+            </div>
+          </WidgetCard>
+
+          {/* Sizes, States, Full-width, Icons */}
+          <WidgetCard title="Sizes & States" widgetType="DsButton — size · disabled · loading · fullWidth · icon">
+            <div className="space-y-6">
               <div>
                 <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>sizes</p>
                 <div className="flex flex-wrap items-end gap-3">
-                  <DsButton variant="primary" size="sm">Small</DsButton>
-                  <DsButton variant="primary" size="md">Medium</DsButton>
-                  <DsButton variant="primary" size="lg">Large</DsButton>
+                  <DsButton variant="primary" size="lg">Large — default (48px · 14px)</DsButton>
+                  <DsButton variant="primary" size="md">Medium (40px · 12px)</DsButton>
+                  <DsButton variant="primary" size="sm">Small (32px · 11px)</DsButton>
                 </div>
               </div>
               <DsDivider />
               <div>
-                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>states</p>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>disabled states per variant</p>
                 <div className="flex flex-wrap items-center gap-3">
-                  <DsButton variant="primary">Default</DsButton>
-                  <DsButton variant="primary" disabled>Disabled</DsButton>
-                  <DsButton variant="primary" loading>Loading</DsButton>
-                  <DsButton variant="secondary" disabled>Disabled</DsButton>
-                  <DsButton variant="secondary" loading>Loading</DsButton>
+                  <DsButton variant="primary" disabled>Primary</DsButton>
+                  <DsButton variant="secondary" disabled>Secondary</DsButton>
+                  <DsButton variant="inverted" disabled>Inverted</DsButton>
+                  <DsButton variant="ghost" disabled>Ghost</DsButton>
+                  <DsButton variant="link" disabled>Link</DsButton>
+                  <DsButton variant="danger" disabled>Danger</DsButton>
+                </div>
+              </div>
+              <DsDivider />
+              <div>
+                <p className="text-[11px] font-mono mb-3" style={{ color: 'var(--ds-text-tertiary)' }}>loading states</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <DsButton variant="primary" loading>Primary</DsButton>
+                  <DsButton variant="secondary" loading>Secondary</DsButton>
+                  <DsButton variant="danger" loading>Danger</DsButton>
                 </div>
               </div>
               <DsDivider />
@@ -1647,6 +1681,7 @@ function AtomsShowcase() {
                 <div className="space-y-2">
                   <DsButton variant="primary" fullWidth>Full Width Primary</DsButton>
                   <DsButton variant="secondary" fullWidth>Full Width Secondary</DsButton>
+                  <DsButton variant="inverted" fullWidth>Full Width Inverted</DsButton>
                 </div>
               </div>
               <DsDivider />
@@ -2015,11 +2050,11 @@ const DS_THEME_STYLES = `
   --ds-error-text: #f87171;
   --ds-selected-bg: rgba(168,85,247,0.15);
   --ds-selected-border: rgba(168,85,247,0.5);
-  --ds-cta-bg: #7C3AED;
-  --ds-cta-hover: #6D28D9;
+  --ds-cta-bg: #6841e6;
+  --ds-cta-hover: #582fd2;
   --ds-cta-text: #FFFFFF;
   --ds-progress-bg: rgba(255,255,255,0.10);
-  --ds-progress-fill: linear-gradient(90deg,#7C3AED,#A78BFA);
+  --ds-progress-fill: linear-gradient(90deg,#6841e6,#bdb8fa);
   --ds-overlay-bg: rgba(255,255,255,0.08);
   --ds-glass-bg: rgba(30,30,34,0.92);
   --ds-header-bg: #121214;
@@ -2027,11 +2062,31 @@ const DS_THEME_STYLES = `
   --ds-tab-bg: rgba(255,255,255,0.06);
   --ds-tab-inactive: rgba(255,255,255,0.4);
   --ds-bot-text: #FFFFFF;
-  --ds-user-bubble-bg: #FFFFFF;
-  --ds-user-bubble-text: #1C0B47;
-  --ds-bubble-bg: rgba(255,255,255,0.08);
-  --ds-bubble-border: rgba(255,255,255,0.10);
+  --ds-user-bubble-bg: linear-gradient(0deg,#5920C5,#7C47E1);
+  --ds-user-bubble-text: #FFFFFF;
+  --ds-bubble-bg: #2B2B33;
+  --ds-bubble-border: rgba(255,255,255,0.06);
   --ds-feature-check: #4ADE80;
+
+  /* ── Button tokens ── */
+  --btn-primary-bg: #6841e6;
+  --btn-primary-text: #ffffff;
+  --btn-primary-shadow: inset 0px 2px 2px rgba(255,255,255,0.12);
+  --btn-secondary-bg: #19191a;
+  --btn-secondary-border: #6841e6;
+  --btn-secondary-text: #fbfbfb;
+  --btn-secondary-shadow: inset 0px 2px 4px rgba(255,255,255,0.12);
+  --btn-inverted-bg: #141414;
+  --btn-inverted-text: #fbfbfb;
+  --btn-inverted-shadow: inset 0px 2px 4px rgba(255,255,255,0.04);
+  --btn-ghost-text: #7a62f0;
+  --btn-ghost-hover-bg: #242324;
+  --btn-link-text: #3b82f6;
+  --btn-disabled-bg: #242324;
+  --btn-disabled-text: #605f63;
+  --btn-danger-bg: #7f1d1d;
+  --btn-danger-text: #fecaca;
+  --btn-danger-shadow: inset 0px 2px 4px rgba(255,255,255,0.12);
 
   /* ── App tokens (Health / Life / Home) ── */
   --app-bg: #121214;
@@ -2137,11 +2192,11 @@ const DS_THEME_STYLES = `
   --ds-error-text: #dc2626;
   --ds-selected-bg: rgba(168,85,247,0.1);
   --ds-selected-border: rgba(168,85,247,0.4);
-  --ds-cta-bg: #6D28D9;
-  --ds-cta-hover: #5B21B6;
+  --ds-cta-bg: #6841e6;
+  --ds-cta-hover: #582fd2;
   --ds-cta-text: #FFFFFF;
   --ds-progress-bg: rgba(0,0,0,0.08);
-  --ds-progress-fill: linear-gradient(90deg,#6D28D9,#7C3AED);
+  --ds-progress-fill: linear-gradient(90deg,#6841e6,#bdb8fa);
   --ds-overlay-bg: rgba(0,0,0,0.05);
   --ds-glass-bg: rgba(255,255,255,0.95);
   --ds-header-bg: #EDE9FA;
@@ -2154,6 +2209,26 @@ const DS_THEME_STYLES = `
   --ds-bubble-bg: #FFFFFF;
   --ds-bubble-border: rgba(0,0,0,0.10);
   --ds-feature-check: #059669;
+
+  /* ── Button tokens ── */
+  --btn-primary-bg: #6841e6;
+  --btn-primary-text: #ffffff;
+  --btn-primary-shadow: inset 0px 2px 2px rgba(255,255,255,0.12);
+  --btn-secondary-bg: #f5f3ff;
+  --btn-secondary-border: #bdb8fa;
+  --btn-secondary-text: #582fd2;
+  --btn-secondary-shadow: inset 0px 2px 4px rgba(255,255,255,0.28);
+  --btn-inverted-bg: #f5f5f5;
+  --btn-inverted-text: #582fd2;
+  --btn-inverted-shadow: none;
+  --btn-ghost-text: #6841e6;
+  --btn-ghost-hover-bg: #f5f3ff;
+  --btn-link-text: #2563eb;
+  --btn-disabled-bg: #f5f5f5;
+  --btn-disabled-text: #8f8e92;
+  --btn-danger-bg: #fee2e2;
+  --btn-danger-text: #dc2626;
+  --btn-danger-shadow: inset 0px 2px 4px rgba(255,255,255,0.28);
 
   /* ── App tokens (Health / Life / Home) ── */
   --app-bg: #EDE9FA;
@@ -2278,6 +2353,15 @@ const DS_THEME_STYLES = `
 [data-ds-theme="light"] .bg-red-500\\/15 { background-color: rgba(239,68,68,0.12) !important; }
 [data-ds-theme="light"] .bg-blue-500\\/15 { background-color: rgba(59,130,246,0.12) !important; }
 [data-ds-theme="light"] .bg-violet-500\\/20 { background-color: rgba(139,92,246,0.12) !important; }
+
+/* ── Button hover & interaction rules ── */
+.ds-btn-ghost:not(:disabled):hover { background: var(--btn-ghost-hover-bg) !important; }
+.ds-btn-link:not(:disabled) span { text-decoration: none; }
+.ds-btn-link:not(:disabled):hover span { text-decoration: underline; text-underline-offset: 2px; }
+.ds-btn-primary:not(:disabled):hover { filter: brightness(1.08); }
+.ds-btn-secondary:not(:disabled):hover { filter: brightness(1.05); }
+.ds-btn-inverted:not(:disabled):hover { filter: brightness(0.95); }
+.ds-btn-danger:not(:disabled):hover { filter: brightness(1.08); }
 `;
 
 function SelectorShowcase() {
@@ -2444,6 +2528,21 @@ export default function DesignSystemPage() {
                       { name: '--ds-cta-text', desc: 'Primary CTA text' },
                       { name: '--ds-selected-bg', desc: 'Selected state fill' },
                       { name: '--ds-selected-border', desc: 'Selected state ring' },
+                    ]},
+                    { group: 'Buttons', tokens: [
+                      { name: '--btn-primary-bg', desc: 'Primary button bg' },
+                      { name: '--btn-primary-text', desc: 'Primary button text' },
+                      { name: '--btn-secondary-bg', desc: 'Secondary button bg' },
+                      { name: '--btn-secondary-border', desc: 'Secondary button border' },
+                      { name: '--btn-secondary-text', desc: 'Secondary button text' },
+                      { name: '--btn-inverted-bg', desc: 'Inverted button bg' },
+                      { name: '--btn-inverted-text', desc: 'Inverted button text' },
+                      { name: '--btn-ghost-text', desc: 'Ghost button text' },
+                      { name: '--btn-link-text', desc: 'Link button text' },
+                      { name: '--btn-disabled-bg', desc: 'Disabled button bg' },
+                      { name: '--btn-disabled-text', desc: 'Disabled button text' },
+                      { name: '--btn-danger-bg', desc: 'Danger button bg' },
+                      { name: '--btn-danger-text', desc: 'Danger button text' },
                     ]},
                     { group: 'Feedback', tokens: [
                       { name: '--ds-success', desc: 'Success / check' },
