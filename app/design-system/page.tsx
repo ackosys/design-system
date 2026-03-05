@@ -2174,10 +2174,16 @@ function AssetLibrary() {
         <VehicleImageGallery />
       </section>
 
-      {/* ── Logos ── */}
+      {/* ── ACKO Brand Logos ── */}
       <section>
-        <SectionHeader title="Logos" description="43 vehicle brand SVGs + 4 ACKO brand logos — public/logos/" />
-        <LogoGallery />
+        <SectionHeader title="Brand Logos" description="4 ACKO logo variants — public/logos/brand/" />
+        <AckoBrandLogos />
+      </section>
+
+      {/* ── Vehicle Brand Logos ── */}
+      <section>
+        <SectionHeader title="Vehicle Brand Logos" description={`${VEHICLE_LOGOS.length} vehicle brand SVGs — public/logos/vehicles/`} />
+        <VehicleLogoGallery />
       </section>
     </>
   );
@@ -2187,7 +2193,7 @@ function AssetLibrary() {
    Vehicle Image Gallery
 ───────────────────────────────────────── */
 
-type VehicleType = 'all' | 'car' | 'bike';
+type VehicleType = 'all' | 'car' | 'bike' | 'fallback';
 
 const VEHICLE_IMAGES: { name: string; type: VehicleType; file: string }[] = [
   // Cars
@@ -2207,6 +2213,17 @@ const VEHICLE_IMAGES: { name: string; type: VehicleType; file: string }[] = [
   { name: 'Splendor', type: 'bike', file: 'Splendor.png' },
   { name: 'KTM', type: 'bike', file: 'KTM.png' },
   { name: 'Kawasaki', type: 'bike', file: 'kawasaki.png' },
+  // Fallbacks
+  { name: 'Car Sedan', type: 'fallback', file: 'Car Sedan Light-Default.png' },
+  { name: 'Car Small', type: 'fallback', file: 'Car small-Default.png' },
+  { name: 'SUV', type: 'fallback', file: 'SUV Light-Default.png' },
+  { name: 'Coupe', type: 'fallback', file: 'Coupe-Default.png' },
+  { name: 'Convertible', type: 'fallback', file: 'Convertible-Default.png' },
+  { name: 'MPV', type: 'fallback', file: 'MPV- Default.png' },
+  { name: 'Van', type: 'fallback', file: 'Van-Default.png' },
+  { name: 'Pick Up', type: 'fallback', file: 'Pick up-Default.png' },
+  { name: 'Scooter', type: 'fallback', file: 'Scooter-Default.png' },
+  { name: 'Bike', type: 'fallback', file: 'Bike-Default.png' },
 ];
 
 function VehicleImageGallery() {
@@ -2224,14 +2241,20 @@ function VehicleImageGallery() {
     <>
       {/* Filter tabs */}
       <div className="flex gap-1.5 p-1 rounded-xl mb-6 w-fit" style={{ background: 'var(--ds-surface-2)' }}>
-        {(['all', 'car', 'bike'] as VehicleType[]).map(t => (
+        {(['all', 'car', 'bike', 'fallback'] as VehicleType[]).map(t => (
           <button key={t} onClick={() => setFilter(t)}
             className="px-4 py-2 rounded-lg text-[12px] font-semibold transition-all capitalize"
             style={{
               background: filter === t ? 'var(--ds-cta-bg)' : 'transparent',
               color: filter === t ? 'var(--ds-cta-text)' : 'var(--ds-text-secondary)',
             }}>
-            {t === 'all' ? `All (${VEHICLE_IMAGES.length})` : t === 'car' ? `Cars (${VEHICLE_IMAGES.filter(v => v.type === 'car').length})` : `Bikes (${VEHICLE_IMAGES.filter(v => v.type === 'bike').length})`}
+            {t === 'all'
+              ? `All (${VEHICLE_IMAGES.length})`
+              : t === 'car'
+              ? `Cars (${VEHICLE_IMAGES.filter(v => v.type === 'car').length})`
+              : t === 'bike'
+              ? `Bikes (${VEHICLE_IMAGES.filter(v => v.type === 'bike').length})`
+              : `Fallbacks (${VEHICLE_IMAGES.filter(v => v.type === 'fallback').length})`}
           </button>
         ))}
       </div>
@@ -2271,13 +2294,12 @@ function VehicleImageGallery() {
    Logo Gallery
 ───────────────────────────────────────── */
 
-type LogoCategory = 'all' | 'brand' | 'vehicle';
-
-const BRAND_LOGOS: { name: string; file: string }[] = [
-  { name: 'ACKO Master', file: 'ACKO Logo Master.svg' },
-  { name: 'ACKO Full Black', file: 'ACKO Logo Full Black.svg' },
-  { name: 'ACKO Full White', file: 'ACKO Logo Full White.svg' },
-  { name: 'ACKO White Text', file: 'ACKO Logo with white text.svg' },
+// Each ACKO brand logo needs its own background to render correctly
+const BRAND_LOGOS: { name: string; file: string; bg: string; desc: string }[] = [
+  { name: 'ACKO Master', file: 'ACKO Logo Master.svg', bg: '#6841e6', desc: 'On purple' },
+  { name: 'ACKO Full Black', file: 'ACKO Logo Full Black.svg', bg: '#FFFFFF', desc: 'On white' },
+  { name: 'ACKO Full White', file: 'ACKO Logo Full White.svg', bg: '#121214', desc: 'On dark' },
+  { name: 'ACKO White Text', file: 'ACKO Logo with white text.svg', bg: '#121214', desc: 'On dark' },
 ];
 
 const VEHICLE_LOGOS: { name: string; file: string }[] = [
@@ -2326,67 +2348,100 @@ const VEHICLE_LOGOS: { name: string; file: string }[] = [
   { name: 'Volvo', file: 'Volvo.svg' },
 ];
 
-function LogoGallery() {
-  const [filter, setFilter] = useState<LogoCategory>('all');
+function AckoBrandLogos() {
+  const [copiedName, setCopiedName] = useState<string | null>(null);
+  const handleCopy = (file: string, name: string) => {
+    navigator.clipboard.writeText(`/logos/brand/${file}`);
+    setCopiedName(name);
+    setTimeout(() => setCopiedName(null), 1500);
+  };
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {BRAND_LOGOS.map(logo => {
+        const isCopied = copiedName === logo.name;
+        return (
+          <button key={logo.file} onClick={() => handleCopy(logo.file, logo.name)}
+            title={`Click to copy path\n/logos/brand/${logo.file}`}
+            className="group flex flex-col rounded-2xl overflow-hidden transition-all active:scale-95"
+            style={{
+              border: `1px solid ${isCopied ? 'var(--ds-success)' : 'var(--ds-border-strong)'}`,
+            }}>
+            {/* Logo preview — uses the logo's own specified background, no CSS filter */}
+            <div className="w-full h-32 flex items-center justify-center p-6 transition-transform group-hover:scale-[1.02]"
+              style={{ background: logo.bg }}>
+              <img src={`/logos/brand/${logo.file}`} alt={logo.name} className="w-full h-full object-contain" />
+            </div>
+            {/* Label row */}
+            <div className="px-3 py-2.5 flex items-center justify-between" style={{ background: 'var(--ds-surface)' }}>
+              <div>
+                <p className="text-[12px] font-semibold" style={{ color: isCopied ? 'var(--ds-success)' : 'var(--ds-text)' }}>
+                  {isCopied ? '✓ Copied!' : logo.name}
+                </p>
+                <p className="text-[10px] font-mono mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{logo.desc}</p>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'var(--ds-overlay-bg)', color: 'var(--ds-accent)' }}>SVG</span>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function VehicleLogoGallery() {
+  const [search, setSearch] = useState('');
   const [copiedName, setCopiedName] = useState<string | null>(null);
 
-  const allLogos = [
-    ...BRAND_LOGOS.map(l => ({ ...l, category: 'brand' as LogoCategory, path: `/logos/brand/${l.file}` })),
-    ...VEHICLE_LOGOS.map(l => ({ ...l, category: 'vehicle' as LogoCategory, path: `/logos/vehicles/${l.file}` })),
-  ];
-  const filtered = filter === 'all' ? allLogos : allLogos.filter(l => l.category === filter);
+  const filtered = VEHICLE_LOGOS.filter(l =>
+    search === '' || l.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const handleCopy = (path: string, name: string) => {
-    navigator.clipboard.writeText(path);
+  const handleCopy = (file: string, name: string) => {
+    navigator.clipboard.writeText(`/logos/vehicles/${file}`);
     setCopiedName(name);
     setTimeout(() => setCopiedName(null), 1500);
   };
 
   return (
     <>
-      {/* Filter tabs */}
-      <div className="flex gap-1.5 p-1 rounded-xl mb-6 w-fit" style={{ background: 'var(--ds-surface-2)' }}>
-        {([
-          { id: 'all', label: `All (${allLogos.length})` },
-          { id: 'brand', label: `ACKO Brand (${BRAND_LOGOS.length})` },
-          { id: 'vehicle', label: `Vehicle Brands (${VEHICLE_LOGOS.length})` },
-        ] as { id: LogoCategory; label: string }[]).map(t => (
-          <button key={t.id} onClick={() => setFilter(t.id)}
-            className="px-4 py-2 rounded-lg text-[12px] font-semibold transition-all"
-            style={{
-              background: filter === t.id ? 'var(--ds-cta-bg)' : 'transparent',
-              color: filter === t.id ? 'var(--ds-cta-text)' : 'var(--ds-text-secondary)',
-            }}>
-            {t.label}
-          </button>
-        ))}
+      <div className="relative mb-5 max-w-xs">
+        <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+          placeholder={`Search ${VEHICLE_LOGOS.length} brands...`}
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[13px] font-medium transition-colors focus:outline-none"
+          style={{ background: 'var(--ds-input-bg)', border: '1px solid var(--ds-input-border)', color: 'var(--ds-input-text)' }} />
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-        {filtered.map(logo => (
-          <button key={logo.path} onClick={() => handleCopy(logo.path, logo.name)}
-            title={`Click to copy path\n${logo.path}`}
-            className="group flex flex-col items-center gap-2.5 p-3 rounded-xl transition-all active:scale-95"
-            style={{
-              background: copiedName === logo.name ? 'var(--ds-success-bg)' : 'var(--ds-surface)',
-              border: `1px solid ${copiedName === logo.name ? 'var(--ds-success)' : 'var(--ds-border-strong)'}`,
-            }}>
-            <div className="w-12 h-12 flex items-center justify-center rounded-lg overflow-hidden"
-              style={{ background: logo.category === 'brand' ? 'var(--ds-surface-2)' : 'var(--ds-surface-2)' }}>
-              <img
-                src={logo.path}
-                alt={logo.name}
-                className="w-10 h-10 object-contain transition-transform group-hover:scale-110"
-                style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }}
-              />
-            </div>
-            <p className="text-[10px] font-medium text-center leading-tight w-full truncate"
-              style={{ color: copiedName === logo.name ? 'var(--ds-success)' : 'var(--ds-text-secondary)' }}>
-              {copiedName === logo.name ? '✓ Copied!' : logo.name}
-            </p>
-          </button>
-        ))}
+      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
+        {filtered.map(logo => {
+          const isCopied = copiedName === logo.name;
+          return (
+            <button key={logo.file} onClick={() => handleCopy(logo.file, logo.name)}
+              title={`Click to copy\n/logos/vehicles/${logo.file}`}
+              className="group flex flex-col items-center gap-2 p-3 rounded-xl transition-all active:scale-95"
+              style={{
+                background: isCopied ? 'var(--ds-success-bg)' : 'var(--ds-surface)',
+                border: `1px solid ${isCopied ? 'var(--ds-success)' : 'var(--ds-border-strong)'}`,
+              }}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden p-1.5" style={{ background: 'var(--ds-surface-2)' }}>
+                <img src={`/logos/vehicles/${logo.file}`} alt={logo.name}
+                  className="w-full h-full object-contain transition-transform group-hover:scale-110"
+                  style={{ filter: 'var(--ds-icon-filter)', opacity: 'var(--ds-icon-opacity)' }} />
+              </div>
+              <p className="text-[9px] font-medium text-center leading-tight w-full truncate"
+                style={{ color: isCopied ? 'var(--ds-success)' : 'var(--ds-text-tertiary)' }}>
+                {isCopied ? '✓ Copied!' : logo.name}
+              </p>
+            </button>
+          );
+        })}
       </div>
+      {filtered.length === 0 && (
+        <p className="text-center py-8 text-[13px]" style={{ color: 'var(--ds-text-tertiary)' }}>No brands match &ldquo;{search}&rdquo;</p>
+      )}
     </>
   );
 }
