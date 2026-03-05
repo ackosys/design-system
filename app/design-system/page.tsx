@@ -779,6 +779,167 @@ function SummaryCard({
   );
 }
 
+/* ═══════════════════════════════════════════════
+   PlanSelector — Unified plan comparison molecule
+   Tab bar switches between plan cards
+   ═══════════════════════════════════════════════ */
+
+interface PlanInfoSection {
+  title: string;
+  description: string;
+}
+
+interface PlanOption {
+  id: string;
+  name: string;
+  badge?: string;
+  price: string;
+  priceUnit?: string;
+  priceSecondary?: string;
+  description?: string;
+  learnMoreLabel?: string;
+  benefits: string[];
+  benefitsVisibleCount?: number;
+  infoSections?: PlanInfoSection[];
+  exclusions?: string[];
+  ctaLabel: string;
+}
+
+function PlanCard({ plan }: { plan: PlanOption }) {
+  const [expanded, setExpanded] = useState(false);
+  const visibleCount = plan.benefitsVisibleCount ?? 3;
+  const hasMore = plan.benefits.length > visibleCount;
+  const visibleBenefits = expanded ? plan.benefits : plan.benefits.slice(0, visibleCount);
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--app-plan-card-bg, var(--ds-surface))', border: '1px solid var(--app-plan-card-border, var(--ds-border-strong))' }}>
+      <div className="px-5 pt-5 pb-4">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-[20px] font-bold leading-tight" style={{ color: 'var(--ds-text)' }}>{plan.name}</h3>
+          {plan.badge && (
+            <span className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap"
+              style={{ border: '1px solid var(--app-plan-card-border, var(--ds-border-strong))', color: 'var(--ds-text-secondary)' }}>
+              {plan.badge}
+            </span>
+          )}
+        </div>
+        {plan.description && (
+          <p className="text-[13px] mt-1.5 leading-snug" style={{ color: 'var(--ds-text-secondary)' }}>{plan.description}</p>
+        )}
+        <div className="mt-3">
+          <span className="text-[28px] font-bold" style={{ color: 'var(--ds-text)' }}>{plan.price}</span>
+          {plan.priceUnit && <span className="text-[15px] ml-1" style={{ color: 'var(--ds-text-secondary)' }}>{plan.priceUnit}</span>}
+        </div>
+        {plan.priceSecondary && (
+          <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-text-tertiary)' }}>{plan.priceSecondary}</p>
+        )}
+      </div>
+
+      <div className="mx-5" style={{ height: '1px', background: 'var(--ds-divider)' }} />
+
+      <div className="px-5 py-4">
+        <div className="space-y-2.5">
+          {visibleBenefits.map((b, i) => (
+            <motion.div key={b} initial={expanded && i >= visibleCount ? { opacity: 0, y: -4 } : false}
+              animate={{ opacity: 1, y: 0 }} transition={{ delay: (i - visibleCount) * 0.03, duration: 0.15, ease: [0.215, 0.61, 0.355, 1] }}
+              className="flex items-start gap-2.5">
+              <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="var(--ds-feature-check, var(--ds-success))" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-[13px]" style={{ color: 'var(--ds-text-secondary)' }}>{b}</span>
+            </motion.div>
+          ))}
+        </div>
+
+        {hasMore && (
+          <button onClick={() => setExpanded(!expanded)} className="mt-3 flex items-center gap-1 text-[13px] font-medium"
+            style={{ color: 'var(--ds-link)', transition: 'opacity var(--duration-micro) ease' }}>
+            <span className="underline underline-offset-2">{expanded ? 'Show less' : 'See all benefits'}</span>
+            <svg className="w-3.5 h-3.5" style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform var(--duration-standard) var(--ease-out-cubic)' }}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        )}
+
+        {plan.learnMoreLabel && !hasMore && (
+          <div className="mt-3">
+            <DsLink>{plan.learnMoreLabel}</DsLink>
+          </div>
+        )}
+      </div>
+
+      {expanded && plan.infoSections && plan.infoSections.length > 0 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, ease: [0.215, 0.61, 0.355, 1] }}>
+          {plan.infoSections.map((sec, i) => (
+            <div key={i}>
+              <div className="mx-5" style={{ height: '1px', background: 'var(--ds-divider)' }} />
+              <div className="px-5 py-4">
+                <p className="text-[14px] font-semibold mb-1" style={{ color: 'var(--ds-text)' }}>{sec.title}</p>
+                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--ds-text-tertiary)' }}>{sec.description}</p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
+      {expanded && plan.exclusions && plan.exclusions.length > 0 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1, ease: [0.215, 0.61, 0.355, 1] }}>
+          <div className="mx-5" style={{ height: '1px', background: 'var(--ds-divider)' }} />
+          <div className="px-5 py-4">
+            <p className="text-[13px] font-semibold mb-2.5" style={{ color: 'var(--ds-text)' }}>Not covered</p>
+            <div className="space-y-2">
+              {plan.exclusions.map((ex) => (
+                <div key={ex} className="flex items-start gap-2.5">
+                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="var(--ds-text-tertiary)" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span className="text-[13px]" style={{ color: 'var(--ds-text-tertiary)' }}>{ex}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+    </div>
+  );
+}
+
+function PlanSelector({ plans }: { plans: PlanOption[] }) {
+  const [activeTab, setActiveTab] = useState(0);
+  const activePlan = plans[activeTab];
+
+  return (
+    <div className="max-w-md">
+      <div className="flex p-1 rounded-xl mb-4" style={{ background: 'var(--app-tab-bg, var(--ds-surface-2))' }}>
+        {plans.map((p, i) => (
+          <button key={p.id} onClick={() => setActiveTab(i)}
+            className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold text-center"
+            style={{
+              background: activeTab === i ? 'var(--ds-accent)' : 'transparent',
+              color: activeTab === i ? '#FFFFFF' : 'var(--ds-text-secondary)',
+              transition: 'background var(--duration-standard) var(--ease-out-cubic), color var(--duration-standard) var(--ease-out-cubic)',
+            }}>
+            {p.name}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div key={activePlan.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.25, ease: [0.215, 0.61, 0.355, 1] }}>
+          <PlanCard plan={activePlan} />
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="mt-4">
+        <DsButton fullWidth>{activePlan.ctaLabel}</DsButton>
+      </div>
+    </div>
+  );
+}
+
 interface RedirectionStep {
   label: string;
   description: string;
@@ -3683,6 +3844,40 @@ export default function DesignSystemPage() {
               </div>
             </section>
 
+            {/* Plan Selection */}
+            <section>
+              <SectionHeader title="PlanSelector" description="Tabbed plan comparison — expandable benefits, info sections, exclusions. Same component used by health and motor with different data." />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <WidgetCard title="Plan Selector" widgetType="PlanSelector — tab bar + PlanCard with expandable benefits">
+                  <PlanSelector plans={[
+                    {
+                      id: 'premium', name: 'Premium', badge: 'Most popular',
+                      price: '₹1,499', priceUnit: '/month', priceSecondary: 'or ₹15,999/year (save 7%)',
+                      description: 'Full coverage with maximum benefits',
+                      benefits: [
+                        'All-inclusive coverage', 'Priority support', '24/7 assistance',
+                        'No deductibles', 'Cashless service', 'Annual review',
+                      ],
+                      benefitsVisibleCount: 3,
+                      infoSections: [
+                        { title: 'Eligibility', description: 'Available for all age groups. No medical tests required for ages 18-45.' },
+                      ],
+                      exclusions: ['Pre-existing conditions (Year 1)', 'Cosmetic procedures'],
+                      ctaLabel: 'Choose Premium',
+                    },
+                    {
+                      id: 'basic', name: 'Basic',
+                      price: '₹599', priceUnit: '/month', priceSecondary: 'or ₹6,499/year (save 10%)',
+                      description: 'Essential coverage at an affordable price',
+                      benefits: ['Core coverage', 'Email support', 'Standard processing'],
+                      benefitsVisibleCount: 3,
+                      ctaLabel: 'Choose Basic',
+                    },
+                  ]} />
+                </WidgetCard>
+              </div>
+            </section>
+
             {/* Progress */}
             <section>
               <SectionHeader title="StepProgress" description="Sequential step displays — ProgressLoader, CalculationLoader, StepTracker (merged timeline)" />
@@ -3887,12 +4082,62 @@ export default function DesignSystemPage() {
                     { id: 'yearly', label: 'Yearly', description: '₹12,999/yr', badge: 'Save 17%' },
                   ]} onSelect={() => {}} />
                 </WidgetCard>
-                <WidgetCard title="Plan Switcher" widgetType="plan_switcher — tier tabs with feature comparison">
-                  <SelectionCard layout="grid" options={[
-                    { id: 'platinum', label: 'Platinum', description: '₹12,999/yr' },
-                    { id: 'lite', label: 'Lite', description: '₹8,499/yr' },
-                    { id: 'topup', label: 'Top-up', description: '₹3,999/yr' },
-                  ]} onSelect={() => {}} />
+              </div>
+            </section>
+
+            <section>
+              <SectionHeader title="PlanSelector" description="Health plan comparison — tabbed tier switching with expandable benefits, info sections, and exclusions" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <WidgetCard title="Plan comparison" widgetType="PlanSelector — Platinum / Lite / Top-up">
+                  <PlanSelector plans={[
+                    {
+                      id: 'platinum', name: 'Platinum', badge: 'Most comprehensive',
+                      price: '₹903', priceUnit: '/month', priceSecondary: 'or ₹10,030/year (save 8%)',
+                      description: 'Most comprehensive plan with zero waiting on specific illnesses',
+                      benefits: [
+                        'Zero waiting period for specific illnesses', 'No room rent limit', 'Consumables covered',
+                        'Restore Sum Insured (100%)', 'Inflation Protect SI (10% annual increase)',
+                        'Cashless at 14,000+ hospitals', 'No co-payment',
+                        'Pre & post hospitalisation covered', 'Day care treatment covered',
+                        'Ambulance charges covered', 'Annual health check-up', 'Second opinion benefit',
+                      ],
+                      benefitsVisibleCount: 3,
+                      infoSections: [
+                        { title: 'Waiting period', description: 'No waiting for specific illnesses. 30-day initial waiting only.' },
+                        { title: 'Health evaluation', description: 'Full health evaluation required — phone call with doctor + medical tests for all members.' },
+                      ],
+                      exclusions: ['Maternity (coming soon)', 'Dental unless due to accident', 'Cosmetic procedures', 'Experimental treatments'],
+                      ctaLabel: 'Continue with ACKO Platinum',
+                    },
+                    {
+                      id: 'lite', name: 'Lite',
+                      price: '₹583', priceUnit: '/month', priceSecondary: 'or ₹6,499/year (save 8%)',
+                      description: 'Essential coverage at an affordable premium',
+                      benefits: [
+                        'Room rent up to ₹5,000/day', 'Consumables covered',
+                        'Cashless at 14,000+ hospitals', '10% co-payment above 45 yrs',
+                        'Pre & post hospitalisation covered', 'Day care treatment covered',
+                      ],
+                      benefitsVisibleCount: 3,
+                      infoSections: [
+                        { title: 'Waiting period', description: '2-year waiting for specific illnesses. 30-day initial waiting.' },
+                      ],
+                      exclusions: ['Maternity', 'Dental', 'Cosmetic procedures', 'Restore benefit'],
+                      ctaLabel: 'Continue with ACKO Lite',
+                    },
+                    {
+                      id: 'topup', name: 'Top-up',
+                      price: '₹299', priceUnit: '/month', priceSecondary: 'or ₹3,299/year (save 8%)',
+                      description: 'Extra cover on top of your existing health insurance',
+                      benefits: [
+                        'Activates above ₹5L deductible', 'No room rent limit',
+                        'Consumables covered', 'Cashless at 14,000+ hospitals',
+                      ],
+                      benefitsVisibleCount: 3,
+                      exclusions: ['Standalone use', 'OPD treatments'],
+                      ctaLabel: 'Continue with Top-up',
+                    },
+                  ]} />
                 </WidgetCard>
               </div>
             </section>
@@ -4079,6 +4324,32 @@ export default function DesignSystemPage() {
                     { id: 'honda', label: 'Honda' }, { id: 'mg', label: 'MG' },
                     { id: 'vw', label: 'Volkswagen' },
                   ]} onSelect={() => {}} />
+                </WidgetCard>
+              </div>
+            </section>
+
+            <section>
+              <SectionHeader title="PlanSelector" description="Motor plan comparison — Zero Dep vs Comprehensive tabbed view" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <WidgetCard title="Plan selection" widgetType="PlanSelector — Zero Dep / Comprehensive">
+                  <PlanSelector plans={[
+                    {
+                      id: 'zerodep', name: 'Zero Dep', badge: 'Recommended',
+                      price: '₹24,582',
+                      description: 'Covers damage to your car and damage caused by your car to others and their property. Covers full cost of car parts if they are replaced during repairs.',
+                      learnMoreLabel: 'Learn more',
+                      benefits: ['Zero depreciation', 'Accidents', 'Fire, theft and calamities'],
+                      ctaLabel: 'Select this plan',
+                    },
+                    {
+                      id: 'comprehensive', name: 'Comprehensive',
+                      price: '₹19,161',
+                      description: 'Covers damage to your car and damage caused by your car to others and their property.',
+                      learnMoreLabel: 'Learn more',
+                      benefits: ['Accidents', 'Fire, theft and calamities', 'Rat-bite protection'],
+                      ctaLabel: 'Select this plan',
+                    },
+                  ]} />
                 </WidgetCard>
               </div>
             </section>
